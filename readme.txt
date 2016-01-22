@@ -1,7 +1,7 @@
 === WP PGP Encrypted Emails ===
 Contributors: meitar
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
-Tags: community, emergency response
+Tags: encryption, email, security, privacy, pgp, gpg, openpgp
 Requires at least: 4.4
 Tested up to: 4.4.1
 Stable tag: 0.1
