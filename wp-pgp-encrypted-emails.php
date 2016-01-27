@@ -7,7 +7,7 @@
  * * Plugin Name: WP PGP Encrypted Emails
  * * Plugin URI: https://github.com/meitar/wp-pgp-encrypted-emails
  * * Description: Encrypts all emails sent to a given user if that user adds a PGP public key to their profile. <strong>Like this plugin? Please <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="Send a donation to the developer of WP PGP Encrypted Emails">donate</a>. &hearts; Thank you!</strong>
- * * Version: 0.1
+ * * Version: 0.1.1
  * * Author: Maymay <bitetheappleback@gmail.com>
  * * Author URI: https://maymay.net/
  * * License: GPL-3
@@ -419,14 +419,16 @@ class WP_PGP_Encrypted_Emails {
             $args['subject'] = '';
         }
 
-        try {
-            $gpg = new GPG();
-            $args['message'] = $gpg->encrypt($pub_key, $args['message']);
-        } catch (Exception $e) {
-            error_log(sprintf(
-                __('Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails'),
-                $args['to']
-            ));
+        if ($pub_key instanceof GPG_Public_Key) {
+            try {
+                $gpg = new GPG();
+                $args['message'] = $gpg->encrypt($pub_key, $args['message']);
+            } catch (Exception $e) {
+                error_log(sprintf(
+                    __('Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails'),
+                    $args['to']
+                ));
+            }
         }
 
         return $args;

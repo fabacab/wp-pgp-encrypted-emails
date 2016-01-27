@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp
 Requires at least: 4.4
 Tested up to: 4.4.1
-Stable tag: 0.1
+Stable tag: 0.1.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -93,8 +93,13 @@ As a workaround, simply create an unprivileged ("Subscriber" [role](https://code
 
 == Change log ==
 
-* Version 0.1:
-    * Initial release.
+= Version 0.1.1 =
+
+* Bugfix: Fix `Fatal error` in cases where the public key is set to `false`.
+
+= Version 0.1 =
+
+* Initial release.
 
 == Other notes ==
 
