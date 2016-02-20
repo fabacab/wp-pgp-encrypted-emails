@@ -3,8 +3,8 @@ Contributors: meitar
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp
 Requires at least: 4.4
-Tested up to: 4.4.1
-Stable tag: 0.1.1
+Tested up to: 4.4.2
+Stable tag: 0.1.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -92,6 +92,10 @@ As a workaround, simply create an unprivileged ("Subscriber" [role](https://code
 2. If the plugin detects a problem with your PGP public key, you will get a notice like the one shown here.
 
 == Change log ==
+
+= Version 0.1.2 =
+
+* [Security](https://github.com/meitar/wp-pgp-encrypted-emails/issues/3): Switch PGP library to [OpenPGP-PGP](https://github.com/singpolyma/openpgp-php).
 
 = Version 0.1.1 =
 
