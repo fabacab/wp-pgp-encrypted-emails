@@ -7,7 +7,7 @@
  * * Plugin Name: WP PGP Encrypted Emails
  * * Plugin URI: https://github.com/meitar/wp-pgp-encrypted-emails
  * * Description: Encrypts all emails sent to a given user if that user adds a PGP public key to their profile. <strong>Like this plugin? Please <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="Send a donation to the developer of WP PGP Encrypted Emails">donate</a>. &hearts; Thank you!</strong>
- * * Version: 0.1.2
+ * * Version: 0.2.0
  * * Author: Maymay <bitetheappleback@gmail.com>
  * * Author URI: https://maymay.net/
  * * License: GPL-3
@@ -93,12 +93,8 @@ class WP_PGP_Encrypted_Emails {
      * @return void
      */
     public static function initialize () {
-        if (!class_exists('OpenPGP')) {
-            require_once plugin_dir_path(__FILE__).'vendor/openpgp-php/vendor/autoload.php';
-            require_once plugin_dir_path(__FILE__).'vendor/openpgp-php/openpgp.php';
-            require_once plugin_dir_path(__FILE__).'vendor/openpgp-php/openpgp_crypt_rsa.php';
-            require_once plugin_dir_path(__FILE__).'vendor/openpgp-php/openpgp_crypt_symmetric.php';
-        }
+        require_once plugin_dir_path(__FILE__).'class-wp-openpgp.php';
+        WP_OpenPGP::register();
     }
 
     /**
@@ -182,8 +178,7 @@ class WP_PGP_Encrypted_Emails {
             $ascii_key = $wp_user->{self::$meta_key};
         }
 
-        $openpgp_msg = OpenPGP_Message::parse(OpenPGP::unarmor($ascii_key, 'PGP PUBLIC KEY BLOCK'));
-        return (is_null($openpgp_msg)) ? false : $openpgp_msg;
+        return apply_filters('openpgp_key', $ascii_key);
     }
 
     /**
@@ -192,9 +187,7 @@ class WP_PGP_Encrypted_Emails {
      * @return OpenPGP_Message|false
      */
     public static function getAdminKey () {
-        $ascii_key = get_option(self::$meta_key);
-        $openpgp_msg = OpenPGP_Message::parse(OpenPGP::unarmor($ascii_key, 'PGP PUBLIC KEY BLOCK'));
-        return (is_null($openpgp_msg)) ? false : $openpgp_msg;
+        return apply_filters('openpgp_key', get_option(self::$meta_key));
     }
 
     /**
@@ -367,6 +360,7 @@ class WP_PGP_Encrypted_Emails {
 </span>
 <?php
     }
+
     /**
      * Saves profile field values to the database on profile update.
      *
@@ -418,15 +412,7 @@ class WP_PGP_Encrypted_Emails {
 
         if ($pub_key instanceof OpenPGP_Message) {
             try {
-                $plain_data  = new OpenPGP_LiteralDataPacket(
-                    $args['message'],
-                    array('format' => 'u', 'filename' => 'encrypted.gpg')
-                );
-                $encrypted = OpenPGP_Crypt_Symmetric::encrypt(
-                    $pub_key,
-                    new OpenPGP_Message(array($plain_data))
-                );
-                $args['message'] = wordwrap(OpenPGP::enarmor($encrypted->to_bytes(), 'PGP MESSAGE'), 75, "\n", true);
+                $args['message'] = apply_filters('openpgp_encrypt', $args['message'], $pub_key);
             } catch (Exception $e) {
                 error_log(sprintf(
                     __('Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails'),

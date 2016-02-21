@@ -4,11 +4,11 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp
 Requires at least: 4.4
 Tested up to: 4.4.2
-Stable tag: 0.1.2
+Stable tag: 0.2.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Encrypts emails WordPress sends using PGP public keys.
+Encrypts emails WordPress sends using PGP public keys. Provides OpenPGP functions via WordPress plugin API.
 
 == Description ==
 
@@ -24,6 +24,8 @@ The encrypted emails can be decrypted by any OpenPGP-compatible mail client, suc
 
 * [The Electronic Frontier Foundation's Surveillance Self-Defense guide to PGP](https://ssd.eff.org/en/module/introduction-public-key-cryptography-and-pgp)
 * [RiseUp.net's OpenPGP best practices guide](https://help.riseup.net/en/gpg-best-practices)
+
+Additionally, WP PGP Encrypted Emails provides an easy to use API to OpenPGP operations through the familiar [WordPress plugin API](https://codex.wordpress.org/Plugin_API). See the [Other Notes](https://wordpress.org/plugins/wp-pgp-encrypted-emails/other_notes/) page for details.
 
 **Security Disclaimer**
 
@@ -108,3 +110,33 @@ As a workaround, simply create an unprivileged ("Subscriber" [role](https://code
 == Other notes ==
 
 If you like this plugin, **please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted) for your use of the plugin**, [purchasing one of Meitar's web development books](http://www.amazon.com/gp/redirect.html?ie=UTF8&location=http%3A%2F%2Fwww.amazon.com%2Fs%3Fie%3DUTF8%26redirect%3Dtrue%26sort%3Drelevancerank%26search-type%3Dss%26index%3Dbooks%26ref%3Dntt%255Fathr%255Fdp%255Fsr%255F2%26field-author%3DMeitar%2520Moscovitz&tag=maymaydotnet-20&linkCode=ur2&camp=1789&creative=390957) or, better yet, contributing directly to [Meitar's Cyberbusking fund](http://Cyberbusking.org/). (Publishing royalties ain't exactly the lucrative income it used to be, y'know?) Your support is appreciated!
+
+= Plugin hooks =
+
+This plugin offers additional functionality intended for other plugin developers or theme authors to make use of. This functionality is documented here.
+
+== Filters ==
+
+* `openpgp_key` - Gets a binary OpenPGP public key for use in later PGP operations from an ASCII-armored representation of that key.
+    * Required parameters:
+        * `string` `$key` - The ASCII-armored PGP public key block.
+
+Example: Get a key saved as an ASCII string in the WordPress database option `my_plugin_pgp_public_key`.
+
+    $key = apply_filters('openpgp_key', get_option('my_plugin_pgp_public_key'));
+
+* `openpgp_encrypt` - Encrypts data to one or more PGP public keys or passphrases.
+    * Required arguments:
+        * `string` `$data` - Data to encrypt.
+        * `array|string` `$keys` - Passphrases or keys to use to encrypt the data.
+
+Examples: Encrypt the content of a blog post.
+
+    // First, get the PGP public key(s) of the recipient(s)
+    $ascii_key = '-----BEGIN PGP PUBLIC KEY BLOCK-----
+    [...snipped for length...]
+    -----END PGP PUBLIC KEY BLOCK-----';
+    $encryption_key = apply_filters('openpgp_key', $ascii_key);
+    $encrypted_post = apply_filters('openpgp_encrypt', $post->post_content, $encryption_key);
+    // Now you can safely send or display $encrypted_post anywhere you like and only
+    // those who control the corresponding private key(s) can decrypt it.
