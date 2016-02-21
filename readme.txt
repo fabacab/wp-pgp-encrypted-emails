@@ -95,6 +95,10 @@ As a workaround, simply create an unprivileged ("Subscriber" [role](https://code
 
 == Change log ==
 
+= Version 0.2.0 =
+
+* [Developer](https://github.com/meitar/wp-pgp-encrypted-emails/issues/5): Added two new filters, `openpgp_key` and `openpgp_encrypt` so plugin developers and theme authors can encrypt arbitrary data, too.
+
 = Version 0.1.2 =
 
 * [Security](https://github.com/meitar/wp-pgp-encrypted-emails/issues/3): Switch PGP library to [OpenPGP-PGP](https://github.com/singpolyma/openpgp-php).
