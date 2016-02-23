@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp
 Requires at least: 4.4
 Tested up to: 4.4.2
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -87,13 +87,26 @@ More specifically, this means the "TO:" field of the outgoing email needs to mat
 
 As a workaround, simply create an unprivileged ("Subscriber" [role](https://codex.wordpress.org/Roles_and_Capabilities)) new WordPress user account with that email addresss and enter the PGP public key in that user's profile. (Accept the automatically generated password, since you will not need to remember it, as you will never need to log in with that user account.)
 
+= How do I read an encrypted comment? =
+
+If you have received a "Private" comment, you will need to use an OpenPGP-compatible PGP client to decrypt and read it. There are many free apps that do this. Which one you choose depends on what kind of computer you are already using. If you use Windows, I suggest installing and using [GPG4Win](https://www.gpg4win.org/) since it provides the most features. For Mac OS X users, I suggest [MacGPG](http://gpgtools.org/) for the same reason, and Linux users should check their distro's package repository for compatible options. (For Ubuntu users, the [Seahorse-Nautilus](http://packages.ubuntu.com/precise/gnome/seahorse-nautilus) plugin is popular.)
+
+We might add support for an in-browser client based on [OpenPGP.js](http://openpgpjs.org/) at some point, but for now you will still need an external program to read encrypted comments.
+
 == Screenshots ==
 
 1. Paste the plain text version of your PGP public key into the "PGP Public Key" field in your profile, then click "Save changes" at the bottom of the page. (There is a similar field for the WordPress admin email in the General Settings screen accessible to Administrator users.)
 
 2. If the plugin detects a problem with your PGP public key, you will get a notice like the one shown here.
 
+3. Authors who add a PGP public key to their profile also let readers leave semi-private comments on their posts. These are comments that are automatically encrypted to the author's public key upon submission. Commenters who want to send a "Private" comment simply write their comment normally and ensure the encryption checkbox is enabled when they submit their comment.
+
 == Change log ==
+
+= Version 0.3.0 =
+
+* [Feature](https://github.com/meitar/wp-pgp-encrypted-emails/issues/6): Authors with a PGP public key set in their profile can now receive "private" comments. Readers write their comment as normal, and can then enable the "Private" checkbox next to the comment submit button. This will automatically encrypt the comment to the post author's PGP public key and saves the comment in the WordPress database as an ASCII-armored string.
+    * This feature is *not* secure against eavesdropping, other network attackers, or malicious web host. It does *not* prevent server administrators from reading the contents of your comment. Rather, it prevents *other readers* or unprivileged users of the blog from reading your comment after it has been sent to the author. This is useful if, for instance, you want to communicate semi-privately with the author in an otherwise public forum (the comment thread) but do not know the author's email address, perhaps because the author themselves wish to remain pseudonymous (and thus do not provide a valid email address associated with their PGP key).
 
 = Version 0.2.0 =
 
