@@ -54,6 +54,7 @@ class WP_PGP_Encrypted_Emails {
      *
      * @uses add_action()
      * @uses add_filter()
+     * @uses remove_filter()
      * @uses register_activation_hook()
      * @uses register_deactivation_hook()
      *
@@ -69,6 +70,12 @@ class WP_PGP_Encrypted_Emails {
             add_action('admin_notices', array(__CLASS__, 'adminNoticeBadAdminKey'));
             add_action('show_user_profile', array(__CLASS__, 'renderProfile'));
             add_action('personal_options_update', array(__CLASS__, 'saveProfile'));
+        } else {
+            remove_filter('comment_text', 'wptexturize'); // we do wptexturize() ourselves
+            add_filter('comment_text', array(__CLASS__, 'commentText'));
+            add_filter('comment_form_submit_field', array(__CLASS__, 'renderCommentFormFields'));
+            add_filter('comment_class', array(__CLASS__, 'commentClass'), 10, 4);
+            add_filter('preprocess_comment', array(__CLASS__, 'preprocessComment'));
         }
 
         add_filter('wp_mail', array(__CLASS__, 'wp_mail'));
@@ -362,6 +369,72 @@ class WP_PGP_Encrypted_Emails {
     }
 
     /**
+     * Adds a "Private" checkbox to the comment form.
+     *
+     * @link https://developer.wordpress.org/reference/hooks/comment_form_submit_field/
+     *
+     * @param string $submit_field
+     *
+     * @return string
+     */
+    public static function renderCommentFormFields ($submit_field) {
+        $post = get_post();
+        $html = '';
+        if (self::getUserKey($post->post_author)) {
+            $author = get_userdata($post->post_author);
+            $html .= '<p class="comment-form-openpgp-encryption">';
+            $html .= '<label for="openpgp-encryption">'.esc_html__('Private', 'wp-pgp-encrypted-emails').'</label>';
+            $html .= '<input type="checkbox" id="openpgp-encryption" name="openpgp-encryption" value="1" />';
+            $html .= ' <span class="description">'.sprintf(esc_html__('You can encrypt your comment so that only %s can read it.', 'wp-pgp-encrypted-emails'), $author->display_name).'</span>';
+            $html .= '</p>';
+        }
+        return $html.$submit_field;
+    }
+
+    /**
+     * Adds an "openpgp-encryption" class to encrypted comments.
+     *
+     * @link https://developer.wordpress.org/reference/hooks/comment_class/
+     *
+     * @param array       $classes    An array of comment classes.
+     * @param string      $class      A comma-separated list of additional classes added to the list.
+     * @param int         $comment_id The comment id.
+     * @param WP_Comment  $comment    The comment object.
+     *
+     * @return array
+     */
+    public static function commentClass ($classes, $class, $comment_id, $comment) {
+        if (self::isEncrypted($comment->comment_content)) {
+            $classes[] = 'openpgp-encryption';
+        }
+        return $classes;
+    }
+
+    /**
+     * Whether the given text is an encrypted PGP MESSAGE block.
+     *
+     * @param string $text
+     *
+     * @return bool
+     */
+    public static function isEncrypted ($text) {
+        $lines = explode("\n", $text);
+        $first_line = trim(array_shift($lines));
+        return (0 === strpos($first_line, '-----BEGIN PGP MESSAGE')) ? true : false;
+    }
+
+    /**
+     * Texturizes comment text if it is not encrypted.
+     *
+     * @param string $text
+     *
+     * @return string
+     */
+    public static function commentText ($text) {
+        return (self::isEncrypted($text)) ? $text : wptexturize($text);
+    }
+
+    /**
      * Saves profile field values to the database on profile update.
      *
      * @global $_POST Used to access values submitted by profile form.
@@ -422,6 +495,24 @@ class WP_PGP_Encrypted_Emails {
         }
 
         return $args;
+    }
+
+    /**
+     * Encrypts comment content with the post author's public key.
+     *
+     * @link https://developer.wordpress.org/reference/hooks/preprocess_comment/
+     *
+     * @param array $comment_data
+     *
+     * @return array
+     */
+    public static function preprocessComment ($comment_data) {
+        $post = get_post($comment_data['comment_post_ID']);
+        $key = self::getUserKey($post->post_author);
+        if (!empty($_POST['openpgp-encryption']) && !self::isEncrypted($comment_data['comment_content']) && $key) {
+            $comment_data['comment_content'] = apply_filters('openpgp_encrypt', wp_unslash($comment_data['comment_content']), $key);
+        }
+        return $comment_data;
     }
 
 }
