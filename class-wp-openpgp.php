@@ -31,6 +31,8 @@ class WP_OpenPGP {
         add_filter('openpgp_enarmor', array(__CLASS__, 'enarmor'), 10, 3);
         add_filter('openpgp_encrypt', array(__CLASS__, 'encrypt'), 10, 3);
         add_filter('openpgp_key', array(__CLASS__, 'getKey'));
+        add_filter('openpgp_sign', array(__CLASS__, 'sign'), 10, 2);
+        add_filter('openpgp_sign_and_encrypt', array(__CLASS__, 'signAndEncrypt'), 10, 4);
     }
 
     /**
@@ -42,10 +44,58 @@ class WP_OpenPGP {
      */
     public static function getKey ($key, $ascii = true) {
         if ($ascii) {
-            $key = OpenPGP::unarmor($key, 'PGP PUBLIC KEY BLOCK');
+            preg_match('/-----BEGIN ([A-Za-z ]+)-----/', $key, $matches);
+            $marker = (empty($matches[1])) ? 'MESSAGE' : $matches[1];
+            $key = OpenPGP::unarmor($key, $marker);
         }
         $openpgp_msg = OpenPGP_Message::parse($key);
         return (is_null($openpgp_msg)) ? false : $openpgp_msg;
+    }
+
+    /**
+     * Sign arbitrary data with a key.
+     *
+     * @param string $data
+     * @param string $signing_key
+     *
+     * @return string
+     */
+    public static function clearsign ($data, $signing_key) {
+        $signer = new OpenPGP_Crypt_RSA($signing_key[0]);
+        $m = $signer->sign($data);
+        $packets = $m->signatures()[0];
+        $clearsign = "-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA256\n\n";
+        $clearsign .= preg_replace("/^-/", "- -",  $packets[0]->data)."\n";
+        return $clearsign.apply_filters('openpgp_enarmor', $packets[1][0]->to_bytes(), 'PGP SIGNATURE');
+    }
+
+    /**
+     * Signing is an alias to clearsign() right now.
+     *
+     * @param string $data
+     * @param string $signing_key
+     *
+     * @return string
+     */
+    public static function sign ($data, $signing_key) {
+        return self::clearsign($data, $signing_key);
+    }
+
+    /**
+     * Signs and then encrypts data.
+     *
+     * This is a shortcut for calling `sign()` and then `encrypt()`.
+     *
+     * @param string $data
+     * @param OpenPGP_SecretKeyPacket $signing_key
+     * @param array|string $recipient_keys_and_passphrases
+     * @param bool $armor
+     *
+     * return string
+     */
+    public static function signAndEncrypt ($data, $signing_key, $recipient_keys_and_passphrases, $armor = true) {
+        $signed_data = apply_filters('openpgp_sign', $data, $signing_key);
+        return apply_filters('openpgp_encrypt', $signed_data, $recipient_keys_and_passphrases, $armor);
     }
 
     /**
@@ -104,7 +154,7 @@ class WP_OpenPGP {
      *
      * @return OpenPGP_Message[]
      */
-    public static function generateKeypair ($identity, $bits = 4096) {
+    public static function generateKeypair ($identity, $bits = 2048) {
         if (2048 > $bits) {
             $error_msg = 'RSA keys with less than 2048 bits are unacceptable.';
             throw new UnexpectedValueException($error_msg);
@@ -117,8 +167,9 @@ class WP_OpenPGP {
         // but would LOOOOOVE to have someone more knowledgeable than
         // I am about this stuff double-check me here. Patches welcome!
 
-        $rsa = new Crypt_RSA(); // This is the line that causes the error.
+        $rsa = new \phpseclib\Crypt\RSA();
         $k = $rsa->createKey($bits);
+
         $rsa->loadKey($k['privatekey']);
 
         $nkey = new OpenPGP_SecretKeyPacket(array(

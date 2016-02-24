@@ -26,6 +26,21 @@
 
 if (!defined('ABSPATH')) { exit; } // Disallow direct HTTP access.
 
+if (!defined('WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION')) {
+    /**
+     * The minimum version of PHP needed to run the plugin.
+     *
+     * This is explicit because WordPress supports even older versions
+     * of PHP, so we check the running version on plugin activation.
+     *
+     * We need PHP 5.3.3 or later since the OpenPGP.php library we use
+     * requires at least that version.
+     *
+     * @link https://secure.php.net/manual/en/language.oop5.late-static-bindings.php
+     */
+    define('WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION', '5.3.3');
+}
+
 /**
  * Base class that WordPress uses to register and initialize plugin.
  */
@@ -78,12 +93,19 @@ class WP_PGP_Encrypted_Emails {
         add_action('plugins_loaded', array(__CLASS__, 'registerL10n'));
         add_action('init', array(__CLASS__, 'initialize'));
 
+        add_action('wp_ajax_openpgp_regen_keypair', array(__CLASS__, 'regenerateKeypair'));
+
         if (is_admin()) {
             add_action('admin_init', array(__CLASS__, 'registerAdminSettings'));
             add_action('admin_notices', array(__CLASS__, 'adminNoticeBadUserKey'));
             add_action('admin_notices', array(__CLASS__, 'adminNoticeBadAdminKey'));
             add_action('show_user_profile', array(__CLASS__, 'renderProfile'));
             add_action('personal_options_update', array(__CLASS__, 'saveProfile'));
+
+            $kp = get_option(self::$meta_keypair);
+            if (!$kp || empty($kp['privatekey'])) {
+                add_action('admin_notices', array(__CLASS__, 'showMissingSigningKeyNotice'));
+            }
         } else {
             remove_filter('comment_text', 'wptexturize'); // we do wptexturize() ourselves
             add_filter('comment_text', array(__CLASS__, 'commentText'));
@@ -128,25 +150,6 @@ class WP_PGP_Encrypted_Emails {
      */
     public static function activate () {
         self::checkPrereqs();
-
-        if (!get_option(self::$meta_keypair)) {
-            require_once plugin_dir_path(__FILE__).'class-wp-openpgp.php';
-
-            // Make up an email address for this website.
-            // This is also what the WordPress core wp_mail() function does.
-            // See: https://core.trac.wordpress.org/browser/tags/4.4.2/src/wp-includes/pluggable.php#L371
-            $sitename = strtolower( $_SERVER['SERVER_NAME'] );
-            if (substr($sitename, 0, 4) == 'www.') {
-                $sitename = substr($sitename, 4);
-            }
-            $from_email = 'wordpress@'.$sitename;
-
-            $keypair = WP_OpenPGP::generateKeypair("WordPress <$from_email>");
-            $ascii_keypair = array();
-            $ascii_keypair['privatekey'] = apply_filters('openpgp_enarmor', $keypair['privatekey'], 'PGP PRIVATE KEY BLOCK');
-            $ascii_keypair['publickey']  = apply_filters('openpgp_enarmor', $keypair['publickey'], 'PGP PUBLIC KEY BLOCK');
-            update_option(self::$meta_keypair, $ascii_keypair);
-        }
     }
 
     /**
@@ -167,6 +170,14 @@ class WP_PGP_Encrypted_Emails {
     public static function checkPrereqs () {
         global $wp_version;
         $min_wp_version = self::get_minimum_wordpress_version();
+
+        if (version_compare(WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION, PHP_VERSION) > 0) {
+            deactivate_plugins(plugin_basename(__FILE__));
+            wp_die(sprintf(
+                __('WP PGP Encrypted Emails requires at least PHP version %1$s. You have PHP version %2$s.', 'wp-pgp-encrypted-emails'),
+                WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION, PHP_VERSION
+            ));
+        }
         if (version_compare($min_wp_version, $wp_version) > 0) {
             deactivate_plugins(plugin_basename(__FILE__));
             wp_die(sprintf(
@@ -190,6 +201,22 @@ class WP_PGP_Encrypted_Emails {
             if ($m) {
                 return $m[1];
             }
+        }
+    }
+
+    /**
+     * Shows a notice on the Plugins screen that a signing key is missing.
+     *
+     * @return void
+     */
+    public static function showMissingSigningKeyNotice () {
+        $screen = get_current_screen();
+        if ($screen->base === 'plugins') {
+?>
+<div class="updated">
+    <p><a href="<?php print esc_attr(self::getKeypairRegenURL());?>" class="button"><?php esc_html_e('Generate PGP signing key', 'wp-pgp-encrypted-emails');?></a> &mdash; <?php print sprintf(esc_html__('Almost done! Generate an OpenPGP keypair for %s to sign outgoing emails.', 'wp-pgp-encrypted-emails'), get_bloginfo('name'));?></p>
+</div>
+<?php
         }
     }
 
@@ -244,7 +271,7 @@ class WP_PGP_Encrypted_Emails {
         // PGP Public Key
         add_settings_field(
             self::$meta_key,
-            __('PGP Public Key', 'wp-pgp-encrypted-emails'),
+            __('Admin Email PGP Public Key', 'wp-pgp-encrypted-emails'),
             array(__CLASS__, 'renderAdminKeySetting'),
             'general',
             'default',
@@ -255,7 +282,7 @@ class WP_PGP_Encrypted_Emails {
         register_setting(
             'general',
             self::$meta_key,
-            array(__CLASS__, 'sanitizeTextArea')
+            array(__CLASS__, 'sanitizeKeyASCII')
         );
 
         // PGP empty subject line?
@@ -274,6 +301,64 @@ class WP_PGP_Encrypted_Emails {
             self::$meta_key_empty_subject_line,
             array(__CLASS__, 'sanitizeCheckBox')
         );
+
+        // PGP signing keypair
+        add_settings_field(
+            self::$meta_keypair,
+            __('PGP Signing Keypair', 'wp-pgp-encrypted-emails'),
+            array(__CLASS__, 'renderSigningKeypairSetting'),
+            'general',
+            'default',
+            array(
+                'label_for' => self::$meta_keypair.'_publickey'
+            )
+        );
+        register_setting(
+            'general',
+            self::$meta_keypair,
+            array(__CLASS__, 'sanitizeSigningKeypair')
+        );
+    }
+
+    /**
+     * Sanitizes the signing keypair.
+     *
+     * @param string[] $input
+     *
+     * @uses wp_parse_args()
+     *
+     * @return string[]
+     */
+    public static function sanitizeSigningKeypair ($input) {
+        $old_keypair = get_option(self::$meta_keypair);
+        return wp_parse_args(self::sanitizeKeypairASCII($input), $old_keypair);
+    }
+
+    /**
+     * Sanitizes a PGP private/public keypair.
+     *
+     * @param string[] $keypair
+     *
+     * @return string[]
+     */
+    public static function sanitizeKeypairASCII ($keypair) {
+        $safe_input = array();
+        foreach ($keypair as $k => $v) {
+            $safe_input[$k] = self::sanitizeKeyASCII($v);
+        }
+        return $safe_input;
+    }
+
+    /**
+     * Sanitizes a PGP public key block.
+     *
+     * @param string $ascii_key
+     *
+     * @return string
+     */
+    public static function sanitizeKeyASCII ($ascii_key) {
+        // TODO: Be a bit smarter about this being a PGP public key.
+        return self::sanitizeTextArea($ascii_key);
     }
 
     /**
@@ -370,7 +455,8 @@ class WP_PGP_Encrypted_Emails {
 <textarea
     id="<?php print esc_attr(self::$meta_key);?>"
     name="<?php print esc_attr(self::$meta_key);?>"
-    style="width:100%;min-height:5em;"
+    class="large-text code"
+    rows="5"
 ><?php print esc_textarea(get_option(self::$meta_key));?></textarea>
 <p class="description">
     <?php print sprintf(
@@ -399,6 +485,133 @@ class WP_PGP_Encrypted_Emails {
     );?>
 </span>
 <?php
+    }
+
+    /**
+     * Gets a URL for a valid keypair regen request.
+     *
+     * @return string
+     */
+    private static function getKeypairRegenURL () {
+        return wp_nonce_url(
+            admin_url('admin-ajax.php').'?action=openpgp_regen_keypair',
+            'wp_pgp_regen_keypair', 'wp_pgp_nonce'
+        );
+    }
+
+    /**
+     * Prints the HTML for the plugin's signing keypair setting.
+     *
+     * @return void
+     */
+    public static function renderSigningKeypairSetting () {
+        $kp = get_option(self::$meta_keypair);
+        if (is_ssl()) {
+?>
+<label for="<?php print esc_attr(self::$meta_keypair)?>_privatekey">Private key</label>
+<textarea
+    id="<?php print esc_attr(self::$meta_keypair)?>_privatekey"
+    name="<?php print esc_attr(self::$meta_keypair)?>[privatekey]"
+    class="large-text code"
+    rows="5"
+><?php print esc_textarea($kp['privatekey']);?></textarea>
+<?php
+        } else {
+            print '<p class="notice error" style="border-left: 4px solid red; padding: 6px 12px;">';
+            print sprintf(
+                esc_html__('Private key is not shown over an insecure (HTTP) connection. %1$sSwitch to HTTPS%2$s to manually modify private key.', 'wp-pgp-encrypted-emails'),
+                '<a href="'.admin_url('options-general.php', 'https').'">', '</a>'
+            );
+            print '</p>';
+        }
+?>
+<label for="<?php print esc_attr(self::$meta_keypair)?>_publickey">Public key</label>
+<textarea
+    id="<?php print esc_attr(self::$meta_keypair)?>_publickey"
+    name="<?php print esc_attr(self::$meta_keypair)?>[publickey]"
+    class="large-text code"
+    rows="5"
+><?php print esc_textarea($kp['publickey']);?></textarea>
+<p class="description"><?php esc_html_e('Your PGP signing keypair is used to authenticate emails sent from this site. You should import its public key part into your email client. You should never share the private key part with anyone; treat it like a password.', 'wp-pgp-encrypted-emails');?></p>
+<p>
+    <a href="<?php print esc_attr(self::getKeypairRegenURL());?>" class="button">
+        <?php esc_html_e('Regenerate keypair', 'wp-pgp-encrypted-emails');?>
+    </a>
+    <span class="description">
+        <?php esc_html_e('Careful, this will delete your current signing keypair.', 'wp-pgp-encrypted-emails');?>
+    </span>
+</p>
+<?php
+    }
+
+    /**
+     * Resets the signing keypair.
+     *
+     * This method should be run in the context of `admin-ajax.php`.
+     *
+     * This will save a serialized array in the `pgp_keypair` option
+     * in the WordPress database. The array has two elements, which
+     * correspond to the private and public key material of the pair,
+     * respectively. They are indexed as `privatekey` and `publickey`.
+     *
+     * Other plugins can access and use the keypair like this:
+     *
+     *     // Get the keypair as an associative array
+     *     $keypair = get_option('pgp_keypair');
+     *
+     * From here, you can use the various `openpgp_*` filters to use
+     * the keys for signing, encryption, or other operations.
+     *
+     * @return void
+     */
+    public static function regenerateKeypair () {
+        if (empty($_GET['wp_pgp_nonce']) || !wp_verify_nonce($_GET['wp_pgp_nonce'], 'wp_pgp_regen_keypair')) {
+            add_settings_error('general', 'settings_updated', __('Invalid keygen request.', 'wp-pgp-encrypted-emails'));
+            set_transient('settings_errors', get_settings_errors(), 30);
+            wp_safe_redirect(admin_url('options-general.php?settings-updated=true'));
+            exit(1); // error exit code
+        }
+        // Make up an email address to use as the site's key identity.
+        // This is also what WordPress core's wp_mail() function does.
+        // See: https://core.trac.wordpress.org/browser/tags/4.4.2/src/wp-includes/pluggable.php#L371
+        $sitename = strtolower( $_SERVER['SERVER_NAME'] );
+        if (substr($sitename, 0, 4) == 'www.') {
+            $sitename = substr($sitename, 4);
+        }
+        $from_email = 'wordpress@'.$sitename;
+
+        // Key generation could take some time, so try raising the limit.
+        $old_time_limit = ini_get('max_execution_time');
+        set_time_limit(0);
+
+        // If that doesn't work, make sure we can gracefully fail.
+        add_action('shutdown', array(__CLASS__, 'keygenTimeoutError'));
+
+        // Now try generating a new keypair.
+        $keypair = WP_OpenPGP::generateKeypair("WordPress <$from_email>");
+
+        // If we're still running, restore the old settings.
+        set_time_limit($old_time_limit);
+
+        $ascii_keypair = array();
+        $ascii_keypair['privatekey'] = apply_filters('openpgp_enarmor', $keypair['privatekey'], 'PGP PRIVATE KEY BLOCK');
+        $ascii_keypair['publickey']  = apply_filters('openpgp_enarmor', $keypair['publickey'], 'PGP PUBLIC KEY BLOCK');
+        update_option(self::$meta_keypair, $ascii_keypair);
+
+        add_settings_error('general', 'settings_updated', __('OpenPGP signing keypair successfully regenerated.', 'wp-pgp-encrypted-emails'), 'updated');
+        set_transient('settings_errors', get_settings_errors(), 30);
+        wp_safe_redirect(admin_url('options-general.php?settings-updated=true'));
+        exit(0); // success exit code
+    }
+
+    /**
+     * Runs when we cannot generate a keypair within PHP's time limit.
+     *
+     * @return void
+     */
+    public static function keygenTimeoutError () {
+        // TODO: How can we recover from this more gracefully?
+        error_log(__('RSA keypair generation exceeded maximum PHP execution timeout.', 'wp-pgp-encrypted-emails'));
     }
 
     /**
@@ -516,6 +729,13 @@ class WP_PGP_Encrypted_Emails {
             $args['subject'] = '';
         }
 
+        // First sign the message, if we can.
+        $kp = get_option(self::$meta_keypair);
+        if ($kp && !empty($kp['privatekey']) && $sec_key = apply_filters('openpgp_key', $kp['privatekey'])) {
+            $args['message'] = apply_filters('openpgp_sign', $args['message'], $sec_key);
+        }
+
+        // Then encrypt the signed message, if we can.
         if ($pub_key instanceof OpenPGP_Message) {
             try {
                 $args['message'] = apply_filters('openpgp_encrypt', $args['message'], $pub_key);
