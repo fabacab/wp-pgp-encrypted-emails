@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp
 Requires at least: 4.4
 Tested up to: 4.4.2
-Stable tag: 0.3.0
+Stable tag: 0.4.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -103,6 +103,14 @@ We might add support for an in-browser client based on [OpenPGP.js](http://openp
 
 == Change log ==
 
+= Version 0.4.0 =
+
+* [Feature](https://github.com/meitar/wp-pgp-encrypted-emails/issues/1): Automatically generate a PGP keypair for the blog itself upon activation if one is missing.
+    * This keypair is used for signing outgoing encrypted emails. It is *not* intended to be used for any other purpose. *Do not* use this keypair for emails you send yourself. *Do not* export this key for use in any other system. This keypair should be treated as a low-trust, single-purpose keypair reserved exclusively for your website itself.
+* Developer: New filter hooks. These are documented on the [Other Notes](https://wordpress.org/plugins/wp-pgp-encrypted-emails/other_notes/) page.
+    * `openpgp_enarmor` filter for ASCII-armoring arbitrary OpenPGP data.
+    * `openpgp_sign` filter for signing an arbitrary message.
+
 = Version 0.3.0 =
 
 * [Feature](https://github.com/meitar/wp-pgp-encrypted-emails/issues/6): Authors with a PGP public key set in their profile can now receive "private" comments. Readers write their comment as normal, and can then enable the "Private" checkbox next to the comment submit button. This will automatically encrypt the comment to the post author's PGP public key and saves the comment in the WordPress database as an ASCII-armored string.
@@ -134,20 +142,40 @@ This plugin offers additional functionality intended for other plugin developers
 
 == Filters ==
 
-* `openpgp_key` - Gets a binary OpenPGP public key for use in later PGP operations from an ASCII-armored representation of that key.
-    * Required parameters:
-        * `string` `$key` - The ASCII-armored PGP public key block.
+= `openpgp_enarmor` =
+
+Gets an ASCII-armored representation of an OpenPGP data structure (like a key, or an encrypted message).
+
+* Required parameters:
+    * `string` `$data` - The data to be armored.
+* Optional parameters:
+    * `string` `$marker` - The marker of the block (the text that follows `-----BEGIN`). Defaults to `MESSAGE`, but you should set this to a more appropriate value. If you are armoring a PGP public key, for instance, set this to `PGP PUBLIC KEY BLOCK`.
+    * `string[]` `$headers` - An array of strings to apply as headers to the ASCII-armored block, usually used to insert comments or identify the OpenPGP client used. Defaults to `array()` (no headers).
+
+Example: ASCII-armor a binary public key.
+
+    $ascii_key = apply_filters('openpgp_enarmor', $public_key, 'PGP PUBLIC KEY BLOCK');
+
+= `openpgp_key` =
+
+Gets a binary OpenPGP public key for use in later PGP operations from an ASCII-armored representation of that key.
+
+* Required parameters:
+    * `string` `$key` - The ASCII-armored PGP public key block.
 
 Example: Get a key saved as an ASCII string in the WordPress database option `my_plugin_pgp_public_key`.
 
     $key = apply_filters('openpgp_key', get_option('my_plugin_pgp_public_key'));
 
-* `openpgp_encrypt` - Encrypts data to one or more PGP public keys or passphrases.
-    * Required arguments:
-        * `string` `$data` - Data to encrypt.
-        * `array|string` `$keys` - Passphrases or keys to use to encrypt the data.
+= `openpgp_encrypt` =
 
-Examples: Encrypt the content of a blog post.
+Encrypts data to one or more PGP public keys or passphrases.
+
+* Required arguments:
+    * `string` `$data` - Data to encrypt.
+    * `array|string` `$keys` - Passphrases or keys to use to encrypt the data.
+
+Example: Encrypt the content of a blog post.
 
     // First, get the PGP public key(s) of the recipient(s)
     $ascii_key = '-----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -157,3 +185,23 @@ Examples: Encrypt the content of a blog post.
     $encrypted_post = apply_filters('openpgp_encrypt', $post->post_content, $encryption_key);
     // Now you can safely send or display $encrypted_post anywhere you like and only
     // those who control the corresponding private key(s) can decrypt it.
+
+= `openpgp_sign` =
+
+Signs a message (arbitrary data) with the given private key.
+
+Note that if your plugin uses the built-in WordPress core `wp_mail()` function and this plugin is active, your plugin's outgoing emails are already automatically signed so you do not need to do anything. This filter is intended for use by plugin developers who want to create custom, trusted communiques between WordPress and some other system.
+
+* Required arguments:
+    * `string` `$data` - The data to sign.
+* Optional arguments:
+    * `OpenPGP_SecretKeyPacket` `$privatekey` - The private key used for signing the message. The default is to use the private key automatically generated during plugin activation. The automatically generated keypair is intended to be a low-trust, single-purpose keypair for your website itself, so you probably do not need or want to use this argument yourself.
+
+Example: Send a signed, encrypted JSON payload to a remote, insecure server.
+
+    $comment_data = get_comment(2); // get a WP_Comment object with comment ID 2
+    // Create JSON payload
+    $json = array('success' => true, 'action' => 'new_comment', 'data' => $comment_data);
+    $url = 'http://insecure.example.com/';
+    $response = wp_safe_remote_post($url, array(
+    ));

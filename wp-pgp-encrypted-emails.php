@@ -32,6 +32,20 @@ if (!defined('ABSPATH')) { exit; } // Disallow direct HTTP access.
 class WP_PGP_Encrypted_Emails {
 
     /**
+     * Meta key where PGP private/public keypair is stored.
+     *
+     * This is intended to be the PGP private key used by the plugin
+     * for signing outgoing emails. It is *not* intended to store any
+     * user's private key material nor is it intended to be used for
+     * saving any key material for any other purpose other than this
+     * plugin's own use. **Do not**, under any circumstances, copy a key
+     * used in any other application to this field.
+     *
+     * @var string
+     */
+    private static $meta_keypair = 'pgp_keypair';
+
+    /**
      * Meta key where PGP public key is stored.
      *
      * @var string
@@ -114,6 +128,25 @@ class WP_PGP_Encrypted_Emails {
      */
     public static function activate () {
         self::checkPrereqs();
+
+        if (!get_option(self::$meta_keypair)) {
+            require_once plugin_dir_path(__FILE__).'class-wp-openpgp.php';
+
+            // Make up an email address for this website.
+            // This is also what the WordPress core wp_mail() function does.
+            // See: https://core.trac.wordpress.org/browser/tags/4.4.2/src/wp-includes/pluggable.php#L371
+            $sitename = strtolower( $_SERVER['SERVER_NAME'] );
+            if (substr($sitename, 0, 4) == 'www.') {
+                $sitename = substr($sitename, 4);
+            }
+            $from_email = 'wordpress@'.$sitename;
+
+            $keypair = WP_OpenPGP::generateKeypair("WordPress <$from_email>");
+            $ascii_keypair = array();
+            $ascii_keypair['privatekey'] = apply_filters('openpgp_enarmor', $keypair['privatekey'], 'PGP PRIVATE KEY BLOCK');
+            $ascii_keypair['publickey']  = apply_filters('openpgp_enarmor', $keypair['publickey'], 'PGP PUBLIC KEY BLOCK');
+            update_option(self::$meta_keypair, $ascii_keypair);
+        }
     }
 
     /**
