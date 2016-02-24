@@ -61,8 +61,12 @@ class WP_OpenPGP {
      * @return string
      */
     public static function clearsign ($data, $signing_key) {
+        $packet = new OpenPGP_LiteralDataPacket($data, array(
+            'format' => 'u', 'filename' => 'message.txt'
+        ));
+        $packet->normalize(true);
         $signer = new OpenPGP_Crypt_RSA($signing_key[0]);
-        $m = $signer->sign($data);
+        $m = $signer->sign($packet);
         $packets = $m->signatures()[0];
         $clearsign = "-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA256\n\n";
         $clearsign .= preg_replace("/^-/", "- -",  $packets[0]->data)."\n";

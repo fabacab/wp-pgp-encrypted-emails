@@ -38,5 +38,25 @@
                 );?></p>
             </td>
         </tr>
+<?php
+$kp = get_option(self::$meta_keypair);
+if (!empty($kp['publickey'])) {
+?>
+        <tr>
+            <th>
+                <?php print sprintf(esc_html__('PGP signing key for %s', 'wp-pgp-encrypted-emails'), get_bloginfo('name'));?>
+            </th>
+            <td>
+                <a class="button"
+                    href="<?php print esc_attr(admin_url('admin-ajax.php?action=download_pgp_signing_public_key'));?>"
+                ><?php esc_html_e('Download public key', 'wp-pgp-encrypted-emails');?></a>
+                <p class="description"><?php $lang = get_locale(); $lang = substr($lang, 0, 2); print sprintf(
+                    esc_html__('%1$s sends digitally signed emails to help you verify that email you receive purporting to be from this website was in fact sent from this website. To authenticate the emails, download the PGP public key and import it to %2$san OpenPGP-compatible client%3$s.', 'wp-pgp-encrypted-emails'),
+                    get_bloginfo('name'),
+                    '<a href="https://prism-break.org/'.$lang.'/protocols/gpg/" target="_blank">', '</a>'
+                );?></p>
+            </td>
+        </tr>
+<?php } // endif ?>
     </tbody>
 </table>

@@ -60,6 +60,26 @@ If you found a good guide to using PGP/GPG that I haven't listed here, please sh
 
 == Frequently Asked Questions==
 
+= What is an OpenPGP-compatible client and where can I get one? =
+
+An OpenPGP-compatible client is simply an app that can read, write, and verify messages encrypted or signed using PGP technology. There are great, free apps for every major platform, including Windows, Mac, Linux, Android, iPhones, iPads, and more. Which app you choose depends largely on which device you already have, and then a bit about your personal tastes.
+
+Since there are so many OpenPGP-compatible apps to choose from, I recommend sticking to the [ones listed on the PRISM-Break.org website](https://prism-break.org/en/protocols/gpg/). (Note that PRISM-Break calls it "GPG" instead of "PGP," but the two terms are generally synonymous.) Once you choose an OpenPGP-compatible app for your platform, consider seeking out its help and support documentation to get started using it, or check out some of the generic PGP/GPG guides listed at the end of [this plugin's Installation page](https://wordpress.org/plugins/wp-pgp-encrypted-emails/installation/).
+
+= How do I read an encrypted comment? =
+
+If you have received a "Private" comment, you will need to use an OpenPGP-compatible PGP client to decrypt and read it. There are many free apps that do this. Which one you choose depends on what kind of computer you are already using. If you use Windows, I suggest installing and using [GPG4Win](https://www.gpg4win.org/) since it provides the most features. For Mac OS X users, I suggest [MacGPG](http://gpgtools.org/) for the same reason, and Linux users should check their distro's package repository for compatible options. (For Ubuntu users, the [Seahorse-Nautilus](http://packages.ubuntu.com/precise/gnome/seahorse-nautilus) plugin is popular.)
+
+I might also add support for an in-browser client based on [OpenPGP.js](http://openpgpjs.org/) at some point, but for now you will still need an external program to read encrypted comments. Please consider a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted) to help resource me work on this if that is a feature you'd like to see.
+
+= Why are emails from [other-plugin-here] not being encrypted? =
+
+Make sure the emails the other plugin sends are being addressed to an email account that WordPress knows about and that WordPress knows which PGP public key to use when encrypting email destined for that address.
+
+More specifically, this means the "TO:" field of the outgoing email needs to match either your WordPress's "admin email" address or the email address of one of your WordPress user accounts, and you need to provide the PGP public key you want WordPress to use when sending email to that address. In many contact form plugins, you can supply an arbitrary email address to send those emails to, but if that email address is not the address of a user on your site, WP PGP Encrypted Emails won't know which PGP public key to use for encryption.
+
+As a workaround, simply create an unprivileged ("Subscriber" [role](https://codex.wordpress.org/Roles_and_Capabilities)) new WordPress user account with that email addresss and enter the PGP public key in that user's profile. (Accept the automatically generated password, since you will not need to remember it, as you will never need to log in with that user account.)
+
 = Is this plugin *really* secure? =
 
 Against the NSA? No, probably not. Against a nosy co-worker? Yes, probably.
@@ -79,20 +99,6 @@ Further, security is largely a matter of operational practice, not theoretics. I
 
 Don't let perfect be the enemy of good.
 
-= Why are emails from [other-plugin-here] not being encrypted? =
-
-Make sure the emails the other plugin sends are being addressed to an email account that WordPress knows about and that WordPress knows which PGP public key to use when encrypting email destined for that address.
-
-More specifically, this means the "TO:" field of the outgoing email needs to match either your WordPress's "admin email" address or the email address of one of your WordPress user accounts, and you need to provide the PGP public key you want WordPress to use when sending email to that address. In many contact form plugins, you can supply an arbitrary email address to send those emails to, but if that email address is not the address of a user on your site, WP PGP Encrypted Emails won't know which PGP public key to use for encryption.
-
-As a workaround, simply create an unprivileged ("Subscriber" [role](https://codex.wordpress.org/Roles_and_Capabilities)) new WordPress user account with that email addresss and enter the PGP public key in that user's profile. (Accept the automatically generated password, since you will not need to remember it, as you will never need to log in with that user account.)
-
-= How do I read an encrypted comment? =
-
-If you have received a "Private" comment, you will need to use an OpenPGP-compatible PGP client to decrypt and read it. There are many free apps that do this. Which one you choose depends on what kind of computer you are already using. If you use Windows, I suggest installing and using [GPG4Win](https://www.gpg4win.org/) since it provides the most features. For Mac OS X users, I suggest [MacGPG](http://gpgtools.org/) for the same reason, and Linux users should check their distro's package repository for compatible options. (For Ubuntu users, the [Seahorse-Nautilus](http://packages.ubuntu.com/precise/gnome/seahorse-nautilus) plugin is popular.)
-
-We might add support for an in-browser client based on [OpenPGP.js](http://openpgpjs.org/) at some point, but for now you will still need an external program to read encrypted comments.
-
 == Screenshots ==
 
 1. Paste the plain text version of your PGP public key into the "PGP Public Key" field in your profile, then click "Save changes" at the bottom of the page. (There is a similar field for the WordPress admin email in the General Settings screen accessible to Administrator users.)
@@ -101,16 +107,16 @@ We might add support for an in-browser client based on [OpenPGP.js](http://openp
 
 3. Authors who add a PGP public key to their profile also let readers leave semi-private comments on their posts. These are comments that are automatically encrypted to the author's public key upon submission. Commenters who want to send a "Private" comment simply write their comment normally and ensure the encryption checkbox is enabled when they submit their comment.
 
-4. Administrators can generate an OpenPGP signing keypair with which to automatically sign outgoing emails. This helps recipients verify that email they receive actually came from your website. Admins can regenerate the keypair automatically by clicking the "Regenerate keypair" button, or they can manually paste an ASCII-armored keypair for the site to use.
-
-5. For security, the private key part of the site's signing key will only be transmitted over a secure (HTTPS) connection, so you will see the following prompt to switch to a secure connection if you try to view it insecurely. You can still (re)generate a keypair, including the private key part, over an insecure connection because the key is generated on the server itself.
+4. Administrators can generate an OpenPGP signing keypair with which to automatically sign outgoing emails. This helps recipients verify that email they receive actually came from your website. Admins can regenerate the keypair automatically by clicking the "Regenerate keypair" button, or they can manually paste an ASCII-armored keypair for the site to use. For security, the private key part of the site's signing key will only be transmitted over a secure (HTTPS) connection, so you will see a prompt to switch to a secure connection if you try to view it insecurely. You can still (re)generate a keypair, including the private key part, over an insecure connection because the key is generated on the server itself.
 
 == Change log ==
 
 = Version 0.4.0 =
 
 * [Feature](https://github.com/meitar/wp-pgp-encrypted-emails/issues/1): Admins can now generate a PGP signing keypair for the blog itself. If a signing keypair exists, outgoing emails will be automatically signed.
-    * This keypair is intended to be used for signing outgoing emails. It is *not* intended to be used for any other purpose. *Do not* use this keypair for emails you send yourself. *Do not* export this key for use in any other system. This keypair should be treated as a low-trust, single-purpose keypair reserved exclusively for your website itself.
+    * This keypair is intended *only* for signing outgoing emails from WordPress itself. It is *not* intended to be used for any other purpose. *Do not* use this keypair for emails you send from your own mail client. *Do not* use this keypair as your personal PGP key. *Do not* export this key for use in any other system. This keypair should be treated as a low-trust, single-purpose keypair reserved exclusively for your website itself.
+    * After adding a PGP signing keypair, users can download the site's public key part from their profile pages.
+    * Theme authors can always link to a site's PGP signing public key with the following code: `print admin_url('admin-ajax.php?action=download_pgp_signing_public_key')`
 * Developer: New filter hooks. These are documented on the [Other Notes](https://wordpress.org/plugins/wp-pgp-encrypted-emails/other_notes/) page.
     * `openpgp_enarmor` filter for ASCII-armoring arbitrary OpenPGP data.
     * `openpgp_sign` filter for (clear)signing an arbitrary message.
@@ -139,6 +145,12 @@ We might add support for an in-browser client based on [OpenPGP.js](http://openp
 == Other notes ==
 
 If you like this plugin, **please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted) for your use of the plugin**, [purchasing one of Meitar's web development books](http://www.amazon.com/gp/redirect.html?ie=UTF8&location=http%3A%2F%2Fwww.amazon.com%2Fs%3Fie%3DUTF8%26redirect%3Dtrue%26sort%3Drelevancerank%26search-type%3Dss%26index%3Dbooks%26ref%3Dntt%255Fathr%255Fdp%255Fsr%255F2%26field-author%3DMeitar%2520Moscovitz&tag=maymaydotnet-20&linkCode=ur2&camp=1789&creative=390957) or, better yet, contributing directly to [Meitar's Cyberbusking fund](http://Cyberbusking.org/). (Publishing royalties ain't exactly the lucrative income it used to be, y'know?) Your support is appreciated!
+
+= Themeing =
+
+Theme authors can use the following code snippets to integrate a WordPress theme with this plugin.
+
+* To link to a site's PGP signing public key: `print admin_url('admin-ajax.php?action=download_pgp_signing_public_key')`
 
 = Plugin hooks =
 

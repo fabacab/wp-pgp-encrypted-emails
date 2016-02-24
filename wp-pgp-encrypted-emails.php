@@ -93,6 +93,8 @@ class WP_PGP_Encrypted_Emails {
         add_action('plugins_loaded', array(__CLASS__, 'registerL10n'));
         add_action('init', array(__CLASS__, 'initialize'));
 
+        add_action('wp_ajax_nopriv_download_pgp_signing_public_key', array(__CLASS__, 'downloadSigningPublicKey'));
+        add_action('wp_ajax_download_pgp_signing_public_key', array(__CLASS__, 'downloadSigningPublicKey'));
         add_action('wp_ajax_openpgp_regen_keypair', array(__CLASS__, 'regenerateKeypair'));
 
         if (is_admin()) {
@@ -508,13 +510,15 @@ class WP_PGP_Encrypted_Emails {
         $kp = get_option(self::$meta_keypair);
         if (is_ssl()) {
 ?>
-<label for="<?php print esc_attr(self::$meta_keypair)?>_privatekey">Private key</label>
-<textarea
-    id="<?php print esc_attr(self::$meta_keypair)?>_privatekey"
-    name="<?php print esc_attr(self::$meta_keypair)?>[privatekey]"
-    class="large-text code"
-    rows="5"
-><?php print esc_textarea($kp['privatekey']);?></textarea>
+<p class="submit">
+    <label for="<?php print esc_attr(self::$meta_keypair)?>_privatekey">Private key</label>
+</p>
+    <textarea
+        id="<?php print esc_attr(self::$meta_keypair)?>_privatekey"
+        name="<?php print esc_attr(self::$meta_keypair)?>[privatekey]"
+        class="large-text code"
+        rows="5"
+    ><?php print esc_textarea($kp['privatekey']);?></textarea>
 <?php
         } else {
             print '<p class="notice error" style="border-left: 4px solid red; padding: 6px 12px;">';
@@ -525,23 +529,55 @@ class WP_PGP_Encrypted_Emails {
             print '</p>';
         }
 ?>
-<label for="<?php print esc_attr(self::$meta_keypair)?>_publickey">Public key</label>
+<p class="submit">
+    <label for="<?php print esc_attr(self::$meta_keypair)?>_publickey">Public key</label>
+    <a class="button" href="<?php print esc_attr(
+        admin_url('admin-ajax.php?action=download_pgp_signing_public_key')
+    );?>">
+        <?php esc_html_e('Download public key', 'wp-pgp-encrypted-emails');?>
+    </a>
+</p>
 <textarea
     id="<?php print esc_attr(self::$meta_keypair)?>_publickey"
     name="<?php print esc_attr(self::$meta_keypair)?>[publickey]"
     class="large-text code"
     rows="5"
 ><?php print esc_textarea($kp['publickey']);?></textarea>
-<p class="description"><?php esc_html_e('Your PGP signing keypair is used to authenticate emails sent from this site. You should import its public key part into your email client. You should never share the private key part with anyone; treat it like a password.', 'wp-pgp-encrypted-emails');?></p>
-<p>
+<p class="description"><?php $lang = get_locale(); $lang = substr($lang, 0, 2); print sprintf(
+    esc_html__('The PGP signing keypair is used to authenticate emails sent from this site. You should import its public key part into your OpenPGP-compatible email client. (%1$sFind an OpenPGP-compatible client for your platform%2$s.) You should never share the private key part with anyone; treat it like a password. If an attacker obtains a copy of the private key part, they can forge digital signatures belonging to this site.', 'wp-pgp-encrypted-emails'),
+    '<a href="https://prism-break.org/'.$lang.'/protocols/gpg/" target="_blank">', '</a>'
+);?></p>
+<p class="submit">
     <a href="<?php print esc_attr(self::getKeypairRegenURL());?>" class="button">
         <?php esc_html_e('Regenerate keypair', 'wp-pgp-encrypted-emails');?>
     </a>
     <span class="description">
-        <?php esc_html_e('Careful, this will delete your current signing keypair.', 'wp-pgp-encrypted-emails');?>
+        <?php print sprintf(esc_html__('Careful, this will delete the current PGP signing keypair for %s.', 'wp-pgp-encrypted-emails'), get_bloginfo('name'));?>
     </span>
 </p>
 <?php
+    }
+
+    /**
+     * Prompts the browser to download the signing public key.
+     *
+     * This method should be run in the context of `admin-ajax.php`.
+     *
+     * @return void
+     */
+    public static function downloadSigningPublicKey () {
+        $kp = get_option(self::$meta_keypair);
+        $k  = $kp['publickey'];
+        $filename = sanitize_title_with_dashes(get_bloginfo('name')).'.pubkey.asc';
+        header('Content-Type: application/octet-stream');
+        header("Content-Disposition: attachment; filename=$filename");
+        header('Content-Length: '.strlen($k));
+        if (function_exists('gzencode')) {
+            header('Content-Encoding: gzip');
+            $k = gzencode($k);
+        }
+        print $k;
+        exit();
     }
 
     /**
