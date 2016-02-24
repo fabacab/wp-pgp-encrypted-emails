@@ -67,7 +67,8 @@ class WP_OpenPGP {
         $packet->normalize(true);
         $signer = new OpenPGP_Crypt_RSA($signing_key[0]);
         $m = $signer->sign($packet);
-        $packets = $m->signatures()[0];
+        $sigs = $m->signatures();
+        $packets = $sigs[0];
         $clearsign = "-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA256\n\n";
         $clearsign .= preg_replace("/^-/", "- -",  $packets[0]->data)."\n";
         return $clearsign.apply_filters('openpgp_enarmor', $packets[1][0]->to_bytes(), 'PGP SIGNATURE');
