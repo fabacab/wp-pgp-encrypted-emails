@@ -572,7 +572,9 @@ class WP_PGP_Encrypted_Emails {
         header('Content-Type: application/octet-stream');
         header("Content-Disposition: attachment; filename=$filename");
         header('Content-Length: '.strlen($k));
-        if (function_exists('gzencode')) {
+        if (function_exists('gzencode')
+            && isset($_SERVER['HTTP_ACCEPT_ENCODING'])
+            && strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false) {
             header('Content-Encoding: gzip');
             $k = gzencode($k);
         }
