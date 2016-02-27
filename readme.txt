@@ -20,7 +20,7 @@ The plugin works transparently for *all email* your site generates, and will als
 
 Additionally, each of your site's users can supply their own, personal public key for their own email address to have WordPress automatically encrypt any email destined for them. (They merely need to update their user profile pages.) Once saved, all future emails WordPress sends to that user will be encrypted with their public key.
 
-The encrypted emails can be decrypted by any OpenPGP-compatible mail client, such as [Mailvelope](https://www.mailvelope.com/), [MacGPG](https://gpgtools.org/), or [Enigmail](https://www.enigmail.net/). For more information on reading encrypted emails, generating keys, and other uses for OpenPGP-compatible encrpytion, consult any (or all!) of the following resourceful guides:
+The encrypted emails can be decrypted by any OpenPGP-compatible mail client, such as [MacGPG](https://gpgtools.org/), [GPG4Win](https://www.gpg4win.org/), or [Enigmail](https://www.enigmail.net/). For more information on reading encrypted emails, generating keys, and other uses for OpenPGP-compatible encrpytion, consult any (or all!) of the following resourceful guides:
 
 * [The Electronic Frontier Foundation's Surveillance Self-Defense guide to PGP](https://ssd.eff.org/en/module/introduction-public-key-cryptography-and-pgp)
 * [RiseUp.net's OpenPGP best practices guide](https://help.riseup.net/en/gpg-best-practices)
@@ -57,6 +57,10 @@ I have also found the following articles useful, but do not personally vouch for
 * [BitCoin Not Bombs: Beginner's Guide to PGP](http://www.bitcoinnotbombs.com/beginners-guide-to-pgp/)
 
 If you found a good guide to using PGP/GPG that I haven't listed here, please share it in [the WP PGP Encrypted Emails plugin forum](https://wordpress.org/support/plugin/wp-pgp-encrypted-emails#postform).
+
+= Known issues =
+
+* [Mailvelope problems](https://github.com/meitar/wp-pgp-encrypted-emails/issues/9): Mailvelope is theoretically supported but cannot successfully decrypt encrypted messages or verify signatures. This is likely an OpenPGP.js or Mailvelope issue.
 
 == Frequently Asked Questions==
 
