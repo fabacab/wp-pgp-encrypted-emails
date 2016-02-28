@@ -747,45 +747,69 @@ class WP_PGP_Encrypted_Emails {
     /**
      * Encrypts messages that WordPress sends when it sends email.
      *
+     * This method completely hijacks a call to `wp_mail()` function,
+     * accepting its arguments and sending 1 email for each recipient
+     * it is passed. The original call to `wp_mail()` will be a no-op.
+     *
      * @param array $args
      *
      * @return array
      */
     public static function wp_mail ($args) {
-        $pub_key = false;
-        $erase_subject = null;
-
-        if (get_option('admin_email') === $args['to']) {
-            $pub_key = self::getAdminKey();
-            $erase_subject = get_option(self::$meta_key_empty_subject_line);
-        } else if ($wp_user = get_user_by('email', $args['to'])) {
-            $pub_key = self::getUserKey($wp_user);
-            $erase_subject = $wp_user->{self::$meta_key_empty_subject_line};
+        if (!is_array($args['to'])) {
+            $args['to'] = explode(',', $args['to']);
         }
 
-        if ($erase_subject) {
-            $args['subject'] = '';
-        }
+        foreach ($args['to'] as $to) {
+            // WordPress's email data.
+            $subject = $args['subject'];
+            $message = $args['message'];
+            $headers = (isset($args['headers'])) ? $args['headers'] : '';
+            $attachments = (isset($args['attachments'])) ? $args['attachments'] : array();
 
-        // First sign the message, if we can.
-        $kp = get_option(self::$meta_keypair);
-        if ($kp && !empty($kp['privatekey']) && $sec_key = apply_filters('openpgp_key', $kp['privatekey'])) {
-            $args['message'] = apply_filters('openpgp_sign', $args['message'], $sec_key);
-        }
+            // Our email data.
+            $pub_key       = false;
+            $erase_subject = false;
 
-        // Then encrypt the signed message, if we can.
-        if ($pub_key instanceof OpenPGP_Message) {
-            try {
-                $args['message'] = apply_filters('openpgp_encrypt', $args['message'], $pub_key);
-            } catch (Exception $e) {
-                error_log(sprintf(
-                    __('Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails'),
-                    $args['to']
-                ));
+            if (get_option('admin_email') === $to) {
+                $pub_key = self::getAdminKey();
+                $erase_subject = get_option(self::$meta_key_empty_subject_line);
+            } else if ($wp_user = get_user_by('email', $to)) {
+                $pub_key = self::getUserKey($wp_user);
+                $erase_subject = $wp_user->{self::$meta_key_empty_subject_line};
             }
+
+            if ($erase_subject) {
+                $subject = '';
+            }
+
+            // First sign the message, if we can.
+            $kp = get_option(self::$meta_keypair);
+            if ($kp && !empty($kp['privatekey']) && $sec_key = apply_filters('openpgp_key', $kp['privatekey'])) {
+                $message = apply_filters('openpgp_sign', $message, $sec_key);
+            }
+
+            // Then encrypt the signed message, if we can.
+            if ($pub_key instanceof OpenPGP_Message) {
+                try {
+                    $message = apply_filters('openpgp_encrypt', $message, $pub_key);
+                } catch (Exception $e) {
+                    error_log(sprintf(
+                        __('Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails'),
+                        $to
+                    ));
+                }
+            }
+            // Now that we've re-configured the message, we run this
+            // back through wp_mail() without calling this same
+            // function again.
+            remove_filter('wp_mail', array(__CLASS__, 'wp_mail'));
+            wp_mail($to, $subject, $message, $headers, $attachments);
+            add_filter('wp_mail', array(__CLASS__, 'wp_mail'));
         }
 
-        return $args;
+        // Return FALSE to ensure original call to wp_mail() sends nothing.
+        return array('to' => false, 'subject' => false, 'message' => false);
     }
 
     /**
