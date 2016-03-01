@@ -793,6 +793,27 @@ class WP_PGP_Encrypted_Emails {
             if ($pub_key instanceof OpenPGP_Message) {
                 try {
                     $message = apply_filters('openpgp_encrypt', $message, $pub_key);
+
+                    if (!empty($attachments)) {
+                        if (!is_array($attachments)) {
+                            $attachments = array($attachments);
+                        }
+
+                        $to_attach = array();
+                        foreach ($attachments as $attachment) {
+                            $attach = new stdClass();
+                            $data = new stdClass();
+                            $data->file_data = apply_filters('openpgp_encrypt', file_get_contents($attachment), $pub_key);
+                            $data->file_name = basename($attachment);
+                            $data->encoding  = 'text/plain; charset=us-ascii';
+                            $data->mime_type = mime_content_type($attachment);
+                            $data->disposition = 'inline';
+                            $attach->data = $data;
+                            $to_attach[] = $attach;
+                        }
+                        $attachments = wp_json_encode($to_attach);
+                        add_action('phpmailer_init', array(__CLASS__, 'addStringAttachment'));
+                    }
                 } catch (Exception $e) {
                     error_log(sprintf(
                         __('Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails'),
@@ -800,6 +821,7 @@ class WP_PGP_Encrypted_Emails {
                     ));
                 }
             }
+
             // Now that we've re-configured the message, we run this
             // back through wp_mail() without calling this same
             // function again.
@@ -810,6 +832,50 @@ class WP_PGP_Encrypted_Emails {
 
         // Return FALSE to ensure original call to wp_mail() sends nothing.
         return array('to' => false, 'subject' => false, 'message' => false);
+    }
+
+    /**
+     * Adds (encrypted) string attachments to an email.
+     *
+     * This method is used to manually add attachments to a PHPMailer
+     * instance after WordPress tries adding the attachment itself.
+     * WordPress will fail (intentionally) so we take the opportunity
+     * to add it ourselves.
+     *
+     * See {@link http://dancameron.org/code/adding-string-attachments-addstringattachment-wp_mail/ this post}
+     * for a description of the technique.
+     *
+     * @link https://developer.wordpress.org/reference/hooks/phpmailer_init/
+     *
+     * @param PHPMailer &$phpmailer
+     *
+     * @return void
+     */
+    public static function addStringAttachment ($phpmailer) {
+        if ('' !== $phpmailer->ErrorInfo) {
+            $translations = $phpmailer->getTranslations();
+            if (false !== stripos($phpmailer->ErrorInfo, $translations['file_access'])) {
+                // remove the messaging
+                $attachment_string = str_replace($translations['file_access'], '', $phpmailer->ErrorInfo);
+
+                // the result will be the json encoded string that was
+                // attempted to be attached by default
+                $attachments = json_decode($attachment_string);
+
+                try {
+                    foreach ($attachments as $attachment) {
+                        $data = $attachment->data;
+                        $phpmailer->addStringAttachment($data->file_data, $data->file_name, $data->encoding, $data->mime_type, $attachment->disposition);
+                    }
+                } catch (phpmailerException $e) {
+                    error_log($e->errorMessage());
+                    continue;
+                }
+            }
+        }
+        // Always detach this method from the hook because it will be
+        // re-added by the earlier wp_mail hook if it's needed again.
+        remove_action('phpmailer_init', array(__CLASS__, __FUNCTION__));
     }
 
     /**
