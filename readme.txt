@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp
 Requires at least: 4.4
 Tested up to: 4.4.2
-Stable tag: 0.4.0
+Stable tag: 0.4.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -114,6 +114,11 @@ Don't let perfect be the enemy of good.
 4. Administrators can generate an OpenPGP signing keypair with which to automatically sign outgoing emails. This helps recipients verify that email they receive actually came from your website. Admins can regenerate the keypair automatically by clicking the "Regenerate keypair" button, or they can manually paste an ASCII-armored keypair for the site to use. For security, the private key part of the site's signing key will only be transmitted over a secure (HTTPS) connection, so you will see a prompt to switch to a secure connection if you try to view it insecurely. You can still (re)generate a keypair, including the private key part, over an insecure connection because the key is generated on the server itself.
 
 == Change log ==
+
+= Version 0.4.1 =
+
+* [Bugfix](https://github.com/meitar/wp-pgp-encrypted-emails/issues/8): Plugins that call `wp_mail()` with an array no longer cause PHP warnings.
+* [Bugfix](https://github.com/meitar/wp-pgp-encrypted-emails/issues/7): Fix syntax error when running on PHP 5.3 or earlier.
 
 = Version 0.4.0 =
 
