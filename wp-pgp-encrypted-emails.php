@@ -7,7 +7,7 @@
  * * Plugin Name: WP PGP Encrypted Emails
  * * Plugin URI: https://github.com/meitar/wp-pgp-encrypted-emails
  * * Description: Encrypts all emails sent to a given user if that user adds a PGP public key to their profile. <strong>Like this plugin? Please <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="Send a donation to the developer of WP PGP Encrypted Emails">donate</a>. &hearts; Thank you!</strong>
- * * Version: 0.4.1
+ * * Version: 0.4.2
  * * Author: Maymay <bitetheappleback@gmail.com>
  * * Author URI: https://maymay.net/
  * * License: GPL-3
@@ -749,7 +749,10 @@ class WP_PGP_Encrypted_Emails {
      *
      * This method completely hijacks a call to `wp_mail()` function,
      * accepting its arguments and sending 1 email for each recipient
-     * it is passed. The original call to `wp_mail()` will be a no-op.
+     * it is passed. The last (or only) recipient will be returned to
+     * the original call to `wp_mail()` for normal handling.
+     *
+     * @link https://developer.wordpress.org/reference/hooks/wp_mail/
      *
      * @param array $args
      *
@@ -759,79 +762,81 @@ class WP_PGP_Encrypted_Emails {
         if (!is_array($args['to'])) {
             $args['to'] = explode(',', $args['to']);
         }
+        $args['headers'] = (isset($args['headers'])) ? $args['headers'] : '';
+        $args['attachments'] = (isset($args['attachments'])) ? $args['attachments'] : array();
 
-        foreach ($args['to'] as $to) {
-            // WordPress's email data.
-            $subject = $args['subject'];
-            $message = $args['message'];
-            $headers = (isset($args['headers'])) ? $args['headers'] : '';
-            $attachments = (isset($args['attachments'])) ? $args['attachments'] : array();
-
-            // Our email data.
-            $pub_key       = false;
-            $erase_subject = false;
-
-            if (get_option('admin_email') === $to) {
-                $pub_key = self::getAdminKey();
-                $erase_subject = get_option(self::$meta_key_empty_subject_line);
-            } else if ($wp_user = get_user_by('email', $to)) {
-                $pub_key = self::getUserKey($wp_user);
-                $erase_subject = $wp_user->{self::$meta_key_empty_subject_line};
-            }
-
-            if ($erase_subject) {
-                $subject = '';
-            }
-
-            // First sign the message, if we can.
-            $kp = get_option(self::$meta_keypair);
-            if ($kp && !empty($kp['privatekey']) && $sec_key = apply_filters('openpgp_key', $kp['privatekey'])) {
-                $message = apply_filters('openpgp_sign', $message, $sec_key);
-            }
-
-            // Then encrypt the signed message, if we can.
-            if ($pub_key instanceof OpenPGP_Message) {
-                try {
-                    $message = apply_filters('openpgp_encrypt', $message, $pub_key);
-
-                    if (!empty($attachments)) {
-                        if (!is_array($attachments)) {
-                            $attachments = array($attachments);
-                        }
-
-                        $to_attach = array();
-                        foreach ($attachments as $attachment) {
-                            $attach = new stdClass();
-                            $data = new stdClass();
-                            $data->file_data = apply_filters('openpgp_encrypt', file_get_contents($attachment), $pub_key);
-                            $data->file_name = basename($attachment);
-                            $data->encoding  = 'text/plain; charset=us-ascii';
-                            $data->mime_type = mime_content_type($attachment);
-                            $data->disposition = 'inline';
-                            $attach->data = $data;
-                            $to_attach[] = $attach;
-                        }
-                        $attachments = wp_json_encode($to_attach);
-                        add_action('phpmailer_init', array(__CLASS__, 'addStringAttachment'));
-                    }
-                } catch (Exception $e) {
-                    error_log(sprintf(
-                        __('Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails'),
-                        $to
-                    ));
-                }
-            }
-
-            // Now that we've re-configured the message, we run this
-            // back through wp_mail() without calling this same
-            // function again.
-            remove_filter('wp_mail', array(__CLASS__, 'wp_mail'));
-            wp_mail($to, $subject, $message, $headers, $attachments);
-            add_filter('wp_mail', array(__CLASS__, 'wp_mail'));
+        // First sign the message, if we can.
+        $kp = get_option(self::$meta_keypair);
+        if ($kp && !empty($kp['privatekey']) && $sec_key = apply_filters('openpgp_key', $kp['privatekey'])) {
+            $args['message'] = apply_filters('openpgp_sign', $args['message'], $sec_key);
         }
 
-        // Return FALSE to ensure original call to wp_mail() sends nothing.
-        return array('to' => false, 'subject' => false, 'message' => false);
+        while ($to = array_pop($args['to'])) {
+            $mail = self::prepareMail(
+                $to,
+                $args['subject'],
+                $args['message'],
+                $args['headers'],
+                $args['attachments']
+            );
+            if (0 === count($args['to'])) {
+                return $mail;
+            } else {
+                // Now that we've re-configured the message, we run this
+                // back through wp_mail() without calling this same
+                // function again.
+                remove_filter('wp_mail', array(__CLASS__, __FUNCTION__));
+                wp_mail($mail['to'], $mail['subject'], $mail['message'], $mail['headers'], $mail['attachments']);
+                add_filter('wp_mail', array(__CLASS__, __FUNCTION__));
+            }
+        }
+    }
+
+    /**
+     * Encrypts an email to a single recipient.
+     *
+     * @param string $to
+     * @param string $subject
+     * @param string $message
+     * @param string|string[] $headers
+     * @param string[] $attachments
+     *
+     * @return array
+     */
+    private static function prepareMail ($to, $subject, $message, $headers, $attachments) {
+        $pub_key       = false;
+        $erase_subject = false;
+
+        if (get_option('admin_email') === $to) {
+            $pub_key = self::getAdminKey();
+            $erase_subject = get_option(self::$meta_key_empty_subject_line);
+        } else if ($wp_user = get_user_by('email', $to)) {
+            $pub_key = self::getUserKey($wp_user);
+            $erase_subject = $wp_user->{self::$meta_key_empty_subject_line};
+        }
+
+        if ($erase_subject) {
+            $subject = '';
+        }
+
+        if ($pub_key instanceof OpenPGP_Message) {
+            try {
+                $message = apply_filters('openpgp_encrypt', $message, $pub_key);
+            } catch (Exception $e) {
+                error_log(sprintf(
+                    __('Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails'),
+                    $to
+                ));
+            }
+        }
+
+        return array(
+            'to' => $to,
+            'subject' => $subject,
+            'message' => $message,
+            'headers' => $headers,
+            'attachments' => $attachments
+        );
     }
 
     /**
