@@ -138,7 +138,9 @@ class WP_OpenPGP {
      * @return string
      */
     public static function enarmor ($data, $marker = 'MESSAGE', $headers = array()) {
-        return wordwrap(OpenPGP::enarmor($data, $marker, $headers), 75, "\n", true);
+        // Wrap to no more than 64 characters as old-school PEM spec.
+        // See also https://github.com/meitar/wp-pgp-encrypted-emails/issues/11
+        return wordwrap(OpenPGP::enarmor($data, $marker, $headers), 64, "\n", true);
     }
 
     /**
