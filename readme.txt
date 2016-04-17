@@ -3,7 +3,7 @@ Contributors: meitar
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp
 Requires at least: 4.4
-Tested up to: 4.4.2
+Tested up to: 4.5
 Stable tag: 0.4.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -20,7 +20,7 @@ The plugin works transparently for *all email* your site generates, and will als
 
 Additionally, each of your site's users can supply their own, personal public key for their own email address to have WordPress automatically encrypt any email destined for them. (They merely need to update their user profile pages.) Once saved, all future emails WordPress sends to that user will be encrypted with their public key.
 
-The encrypted emails can be decrypted by any OpenPGP-compatible mail client, such as [MacGPG](https://gpgtools.org/), [GPG4Win](https://www.gpg4win.org/), or [Enigmail](https://www.enigmail.net/). For more information on reading encrypted emails, generating keys, and other uses for OpenPGP-compatible encrpytion, consult any (or all!) of the following resourceful guides:
+The encrypted emails can be decrypted by any OpenPGP-compatible mail client, such as [MacGPG](https://gpgtools.org/), [GPG4Win](https://www.gpg4win.org/), or [Enigmail](https://www.enigmail.net/). For more information on reading encrypted emails, generating keys, and other uses for OpenPGP-compatible encrpytion, consult any (or all!) of the following guides:
 
 * [The Electronic Frontier Foundation's Surveillance Self-Defense guide to PGP](https://ssd.eff.org/en/module/introduction-public-key-cryptography-and-pgp)
 * [RiseUp.net's OpenPGP best practices guide](https://help.riseup.net/en/gpg-best-practices)
@@ -35,28 +35,30 @@ Do not rely solely on this plugin for the security or privacy of your webserver.
 
 == Installation ==
 
-WP PGP Encrypted Emails can be installed automatically from the WordPress plugin repository by searching for "PGP Encrypted Emails" in the "Add new plugin" screen of your WordPres admin site and clicking the "Install now" button.
+WP PGP Encrypted Emails can be installed automatically from the WordPress plugin repository by searching for "PGP Encrypted Emails" in the "Add new plugin" screen of your WordPress admin site and clicking the "Install now" button.
 
 WP PGP Encrypted Emails can also be installed manually by following these instructions:
 
 1. [Download the latest plugin code](https://downloads.wordpress.org/plugin/wp-pgp-encrypted-emails.zip) from the WordPress plugin repository.
 1. Upload the unzipped `wp-pgp-encrypted-emails` folder to the `/wp-content/plugins/` directory of your WordPress installation.
-1. Activate the plugin through the 'Plugins' menu in WordPress.
+1. Activate the plugin through the "Plugins" menu in WordPress.
 
-Once activated, each user who wants to receive encrypted emails must add their PGP public key to their profile. See the [screenshots](https://wordpress.org/plugins/wp-pgp-encrypted-emails/screenshots/) for a brief walkthrough of how to configure WP PGP Encrypted Emails after it is installed.
+Once activated, each user who wants to receive encrypted emails must add their PGP public key to their profile.
 
-Keep in mind, you will need to have the private key corresponding to the public key you save in your WordPress site, or you will not be able to decrypt the email you receive. To learn more about generating keys and decrypting email, consult one (or more) of the following guides:
+See the [screenshots](https://wordpress.org/plugins/wp-pgp-encrypted-emails/screenshots/) for a brief walkthrough of how to configure WP PGP Encrypted Emails after it is installed.
+
+If a user does not have a PGP public key already, they need to use an OpenPGP-compatible client to generate one themselves. ([Learn more about OpenPGP-compatible clients](https://wordpress.org/plugins/wp-pgp-encrypted-emails/faq/).) Users will need to have the private key corresponding to the public key saved in their WordPress profile, or they will not be able to decrypt the email they receive. To learn more about generating keys and decrypting email, consult one (or more) of the following guides:
 
 * [The Electronic Frontier Foundation's Surveillance Self-Defense guide to PGP](https://ssd.eff.org/en/module/introduction-public-key-cryptography-and-pgp)
 * [RiseUp.net's OpenPGP best practices guide](https://help.riseup.net/en/gpg-best-practices)
 
-I have also found the following articles useful, but do not personally vouch for their accuracy:
+I have also found the following articles useful, but can not personally vouch for their accuracy:
 
 * [Jerzy Gangi's "Best PGP Tutorial for Mac OS X, ever"](http://notes.jerzygangi.com/the-best-pgp-tutorial-for-mac-os-x-ever/)
 * [DeepDotWeb's Basic Guide to PGP on Linux](https://www.deepdotweb.com/2015/02/17/basic-guide-pgp-linux/)
 * [BitCoin Not Bombs: Beginner's Guide to PGP](http://www.bitcoinnotbombs.com/beginners-guide-to-pgp/)
 
-If you found a good guide to using PGP/GPG that I haven't listed here, please share it in [the WP PGP Encrypted Emails plugin forum](https://wordpress.org/support/plugin/wp-pgp-encrypted-emails#postform).
+If you found a good guide to using PGP/GPG that I haven't listed here, please share it in [the WP PGP Encrypted Emails plugin support forum](https://wordpress.org/support/plugin/wp-pgp-encrypted-emails#postform).
 
 = Known issues =
 
@@ -74,13 +76,13 @@ Since there are so many OpenPGP-compatible apps to choose from, I recommend stic
 
 If you have received a "Private" comment, you will need to use an OpenPGP-compatible PGP client to decrypt and read it. There are many free apps that do this. Which one you choose depends on what kind of computer you are already using. If you use Windows, I suggest installing and using [GPG4Win](https://www.gpg4win.org/) since it provides the most features. For Mac OS X users, I suggest [MacGPG](http://gpgtools.org/) for the same reason, and Linux users should check their distro's package repository for compatible options. (For Ubuntu users, the [Seahorse-Nautilus](http://packages.ubuntu.com/precise/gnome/seahorse-nautilus) plugin is popular.)
 
-I might also add support for an in-browser client based on [OpenPGP.js](http://openpgpjs.org/) at some point, but for now you will still need an external program to read encrypted comments. Please consider a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted) to help resource me work on this if that is a feature you'd like to see.
+I might also add support for an in-browser client based on [OpenPGP.js](http://openpgpjs.org/) at some point, but for now you will still need an external program to read encrypted comments. Please consider [donating](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted) to help resource me work on this if that is a feature you'd like to see.
 
 = Why are emails from [other-plugin-here] not being encrypted? =
 
 Make sure the emails the other plugin sends are being addressed to an email account that WordPress knows about and that WordPress knows which PGP public key to use when encrypting email destined for that address.
 
-More specifically, this means the "TO:" field of the outgoing email needs to match either your WordPress's "admin email" address or the email address of one of your WordPress user accounts, and you need to provide the PGP public key you want WordPress to use when sending email to that address. In many contact form plugins, you can supply an arbitrary email address to send those emails to, but if that email address is not the address of a user on your site, WP PGP Encrypted Emails won't know which PGP public key to use for encryption.
+More specifically, this means the `TO:` field of the outgoing email needs to match either your WordPress's "admin email" address or the email address of one of your WordPress user accounts, and you need to provide the PGP public key you want WordPress to use when sending email to that address. In many contact form plugins, you can supply an arbitrary email address to send those emails to, but if that email address is not the address of a user on your site, WP PGP Encrypted Emails won't know which PGP public key to use for encryption.
 
 As a workaround, simply create an unprivileged ("Subscriber" [role](https://codex.wordpress.org/Roles_and_Capabilities)) new WordPress user account with that email addresss and enter the PGP public key in that user's profile. (Accept the automatically generated password, since you will not need to remember it, as you will never need to log in with that user account.)
 
@@ -95,13 +97,13 @@ The "realness" of security cannot "really" be measured in abstract, imprecise te
 First of all, not everyone's security needs are the same. (See "threat modeling," discussed in the previous question.)
 
 * Against an opportunistic attacker, your security measures merely need to be better than your neighbor's in order to be sufficient to deter attacks. This is "good enough" security for most users of WordPress, especially on shared hosting accounts (which are generally closer to the unsafe side of the security spectrum no matter what plugins you install anyway).
-* Against a well-resourced, determined adversary who has specifically singled you out, however, what matters is that your ability to secure yourself exceeds your adversary's ability to compromise the specific security precautions you've put in place. Your relative security as compared with your neighbor's doesn't matter. In this case, it is better to do anything and everything you reasonable can do for your protection, even if no specific security measure will be enough on its own. This is known as "[defense in depth](https://en.wikipedia.org/wiki/Defense_in_depth_%28computing%29)" and is analogous to the way a medival castle had a moat that surrounded an outer wall which itself surrounded an inner wall protecting a keep. These concentric rings of security provide redundancy and serve to slow an attacker's intrusion. This plugin can be considered *one* small part of a larger defense-in-depth security approach for your website.
+* Against a well-resourced, determined adversary who has specifically singled you out, however, what matters is that your ability to secure yourself exceeds your adversary's ability to compromise the specific security precautions you've put in place. Your relative security as compared with your neighbor's doesn't matter. In this case, it is better to do anything and everything you reasonably can do for your protection, even if no specific security measure will be enough on its own. This is known as "[defense in depth](https://en.wikipedia.org/wiki/Defense_in_depth_%28computing%29)" and is analogous to the way a medival castle had a moat that surrounded an outer wall which itself surrounded an inner wall protecting a keep. These concentric rings of security provide redundancy and serve to slow an attacker's intrusion. This plugin can be considered *one* small part of a larger defense-in-depth security approach for your website.
 
 Read [Bruce Schneier's "Lessons from the Sony Hack"](https://www.schneier.com/blog/archives/2014/12/lessons_from_th_4.html) for a brief, real-life case study in understanding this important nuance between opportunistic and focused attackers.
 
-Further, security is largely a matter of operational practice, not theoretics. If you never use PGP/GPG because the only tools you have access to are not perfect, then you will not have the experience you need to know how to use PGP/GPG when you actually get access to it because you never even practiced using it. By way of analogy, if you want to learn swordfighting but all you have is sticks you picked up in the forest, you are better off picking up those sticks and practicing with them than waiting and not practicing at all until you get your hadns on steel swords.
+Further, security is largely a matter of operational practice, not theoretics. If you never use PGP/GPG because the only tools you have access to are not perfect, then you will not have the experience you need to know how to use PGP/GPG when you actually get access to it, because you never even practiced using it. By way of analogy, if you want to learn swordfighting but all you have is sticks you picked up in the forest, you are better off picking up those sticks and practicing with them than waiting and not practicing at all until you get your hands on steel swords.
 
-Don't let perfect be the enemy of good.
+TL;DR: Don't let perfect be the enemy of good.
 
 == Screenshots ==
 
