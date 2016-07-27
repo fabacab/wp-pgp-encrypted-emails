@@ -1,14 +1,14 @@
 # phpseclib - PHP Secure Communications Library
 
-[![Build Status](https://secure.travis-ci.org/phpseclib/phpseclib.png?branch=2.0)](http://travis-ci.org/phpseclib/phpseclib)
+[![Build Status](https://travis-ci.org/phpseclib/phpseclib.svg?branch=2.0)](https://travis-ci.org/phpseclib/phpseclib)
 
 MIT-licensed pure-PHP implementations of an arbitrary-precision integer
 arithmetic library, fully PKCS#1 (v2.1) compliant RSA, DES, 3DES, RC4, Rijndael,
 AES, Blowfish, Twofish, SSH-1, SSH-2, SFTP, and X.509
 
-* [Download (1.0.0)](http://sourceforge.net/projects/phpseclib/files/phpseclib1.0.0.zip/download)
+* [Download (1.0.2)](http://sourceforge.net/projects/phpseclib/files/phpseclib1.0.2.zip/download)
 * [Browse Git](https://github.com/phpseclib/phpseclib)
-* [Code Coverage Report](http://phpseclib.bantux.org/code_coverage/php5/latest/)
+* [Code Coverage Report](http://phpseclib.bantux.org/code_coverage/2.0/latest/)
 
 <img src="http://phpseclib.sourceforge.net/pear-icon.png" alt="PEAR Channel" width="16" height="16">
 PEAR Channel: [phpseclib.sourceforge.net](http://phpseclib.sourceforge.net/pear.htm)
@@ -40,7 +40,7 @@ Dependencies are managed via Composer.
 2. Install Dependencies
 
     ``` sh
-    php composer.phar install --dev
+    php composer.phar install
     ```
 
 ## Contributing
