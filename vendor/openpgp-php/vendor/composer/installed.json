@@ -1,17 +1,17 @@
 [
     {
         "name": "phpseclib/phpseclib",
-        "version": "2.0.0",
-        "version_normalized": "2.0.0.0",
+        "version": "2.0.2",
+        "version_normalized": "2.0.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/phpseclib/phpseclib.git",
-            "reference": "a74aa9efbe61430fcb60157c8e025a48ec8ff604"
+            "reference": "3d265f7c079f5b37d33475f996d7a383c5fc8aeb"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/a74aa9efbe61430fcb60157c8e025a48ec8ff604",
-            "reference": "a74aa9efbe61430fcb60157c8e025a48ec8ff604",
+            "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/3d265f7c079f5b37d33475f996d7a383c5fc8aeb",
+            "reference": "3d265f7c079f5b37d33475f996d7a383c5fc8aeb",
             "shasum": ""
         },
         "require": {
@@ -27,21 +27,20 @@
             "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations.",
             "ext-libsodium": "SSH2/SFTP can make use of some algorithms provided by the libsodium-php extension.",
             "ext-mcrypt": "Install the Mcrypt extension in order to speed up a few other cryptographic operations.",
-            "ext-openssl": "Install the OpenSSL extension in order to speed up a wide variety of cryptographic operations.",
-            "pear-pear/PHP_Compat": "Install PHP_Compat to get phpseclib working on PHP < 5.0.0."
+            "ext-openssl": "Install the OpenSSL extension in order to speed up a wide variety of cryptographic operations."
         },
-        "time": "2015-08-04 04:48:03",
+        "time": "2016-05-13 01:15:21",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
+            "files": [
+                "phpseclib/bootstrap.php"
+            ],
             "psr-4": {
                 "phpseclib\\": "phpseclib/"
             }
         },
         "notification-url": "https://packagist.org/downloads/",
-        "include-path": [
-            "phpseclib/"
-        ],
         "license": [
             "MIT"
         ],
@@ -64,6 +63,11 @@
             {
                 "name": "Hans-Jürgen Petrich",
                 "email": "petrich@tronic-media.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Graham Campbell",
+                "email": "graham@alt-three.com",
                 "role": "Developer"
             }
         ],
