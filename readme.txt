@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp
 Requires at least: 4.4
 Tested up to: 4.5.3
-Stable tag: 0.4.3
+Stable tag: 0.4.4
 License: GPL-3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -139,9 +139,13 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Change log ==
 
+= Version 0.4.4 =
+
+* [Bugfix](https://wordpress.org/support/topic/how-to-revoke-keys-generated-with-this-plugin?replies=4): Generate signing key that can be used to create a revocation certificate.
+
 = Version 0.4.3 =
 
-* Site signing key is generated with correct [OpenPGP key flags](https://tools.ietf.org/html/rfc4880#section-5.2.3.21) (shown as `S` for signing and `C` for certifcation in [GnuPG](https://www.gnupg.org/documentation/manuals/gnupg/GPG-Configuration-Options.html#GPG-Configuration-Options)).
+* Site signing key is generated with correct [OpenPGP key flags](https://tools.ietf.org/html/rfc4880#section-5.2.3.21) (shown as `S` for signing and `C` for certification in [GnuPG](https://www.gnupg.org/documentation/manuals/gnupg/GPG-Configuration-Options.html#GPG-Configuration-Options)).
 * Update `openpgp-php` library and dependencies.
 
 = Version 0.4.2 =
@@ -183,6 +187,11 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 = Version 0.1 =
 
 * Initial release.
+
+== Upgrade Notice ==
+
+= Version 0.4.4 =
+Site signing keys were incorrectly generated. Regenerate your signing keys ASAP.
 
 == Other notes ==
 

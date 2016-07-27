@@ -159,6 +159,8 @@ class WP_OpenPGP {
      * @uses OpenPGP_PublicKeyPacket::__construct()
      * @uses OpenPGP_PublicKeyPacket::to_bytes()
      *
+     * @throws UnexpectedValueException if the `$bits` argument is less than `2048`
+     *
      * @return OpenPGP_Message[]
      */
     public static function generateKeypair ($identity, $bits = 2048) {
@@ -183,8 +185,8 @@ class WP_OpenPGP {
             'n' => $rsa->modulus->toBytes(),
             'e' => $rsa->publicExponent->toBytes(),
             'd' => $rsa->exponent->toBytes(),
-            'p' => $rsa->primes[1]->toBytes(),
-            'q' => $rsa->primes[2]->toBytes(),
+            'p' => $rsa->primes[2]->toBytes(),
+            'q' => $rsa->primes[1]->toBytes(),
             'u' => $rsa->coefficients[2]->toBytes()
         ));
         $uid = new OpenPGP_UserIDPacket($identity);
