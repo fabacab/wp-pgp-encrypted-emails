@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdoc>
+    <title>WP PGP Encrypted Emails (plugin for WordPress)</title>
+    <parser>
+        <default-package-name>WordPress</default-package-name>
+        <target>docs</target>
+    </parser>
+    <transformer>
+        <target>docs</target>
+    </transformer>
+    <files>
+        <directory>.</directory>
+        <ignore>vendor/*</ignore>
+    </files>
+</phpdoc>
