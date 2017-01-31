@@ -313,7 +313,7 @@ class WP_PGP_Encrypted_Emails {
         // Non Users Signing
         add_settings_field(
             self::$meta_key_non_users,
-            __('Sign mails for non users', 'wp-pgp-encrypted-emails'),
+            __('Disable signing for unknown addresses', 'wp-pgp-encrypted-emails'),
             array(__CLASS__, 'renderNonUsersSetting'),
             'general',
             'default',
@@ -527,7 +527,7 @@ class WP_PGP_Encrypted_Emails {
 />
 <span class="description">
     <?php print sprintf(
-        esc_html__('If you want to exclude emails from users who are not registered on your site, make sure this option is enabled to always exclude the emails to encrypt for non users.', 'wp-pgp-encrypted-emails')
+        esc_html__('Disables signing for email sent to users who are not registered on your site.  Email sent to unknown addresses will not be signed.', 'wp-pgp-encrypted-emails')
     );?>
 </span>
 <?php
