@@ -73,13 +73,20 @@ class WP_PGP_Encrypted_Emails {
      * @var string
      */
     public static $meta_key_empty_subject_line = 'pgp_empty_subject_line';
-    
+
     /**
-     * Meta key where non users toggle is stored.
+     * Meta key where unknown recipient signing toggle is stored.
      *
      * @var string
      */
-    public static $meta_key_non_users = 'pgp_non_users';
+    private static $meta_key_sign_for_unknown_recipients = 'pgp_sign_for_unknown_recipients';
+
+    /**
+     * Meta key where toggle to purge options on uninstall is stored.
+     *
+     * @var string
+     */
+    private static $meta_key_purge_all = 'pgp_purge_all';
 
     /**
      * Entry point for the WordPress framework into plugin code.
@@ -310,22 +317,7 @@ class WP_PGP_Encrypted_Emails {
             self::$meta_key_empty_subject_line,
             array(__CLASS__, 'sanitizeCheckBox')
         );
-        // Non Users Signing
-        add_settings_field(
-            self::$meta_key_non_users,
-            __('Disable signing for unknown addresses', 'wp-pgp-encrypted-emails'),
-            array(__CLASS__, 'renderNonUsersSetting'),
-            'general',
-            'default',
-            array(
-                'label_for' => self::$meta_key_non_users
-            )
-        );
-        register_setting(
-            'general',
-            self::$meta_key_non_users,
-            array(__CLASS__, 'sanitizeCheckBox')
-        );
+
         // PGP signing keypair
         add_settings_field(
             self::$meta_keypair,
@@ -342,7 +334,40 @@ class WP_PGP_Encrypted_Emails {
             self::$meta_keypair,
             array(__CLASS__, 'sanitizeSigningKeypair')
         );
-        
+
+        // Unrecognized recipient signing toggle.
+        add_settings_field(
+            self::$meta_key_sign_for_unknown_recipients,
+            __('Sign email sent to unrecognized addresses', 'wp-pgp-encrypted-emails'),
+            array(__CLASS__, 'renderSignForUnknownRecipients'),
+            'general',
+            'default',
+            array(
+                'label_for' => self::$meta_key_sign_for_unknown_recipients
+            )
+        );
+        register_setting(
+            'general',
+            self::$meta_key_sign_for_unknown_recipients,
+            array(__CLASS__, 'sanitizeCheckBox')
+        );
+
+        // Toggle to purge all data, including private key material.
+        add_settings_field(
+            self::$meta_key_purge_all,
+            __('Delete the PGP signing keypair on uninstall', 'wp-pgp-encrypted-emails'),
+            array(__CLASS__, 'renderPurgeAllSetting'),
+            'general',
+            'default',
+            array(
+                'label_for' => self::$meta_key_purge_all
+            )
+        );
+        register_setting(
+            'general',
+            self::$meta_key_purge_all,
+            array(__CLASS__, 'sanitizeCheckBox')
+        );
     }
 
     /**
@@ -511,27 +536,51 @@ class WP_PGP_Encrypted_Emails {
 </span>
 <?php
     }
-    
+
     /**
-     * Prints the HTML for the plugin's admin non users setting.
+     * Prints the HTML for the plugin's toggle to include signatures
+     * when emailing unrecognized addresses.
      *
      * @return void
      */
-    public static function renderNonUsersSetting () {
+    public static function renderSignForUnknownRecipients () {
 ?>
 <input type="checkbox"
-    id="<?php print esc_attr(self::$meta_key_non_users);?>"
-    name="<?php print esc_attr(self::$meta_key_non_users);?>"
-    <?php checked(get_option(self::$meta_key_non_users));?>
+    id="<?php print esc_attr(self::$meta_key_sign_for_unknown_recipients);?>"
+    name="<?php print esc_attr(self::$meta_key_sign_for_unknown_recipients);?>"
+    <?php checked(get_option(self::$meta_key_sign_for_unknown_recipients));?>
     value="1"
 />
 <span class="description">
     <?php print sprintf(
-        esc_html__('Disables signing for email sent to users who are not registered on your site.  Email sent to unknown addresses will not be signed.', 'wp-pgp-encrypted-emails')
+        esc_html__('When enabled, all outbound emails will be signed with the PGP signing keypair. This includes email destined for addresses without an associated user account.', 'wp-pgp-encrypted-emails')
     );?>
 </span>
 <?php
     }
+
+    /**
+     * Prints the HTML for the plugin's purge-on-uninstall toggle.
+     *
+     * @return void
+     */
+    public static function renderPurgeAllSetting () {
+?>
+<input type="checkbox"
+    id="<?php print esc_attr(self::$meta_key_purge_all);?>"
+    name="<?php print esc_attr(self::$meta_key_purge_all);?>"
+    <?php checked(get_option(self::$meta_key_purge_all));?>
+    value="1"
+/>
+<span class="description">
+    <?php print sprintf(
+        esc_html__('When enabled, the PGP signing keypair will be deleted from the database when the %1$sWP PGP Encrypted Emails plugin%2$s is uninstalled.', 'wp-pgp-encrypted-emails'),
+        '<a href="'.admin_url(esc_url('plugins.php?s=wp-pgp-encrypted-emails&plugin_status=all')).'">', '</a>'
+    );?>
+</span>
+<?php
+    }
+
     /**
      * Gets a URL for a valid keypair regen request.
      *
@@ -707,7 +756,7 @@ class WP_PGP_Encrypted_Emails {
     public static function renderCommentFormFields ($submit_field) {
         $post = get_post();
         $html = '';
-        if (self::getUserKey($post->post_author)) {
+        if ($post->post_author && self::getUserKey($post->post_author)) {
             $author = get_userdata($post->post_author);
             $html .= '<p class="comment-form-openpgp-encryption">';
             $html .= '<label for="openpgp-encryption">'.esc_html__('Private', 'wp-pgp-encrypted-emails').'</label>';
@@ -808,25 +857,20 @@ class WP_PGP_Encrypted_Emails {
         $args['headers'] = (isset($args['headers'])) ? $args['headers'] : '';
         $args['attachments'] = (isset($args['attachments'])) ? $args['attachments'] : array();
 
-        $message_without_sign = $args['message']; //we will need it in case non users
-        
         // First sign the message, if we can.
         $kp = get_option(self::$meta_keypair);
         if ($kp && !empty($kp['privatekey']) && $sec_key = apply_filters('openpgp_key', $kp['privatekey'])) {
-            $args['message'] = apply_filters('openpgp_sign', $args['message'], $sec_key);
+            $signed_message = apply_filters('openpgp_sign', $args['message'], $sec_key);
         }
 
         while ($to = array_pop($args['to'])) {
             $mail = self::prepareMail(
                 $to,
                 $args['subject'],
-                $args['message'],
+                (self::shouldSign($to) && isset($signed_message)) ? $signed_message : $args['message'],
                 $args['headers'],
                 $args['attachments']
             );
-            if(!self::is_allowed($to)){
-                $mail['message'] = $message_without_sign;
-            }
             if (0 === count($args['to'])) {
                 return $mail;
             } else {
@@ -839,20 +883,25 @@ class WP_PGP_Encrypted_Emails {
             }
         }
     }
-    
+
     /**
-    * Check for non users setting
+    * Checks whether or not to sign email sent to unknown addresses.
+    *
+    * @return bool
     */
-    public static function is_allowed($to){
-        $allowed=true;
-        $non_users_allowed=get_option(self::$meta_key_non_users);
-        if($non_users_allowed && !get_user_by('email', $to)){
-            $allowed=false;
+    private static function shouldSign ($to) {
+        if (false === get_user_by('email', $to)) {
+            return (bool) get_option(self::$meta_key_sign_for_unknown_recipients);
         }
-        return $allowed;
+        return true; // Default to signing for recognized addresses.
     }
+
     /**
      * Encrypts an email to a single recipient.
+     *
+     * If we have no public key with which to encrypt a message, such
+     * as in the case of an unrecognized recipient, the content of the
+     * message in the return array is unchanged.
      *
      * @param string $to
      * @param string $subject

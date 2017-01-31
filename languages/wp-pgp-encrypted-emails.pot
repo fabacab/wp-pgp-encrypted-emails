@@ -1,14 +1,14 @@
-# Copyright (C) 2016 WP PGP Encrypted Emails
+# Copyright (C) 2017 WP PGP Encrypted Emails
 # This file is distributed under the same license as the WP PGP Encrypted Emails package.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP PGP Encrypted Emails 0.1\n"
+"Project-Id-Version: WP PGP Encrypted Emails 0.4.4\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-pgp-encrypted-emails\n"
-"POT-Creation-Date: 2016-01-22 04:36:08+00:00\n"
+"POT-Creation-Date: 2017-01-27 02:49:06+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2017-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
@@ -16,7 +16,7 @@ msgstr ""
 msgid "PGP/GPG Encryption"
 msgstr ""
 
-#: pages/profile.php:7 wp-pgp-encrypted-emails.php:217
+#: pages/profile.php:7
 msgid "PGP Public Key"
 msgstr ""
 
@@ -31,53 +31,157 @@ msgstr ""
 msgid "PGP email subject lines"
 msgstr ""
 
-#: pages/profile.php:34 wp-pgp-encrypted-emails.php:234
+#: pages/profile.php:34 wp-pgp-encrypted-emails.php:307
 msgid "Always empty subject lines for PGP-encrypted emails"
 msgstr ""
 
-#: pages/profile.php:37 wp-pgp-encrypted-emails.php:367
+#: pages/profile.php:37 wp-pgp-encrypted-emails.php:534
 msgid ""
 "PGP encryption cannot encrypt envelope information (such as the subject) of "
 "an email, so if you want maximum privacy, make sure this option is enabled "
 "to always erase the subject line from encrypted emails you receive."
 msgstr ""
 
-#: wp-pgp-encrypted-emails.php:134
+#: pages/profile.php:47
+msgid "PGP signing key for %s"
+msgstr ""
+
+#: pages/profile.php:52 wp-pgp-encrypted-emails.php:629
+msgid "Download public key"
+msgstr ""
+
+#: pages/profile.php:54
+msgid ""
+"%1$s sends digitally signed emails to help you verify that email you receive "
+"purporting to be from this website was in fact sent from this website. To "
+"authenticate the emails, download the PGP public key and import it to %2$san "
+"OpenPGP-compatible client%3$s."
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:193
+msgid ""
+"WP PGP Encrypted Emails requires at least PHP version %1$s. You have PHP "
+"version %2$s."
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:200
 msgid ""
 "WP PGP Encrypted Emails requires at least WordPress version %1$s. You have "
 "WordPress version %2$s."
 msgstr ""
 
-#: wp-pgp-encrypted-emails.php:285
+#: wp-pgp-encrypted-emails.php:233
+msgid "Generate PGP signing key"
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:233
+msgid ""
+"Almost done! Generate an OpenPGP keypair for %s to sign outgoing emails."
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:290
+msgid "Admin Email PGP Public Key"
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:324
+msgid "PGP Signing Keypair"
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:341
+msgid "Sign email sent to unrecognized addresses"
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:358
+msgid "Delete the PGP signing keypair on uninstall"
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:450
 msgid "There is a problem with your PGP public key."
 msgstr ""
 
-#: wp-pgp-encrypted-emails.php:287
+#: wp-pgp-encrypted-emails.php:452
 msgid ""
 "Your PGP public key is what WordPress uses to encrypt emails it sends to you "
 "so that only you can read them. Unfortunately, something is wrong or missing "
 "in %1$sthe public key saved in your profile%2$s."
 msgstr ""
 
-#: wp-pgp-encrypted-emails.php:311
+#: wp-pgp-encrypted-emails.php:477
 msgid "There is a problem with your admin email PGP public key."
 msgstr ""
 
-#: wp-pgp-encrypted-emails.php:313
+#: wp-pgp-encrypted-emails.php:479
 msgid ""
 "Your PGP public key is what WordPress uses to encrypt emails it sends to you "
 "so that only you can read them. Unfortunately, something is wrong or missing "
 "in %1$sthe admin email public key option%2$s."
 msgstr ""
 
-#: wp-pgp-encrypted-emails.php:346
+#: wp-pgp-encrypted-emails.php:513
 msgid ""
 "Paste the PGP public key for the admin email here to have WordPress encrypt "
 "admin emails it sends. Leave this blank if you do not want to get or know "
 "how to decrypt encrypted emails."
 msgstr ""
 
-#: wp-pgp-encrypted-emails.php:426
+#: wp-pgp-encrypted-emails.php:556
+msgid ""
+"When enabled, all outbound emails will be signed with the PGP signing "
+"keypair. This includes email destined for addresses without an associated "
+"user account."
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:577
+msgid ""
+"When enabled, the PGP signing keypair will be deleted from the database when "
+"the %1$sWP PGP Encrypted Emails plugin%2$s is uninstalled."
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:618
+msgid ""
+"Private key is not shown over an insecure (HTTP) connection. %1$sSwitch to "
+"HTTPS%2$s to manually modify private key."
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:639
+msgid ""
+"The PGP signing keypair is used to authenticate emails sent from this site. "
+"You should import its public key part into your OpenPGP-compatible email "
+"client. (%1$sFind an OpenPGP-compatible client for your platform%2$s.) You "
+"should never share the private key part with anyone; treat it like a "
+"password. If an attacker obtains a copy of the private key part, they can "
+"forge digital signatures belonging to this site."
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:644
+msgid "Regenerate keypair"
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:647
+msgid "Careful, this will delete the current PGP signing keypair for %s."
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:699
+msgid "Invalid keygen request."
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:731
+msgid "OpenPGP signing keypair successfully regenerated."
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:744
+msgid "RSA keypair generation exceeded maximum PHP execution timeout."
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:762
+msgid "Private"
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:764
+msgid "You can encrypt your comment so that only %s can read it."
+msgstr ""
+
+#: wp-pgp-encrypted-emails.php:935
 msgid "Cannot send encrypted email to %1$s"
 msgstr ""
 

@@ -18,16 +18,15 @@ require_once plugin_dir_path(__FILE__) . 'wp-pgp-encrypted-emails.php';
 
 $meta_keys = array(
     WP_PGP_Encrypted_Emails::$meta_key,
-    WP_PGP_Encrypted_Emails::$meta_key_empty_subject_line
+    WP_PGP_Encrypted_Emails::$meta_key_empty_subject_line,
+    WP_PGP_Encrypted_Emails::$meta_key_sign_for_unknown_recipients,
 );
+if (get_option(WP_PGP_Encrypted_Emails::$meta_key_purge_all)) {
+    $meta_keys[] = WP_PGP_Encrypted_Emails::$meta_keypair;
+    $meta_keys[] = WP_PGP_Encrypted_Emails::$meta_key_purge_all;
+}
+
 foreach ($meta_keys as $name) {
     delete_option($name);
     delete_metadata('user', null, $name, null, true);
-}
-
-// Also delete the private key, if told to do so.
-// TODO: Implement these two options.
-if (get_option('wp_openpgp_remove_private_key')) {
-    delete_option(WP_PGP_Encrypted_Emails::$meta_private_key);
-    delete_option('wp_openpgp_remove_private_key');
 }
