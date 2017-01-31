@@ -73,6 +73,13 @@ class WP_PGP_Encrypted_Emails {
      * @var string
      */
     public static $meta_key_empty_subject_line = 'pgp_empty_subject_line';
+    
+    /**
+     * Meta key where non users toggle is stored.
+     *
+     * @var string
+     */
+    public static $meta_key_non_users = 'pgp_non_users';
 
     /**
      * Entry point for the WordPress framework into plugin code.
@@ -303,7 +310,22 @@ class WP_PGP_Encrypted_Emails {
             self::$meta_key_empty_subject_line,
             array(__CLASS__, 'sanitizeCheckBox')
         );
-
+        // Non Users Signing
+        add_settings_field(
+            self::$meta_key_non_users,
+            __('Sign mails for non users', 'wp-pgp-encrypted-emails'),
+            array(__CLASS__, 'renderNonUsersSetting'),
+            'general',
+            'default',
+            array(
+                'label_for' => self::$meta_key_non_users
+            )
+        );
+        register_setting(
+            'general',
+            self::$meta_key_non_users,
+            array(__CLASS__, 'sanitizeCheckBox')
+        );
         // PGP signing keypair
         add_settings_field(
             self::$meta_keypair,
@@ -320,6 +342,7 @@ class WP_PGP_Encrypted_Emails {
             self::$meta_keypair,
             array(__CLASS__, 'sanitizeSigningKeypair')
         );
+        
     }
 
     /**
@@ -488,7 +511,27 @@ class WP_PGP_Encrypted_Emails {
 </span>
 <?php
     }
-
+    
+    /**
+     * Prints the HTML for the plugin's admin non users setting.
+     *
+     * @return void
+     */
+    public static function renderNonUsersSetting () {
+?>
+<input type="checkbox"
+    id="<?php print esc_attr(self::$meta_key_non_users);?>"
+    name="<?php print esc_attr(self::$meta_key_non_users);?>"
+    <?php checked(get_option(self::$meta_key_non_users));?>
+    value="1"
+/>
+<span class="description">
+    <?php print sprintf(
+        esc_html__('If you want to exclude emails from users who are not registered on your site, make sure this option is enabled to always exclude the emails to encrypt for non users.', 'wp-pgp-encrypted-emails')
+    );?>
+</span>
+<?php
+    }
     /**
      * Gets a URL for a valid keypair regen request.
      *
@@ -765,6 +808,8 @@ class WP_PGP_Encrypted_Emails {
         $args['headers'] = (isset($args['headers'])) ? $args['headers'] : '';
         $args['attachments'] = (isset($args['attachments'])) ? $args['attachments'] : array();
 
+        $message_without_sign = $args['message']; //we will need it in case non users
+        
         // First sign the message, if we can.
         $kp = get_option(self::$meta_keypair);
         if ($kp && !empty($kp['privatekey']) && $sec_key = apply_filters('openpgp_key', $kp['privatekey'])) {
@@ -779,6 +824,9 @@ class WP_PGP_Encrypted_Emails {
                 $args['headers'],
                 $args['attachments']
             );
+            if(!self::is_allowed($to)){
+                $mail['message'] = $message_without_sign;
+            }
             if (0 === count($args['to'])) {
                 return $mail;
             } else {
@@ -791,7 +839,18 @@ class WP_PGP_Encrypted_Emails {
             }
         }
     }
-
+    
+    /**
+    * Check for non users setting
+    */
+    public static function is_allowed($to){
+        $allowed=true;
+        $non_users_allowed=get_option(self::$meta_key_non_users);
+        if($non_users_allowed && !get_user_by('email', $to)){
+            $allowed=false;
+        }
+        return $allowed;
+    }
     /**
      * Encrypts an email to a single recipient.
      *
