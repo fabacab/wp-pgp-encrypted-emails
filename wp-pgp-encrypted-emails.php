@@ -122,6 +122,8 @@ class WP_PGP_Encrypted_Emails {
             add_action('admin_init', array(__CLASS__, 'registerAdminSettings'));
             add_action('admin_notices', array(__CLASS__, 'adminNoticeBadUserKey'));
             add_action('admin_notices', array(__CLASS__, 'adminNoticeBadAdminKey'));
+            add_action('admin_notices', array(__CLASS__, 'adminNoticeBadUserCert'));
+            add_action('admin_notices', array(__CLASS__, 'adminNoticeBadAdminCert'));
             add_action('show_user_profile', array(__CLASS__, 'renderProfile'));
             add_action('personal_options_update', array(__CLASS__, 'saveProfile'));
 
@@ -278,6 +280,43 @@ class WP_PGP_Encrypted_Emails {
      */
     public static function getAdminKey () {
         return apply_filters('openpgp_key', get_option(self::$meta_key));
+    }
+
+    /**
+     * Gets a user's S/MIME public certificate.
+     *
+     * @param WP_User|int|string $user
+     *
+     * @return resource identifier|false
+     */
+    public static function getUserCert ($user = null) {
+        $wp_user = false;
+        $ascii_key = false;
+
+        if ($user instanceof WP_User) {
+            $wp_user = $user;
+        } else if (get_user_by('email', $user)) {
+            $wp_user = get_user_by('email', $user);
+        } else if (get_userdata($user)) {
+            $wp_user = get_userdata($user);
+        } else {
+            $wp_user = wp_get_current_user();
+        }
+
+        if ($wp_user) {
+            $ascii_key = $wp_user->{self::$meta_key_smime};
+        }
+
+        return openssl_x509_read($ascii_key);
+    }
+
+    /**
+     * Gets the admin's S/MIME public certificate.
+     *
+     * @return resource identifier|false
+     */
+    public static function getAdminCert () {
+        return openssl_x509_read(get_option(self::$meta_key_smime));
     }
 
     /**
@@ -549,6 +588,57 @@ class WP_PGP_Encrypted_Emails {
     <p><strong><?php esc_html_e('There is a problem with your admin email PGP public key.', 'wp-pgp-encrypted-emails');?></strong></p>
     <p class="description"><?php print sprintf(
         esc_html__('Your PGP public key is what WordPress uses to encrypt emails it sends to you so that only you can read them. Unfortunately, something is wrong or missing in %1$sthe admin email public key option%2$s.', 'wp-pgp-encrypted-emails'),
+        '<a href="'.admin_url('options-general.php#'.self::$meta_key).'">', '</a>'
+    );?></p>
+</div>
+<?php
+        }
+    }
+
+    /**
+     * Prints a warning to the user if their S/MIME public certificate can't be used.
+     *
+     * @uses WP_PGP_Encrypted_Emails::getUserCert()
+     * @uses wp_get_current_user()
+     * @uses admin_url()
+     *
+     * @return void
+     */
+    public static function adminNoticeBadUserCert () {
+        $wp_user = wp_get_current_user();
+        if (!empty($wp_user->{self::$meta_key_smime}) && !self::getUserCert($wp_user)) {
+?>
+<div class="notice error is-dismissible">
+    <p><strong><?php esc_html_e('There is a problem with your S/MIME public certificate.', 'wp-pgp-encrypted-emails');?></strong></p>
+    <p class="description"><?php print sprintf(
+        esc_html__('Your S/MIME public certifcate is what WordPress uses to encrypt emails it sends to you so that only you can read them. Unfortunately, something is wrong or missing in %1$sthe public key saved in your profile%2$s.', 'wp-pgp-encrypted-emails'),
+        '<a href="'.admin_url('profile.php#'.self::$meta_key_smime).'">', '</a>'
+    );?></p>
+</div>
+<?php
+        }
+    }
+
+    /**
+     * Prints a warning to the admin if their S/MIME public certificate can't be used.
+     *
+     * @uses get_option()
+     * @uses WP_PGP_Encrypted_Emails::getAdminCert()
+     * @uses admin_url()
+     *
+     * @return void
+     */
+    public static function adminNoticeBadAdminCert () {
+        $options = get_option(self::$meta_key_smime);
+        if (current_user_can('manage_options')
+            && !empty($options)
+            && !self::getAdminCert())
+        {
+?>
+<div class="notice error is-dismissible">
+    <p><strong><?php esc_html_e('There is a problem with your admin email S/MIME public certificate.', 'wp-pgp-encrypted-emails');?></strong></p>
+    <p class="description"><?php print sprintf(
+        esc_html__('Your S/MIME public certificate is what WordPress uses to encrypt emails it sends to you so that only you can read them. Unfortunately, something is wrong or missing in %1$sthe admin email public key option%2$s.', 'wp-pgp-encrypted-emails'),
         '<a href="'.admin_url('options-general.php#'.self::$meta_key).'">', '</a>'
     );?></p>
 </div>
