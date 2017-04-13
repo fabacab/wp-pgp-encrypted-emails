@@ -68,6 +68,13 @@ class WP_PGP_Encrypted_Emails {
     public static $meta_key = 'pgp_public_key';
 
     /**
+     * Meta key where S/MIME public certificate is stored.
+     *
+     * @var string
+     */
+    public static $meta_key_smime = 'smime_public_cert';
+
+    /**
      * Meta key where subject line toggle is stored.
      *
      * @var string
@@ -284,13 +291,22 @@ class WP_PGP_Encrypted_Emails {
      * @return void
      */
     public static function registerAdminSettings () {
+
+        // Add settings section
+        add_settings_section(
+            'wp-pgp-encrypted-emails',
+            __('Email encryption', 'wp-pgp-encrypted-emails'),
+            array(__CLASS__, 'renderAdminSettingHeader'),
+            'general'
+        );
+
         // PGP Public Key
         add_settings_field(
             self::$meta_key,
             __('Admin Email PGP Public Key', 'wp-pgp-encrypted-emails'),
-            array(__CLASS__, 'renderAdminKeySetting'),
+            array(__CLASS__, 'renderAdminPGPKeySetting'),
             'general',
-            'default',
+            'wp-pgp-encrypted-emails',
             array(
                 'label_for' => self::$meta_key
             )
@@ -301,21 +317,21 @@ class WP_PGP_Encrypted_Emails {
             array(__CLASS__, 'sanitizeKeyASCII')
         );
 
-        // PGP empty subject line?
+        // S/MIME Public Certificate
         add_settings_field(
-            self::$meta_key_empty_subject_line,
-            __('Always empty subject lines for PGP-encrypted emails', 'wp-pgp-encrypted-emails'),
-            array(__CLASS__, 'renderEmptySubjectLineSetting'),
+            self::$meta_key_smime,
+            __('Admin Email S/MIME Public Certificate', 'wp-pgp-encrypted-emails'),
+            array(__CLASS__, 'renderAdminSMIMEKeySetting'),
             'general',
-            'default',
+            'wp-pgp-encrypted-emails',
             array(
-                'label_for' => self::$meta_key_empty_subject_line
+                'label_for' => self::$meta_key_smime
             )
         );
         register_setting(
             'general',
-            self::$meta_key_empty_subject_line,
-            array(__CLASS__, 'sanitizeCheckBox')
+            self::$meta_key,
+            array(__CLASS__, 'sanitizeKeyASCII')
         );
 
         // PGP signing keypair
@@ -324,7 +340,7 @@ class WP_PGP_Encrypted_Emails {
             __('PGP Signing Keypair', 'wp-pgp-encrypted-emails'),
             array(__CLASS__, 'renderSigningKeypairSetting'),
             'general',
-            'default',
+            'wp-pgp-encrypted-emails',
             array(
                 'label_for' => self::$meta_keypair.'_publickey'
             )
@@ -341,7 +357,7 @@ class WP_PGP_Encrypted_Emails {
             __('Sign email sent to unrecognized addresses', 'wp-pgp-encrypted-emails'),
             array(__CLASS__, 'renderSignForUnknownRecipients'),
             'general',
-            'default',
+            'wp-pgp-encrypted-emails',
             array(
                 'label_for' => self::$meta_key_sign_for_unknown_recipients
             )
@@ -352,13 +368,51 @@ class WP_PGP_Encrypted_Emails {
             array(__CLASS__, 'sanitizeCheckBox')
         );
 
+        // S/MIME signing keypair
+        /* Not implemented at this stage
+        add_settings_field(
+            self::$meta_keypair,
+            __('PGP Signing Keypair', 'wp-pgp-encrypted-emails'),
+            array(__CLASS__, 'renderSigningKeypairSetting'),
+            'general',
+            'wp-pgp-encrypted-emails',
+            array(
+                'label_for' => self::$meta_keypair.'_publickey'
+            )
+        );
+        register_setting(
+            'general',
+            self::$meta_keypair,
+            array(__CLASS__, 'sanitizeSigningKeypair')
+        );
+        */
+
+        // Unrecognized recipient signing toggle.
+        /* Signing not implemented for S/MIME
+        add_settings_field(
+            self::$meta_key_sign_for_unknown_recipients,
+            __('Sign email sent to unrecognized addresses', 'wp-pgp-encrypted-emails'),
+            array(__CLASS__, 'renderSignForUnknownRecipients'),
+            'general',
+            'wp-pgp-encrypted-emails',
+            array(
+                'label_for' => self::$meta_key_sign_for_unknown_recipients
+            )
+        );
+        register_setting(
+            'general',
+            self::$meta_key_sign_for_unknown_recipients,
+            array(__CLASS__, 'sanitizeCheckBox')
+        );
+        */
+
         // Toggle to purge all data, including private key material.
         add_settings_field(
             self::$meta_key_purge_all,
             __('Delete the PGP signing keypair on uninstall', 'wp-pgp-encrypted-emails'),
             array(__CLASS__, 'renderPurgeAllSetting'),
             'general',
-            'default',
+            'wp-pgp-encrypted-emails',
             array(
                 'label_for' => self::$meta_key_purge_all
             )
@@ -368,6 +422,24 @@ class WP_PGP_Encrypted_Emails {
             self::$meta_key_purge_all,
             array(__CLASS__, 'sanitizeCheckBox')
         );
+
+        // Empty subject line?
+        add_settings_field(
+            self::$meta_key_empty_subject_line,
+            __('Always empty subject lines for encrypted emails', 'wp-pgp-encrypted-emails'),
+            array(__CLASS__, 'renderEmptySubjectLineSetting'),
+            'general',
+            'wp-pgp-encrypted-emails',
+            array(
+                'label_for' => self::$meta_key_empty_subject_line
+            )
+        );
+        register_setting(
+            'general',
+            self::$meta_key_empty_subject_line,
+            array(__CLASS__, 'sanitizeCheckBox')
+        );
+
     }
 
     /**
@@ -496,11 +568,24 @@ class WP_PGP_Encrypted_Emails {
     }
 
     /**
-     * Prints the HTML for the plugin's admin key setting.
+     * Prints the HTML for the plugin's admin setting section header.
      *
      * @return void
      */
-    public static function renderAdminKeySetting () {
+    public static function renderAdminSettingHeader ($args) {
+?>
+    <?php /* print sprintf(
+        esc_html__('Email encryption', 'wp-pgp-encrypted-emails')
+    );*/ ?>
+<?php
+    }
+
+    /**
+     * Prints the HTML for the plugin's admin PGP key setting.
+     *
+     * @return void
+     */
+    public static function renderAdminPGPKeySetting () {
 ?>
 <textarea
     id="<?php print esc_attr(self::$meta_key);?>"
@@ -511,6 +596,27 @@ class WP_PGP_Encrypted_Emails {
 <p class="description">
     <?php print sprintf(
         esc_html__('Paste the PGP public key for the admin email here to have WordPress encrypt admin emails it sends. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails')
+    );?>
+</p>
+<?php
+    }
+
+    /**
+     * Prints the HTML for the plugin's admin S/MIME cert setting.
+     *
+     * @return void
+     */
+    public static function renderAdminSMIMEKeySetting () {
+?>
+<textarea
+    id="<?php print esc_attr(self::$meta_key_smime);?>"
+    name="<?php print esc_attr(self::$meta_key_smime);?>"
+    class="large-text code"
+    rows="5"
+><?php print esc_textarea(get_option(self::$meta_key_smime));?></textarea>
+<p class="description">
+    <?php print sprintf(
+        esc_html__('Paste the S/MIME public certificate for the admin email here to have WordPress encrypt admin emails it sends. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails')
     );?>
 </p>
 <?php
@@ -531,7 +637,7 @@ class WP_PGP_Encrypted_Emails {
 />
 <span class="description">
     <?php print sprintf(
-        esc_html__('PGP encryption cannot encrypt envelope information (such as the subject) of an email, so if you want maximum privacy, make sure this option is enabled to always erase the subject line from encrypted emails you receive.', 'wp-pgp-encrypted-emails')
+        esc_html__('Email encryption cannot encrypt envelope information (such as the subject) of an email, so if you want maximum privacy, make sure this option is enabled to always erase the subject line from encrypted emails you receive.', 'wp-pgp-encrypted-emails')
     );?>
 </span>
 <?php
@@ -828,6 +934,11 @@ class WP_PGP_Encrypted_Emails {
             $user_id,
             self::$meta_key,
             self::sanitizeTextArea($_POST[self::$meta_key])
+        );
+        update_user_meta(
+            $user_id,
+            self::$meta_key_smime,
+            self::sanitizeTextArea($_POST[self::$meta_key_smime])
         );
         update_user_meta(
             $user_id,
