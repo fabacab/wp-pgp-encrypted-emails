@@ -369,7 +369,7 @@ class WP_PGP_Encrypted_Emails {
         );
         register_setting(
             'general',
-            self::$meta_key,
+            self::$meta_key_smime,
             array(__CLASS__, 'sanitizeKeyASCII')
         );
 
