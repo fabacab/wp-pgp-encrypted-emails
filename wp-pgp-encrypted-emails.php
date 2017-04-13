@@ -72,7 +72,7 @@ class WP_PGP_Encrypted_Emails {
      *
      * @var string
      */
-    public static $meta_key_smime = 'smime_public_cert';
+    public static $meta_key_smime = 'pgp_public_cert';
 
     /**
      * Meta key where subject line toggle is stored.
@@ -80,6 +80,13 @@ class WP_PGP_Encrypted_Emails {
      * @var string
      */
     public static $meta_key_empty_subject_line = 'pgp_empty_subject_line';
+
+    /**
+     * Meta key where encryption type  is stored.
+     *
+     * @var string
+     */
+    public static $meta_key_encryption_type = 'pgp_encryption_type';
 
     /**
      * Meta key where unknown recipient signing toggle is stored.
@@ -542,6 +549,18 @@ class WP_PGP_Encrypted_Emails {
      */
     public static function sanitizeCheckBox ($input) {
         return isset($input);
+    }
+
+    /**
+     * Sanitizes a radio button.
+     *
+     * @param mixed $input
+     *
+     * @return string
+     */
+    public static function sanitizeRadioButton ($input) {
+        // TODO: Actual sanitization
+        return $input;
     }
 
     /**
@@ -1018,8 +1037,7 @@ class WP_PGP_Encrypted_Emails {
      * @uses update_user_meta()
      *
      * @return void
-     */
-    public static function saveProfile ($user_id) {
+     */ function saveProfile ($user_id) {
         update_user_meta(
             $user_id,
             self::$meta_key,
@@ -1029,6 +1047,11 @@ class WP_PGP_Encrypted_Emails {
             $user_id,
             self::$meta_key_smime,
             self::sanitizeTextArea($_POST[self::$meta_key_smime])
+        );
+        update_user_meta(
+            $user_id,
+            self::$meta_key_encryption_type,
+            self::sanitizeRadioButton($_POST[self::$meta_key_encryption_type])
         );
         update_user_meta(
             $user_id,
