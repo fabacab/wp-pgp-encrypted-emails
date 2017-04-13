@@ -11,6 +11,8 @@
                 <textarea
                     id="<?php print esc_attr(self::$meta_key);?>"
                     name="<?php print esc_attr(self::$meta_key)?>"
+                    class="large-text code"
+                    rows="5"
                     ><?php print esc_textarea($profileuser->{self::$meta_key});?></textarea>
                 <p class="description">
                     <?php print sprintf(
@@ -74,6 +76,8 @@ if (!empty($kp['publickey'])) {
                 <textarea
                     id="<?php print esc_attr(self::$meta_key_smime);?>"
                     name="<?php print esc_attr(self::$meta_key_smime)?>"
+                    class="large-text code"
+                    rows="5"
                     ><?php print esc_textarea($profileuser->{self::$meta_key_smime});?></textarea>
                 <p class="description">
                     <?php print sprintf(
