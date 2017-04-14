@@ -1251,11 +1251,12 @@ class WP_PGP_Encrypted_Emails {
         $pub_cert      = false;
         $erase_subject = false;
 
+        // Note: If admin email is also a user and key only exists with user, this won't find it.
         if (get_option('admin_email') === $to) {
             if (get_option(self::$meta_key_encryption_type)==1) $pub_key = self::getAdminKey();
             else if (get_option(self::$meta_key_encryption_type)==2) $pub_cert = self::getAdminCert();
             $erase_subject = get_option(self::$meta_key_empty_subject_line);
-            } else if ($wp_user = get_user_by('email', $to)) {
+        } else if ($wp_user = get_user_by('email', $to)) {
             if ($wp_user->{self::$meta_key_encryption_type}==1) $pub_key = self::getUserKey($wp_user);
             else if ($wp_user->{self::$meta_key_encryption_type}==2) $pub_cert = self::getUserCert($wp_user);
             $erase_subject = $wp_user->{self::$meta_key_empty_subject_line};
