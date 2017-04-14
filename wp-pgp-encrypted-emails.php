@@ -1219,14 +1219,10 @@ class WP_PGP_Encrypted_Emails {
             if (get_option(self::$meta_key_encryption_type)==1) $pub_key = self::getAdminKey();
             else if (get_option(self::$meta_key_encryption_type)==2) $pub_cert = self::getAdminCert();
             $erase_subject = get_option(self::$meta_key_empty_subject_line);
-        } else if ($wp_user = get_user_by('email', $to)) {
+            } else if ($wp_user = get_user_by('email', $to)) {
             if ($wp_user->{self::$meta_key_encryption_type}==1) $pub_key = self::getUserKey($wp_user);
             else if ($wp_user->{self::$meta_key_encryption_type}==2) $pub_cert = self::getUserCert($wp_user);
             $erase_subject = $wp_user->{self::$meta_key_empty_subject_line};
-        }
-
-        if ($erase_subject && ($pub_key || $pub_cert)) {
-            $subject = '';
         }
 
         if ($pub_key instanceof OpenPGP_Message) {
@@ -1238,6 +1234,44 @@ class WP_PGP_Encrypted_Emails {
                     $to
                 ));
             }
+        }
+        else if ($pub_cert) {
+            try {
+                // Headers for encrypted part
+                $message = $headers."\n\n".$message;
+
+                // Set up files for openssl pkcs7 function, based on Elwing's S/MIME plugin
+            		$clearfile = tempnam("temp","email");
+            		$encfile = $clearfile.".enc";
+            		$clearfile .= ".txt";
+            		$fp = fopen($clearfile,"w");
+            		fwrite($fp,$message);
+            		fclose($fp);
+
+                // Do the encryption
+                if (openssl_pkcs7_encrypt($clearfile,$encfile,$pub_cert,array("From" => get_option('admin_email'))))
+                {
+                    $data = file_get_contents($encfile);
+                    //separate header and body, to use with mail function
+                    $parts = explode("\n\n",$data, 2);
+                    $message = $parts[1];
+                    $headers = $parts[0];
+                }
+
+            		//Unlink the temporary files:
+            		unlink($clearfile);
+            		unlink($encfile);
+
+          } catch (Exception $e) {
+                error_log(sprintf(
+                    __('Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails'),
+                    $to
+                ));
+            }
+        }
+
+        if ($erase_subject && ($pub_key || $pub_cert)) {
+            $subject = '';
         }
 
         return array(
