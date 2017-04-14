@@ -398,6 +398,23 @@ class WP_PGP_Encrypted_Emails {
             array(__CLASS__, 'sanitizeKeyASCII')
         );
 
+        // Encryption type
+        add_settings_field(
+            self::$meta_key_encryption_type,
+            __('Use PGP or S/MIME for Admin Emails?', 'wp-pgp-encrypted-emails'),
+            array(__CLASS__, 'renderAdminEncryptionTypeSetting'),
+            'general',
+            'wp-pgp-encrypted-emails',
+            array(
+                'label_for' => self::$meta_key_encryption_type
+            )
+        );
+        register_setting(
+            'general',
+            self::$meta_key_encryption_type,
+            array(__CLASS__, 'sanitizeRadioButton')
+        );
+
         // PGP signing keypair
         add_settings_field(
             self::$meta_keypair,
@@ -746,6 +763,46 @@ class WP_PGP_Encrypted_Emails {
         esc_html__('Paste the S/MIME public certificate for the admin email here to have WordPress encrypt admin emails it sends. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails')
     );?>
 </p>
+<?php
+    }
+
+    /**
+     * Prints the HTML for the plugin's encryption type setting.
+     *
+     * @return void
+     */
+    public static function renderAdminEncryptionTypeSetting () {
+?>
+<label>
+    <input type="radio"
+        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-0"
+        name="<?php print esc_attr(self::$meta_key_encryption_type);?>"
+        <?php checked(get_option(self::$meta_key_encryption_type),0);?>
+        value="0"
+    />
+    <?php esc_html_e('None', 'wp-pgp-encrypted-emails');?>
+</label><br/>
+<label>
+    <input type="radio"
+        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-1"
+        name="<?php print esc_attr(self::$meta_key_encryption_type);?>"
+        <?php checked(get_option(self::$meta_key_encryption_type),1);?>
+        value="1"
+    />
+    <?php esc_html_e('PGP', 'wp-pgp-encrypted-emails');?>
+</label><br/>
+<label>
+    <input type="radio"
+        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-2"
+        name="<?php print esc_attr(self::$meta_key_encryption_type);?>"
+        <?php checked(get_option(self::$meta_key_encryption_type),2);?>
+        value="2"
+    />
+    <?php esc_html_e('S/MIME', 'wp-pgp-encrypted-emails');?>
+</label>
+<p class="description"><?php print sprintf(
+    esc_html__('PGP encryption will not work without a valid public key. S/MIME encryption will not work without a valid public certificate.', 'wp-pgp-encrypted-emails')
+);?></p>
 <?php
     }
 
