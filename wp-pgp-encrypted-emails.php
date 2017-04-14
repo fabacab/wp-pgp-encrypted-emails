@@ -357,8 +357,8 @@ class WP_PGP_Encrypted_Emails {
      */
     public static function registerAdminSettingsSubMenu () {
       	add_options_page(
-      		'Email Encryption',
-      		'Email Encryption',
+          __('Email Encryption', 'wp-pgp-encrypted-emails'),
+          __('Email Encryption', 'wp-pgp-encrypted-emails'),
       		'manage_options',
       		'wp-pgp-encrypted-emails',
       		array(__CLASS__, 'renderAdminSettingHeader')
@@ -816,7 +816,7 @@ class WP_PGP_Encrypted_Emails {
         <?php checked(get_option(self::$meta_key_encryption_type),0);?>
         value="0"
     />
-    <?php esc_html_e('None', 'wp-pgp-encrypted-emails');?>
+    <?php esc_html_e('No encryption', 'wp-pgp-encrypted-emails');?>
 </label><br/>
 <label>
     <input type="radio"

@@ -53,7 +53,7 @@
                         <?php checked($profileuser->{self::$meta_key_encryption_type},0);?>
                         value="0"
                     />
-                    <?php esc_html_e('None', 'wp-pgp-encrypted-emails');?>
+                    <?php esc_html_e('No encryption', 'wp-pgp-encrypted-emails');?>
                 </label><br/>
                 <label>
                     <input type="radio"
