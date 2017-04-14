@@ -290,6 +290,24 @@ class WP_PGP_Encrypted_Emails {
     }
 
     /**
+     * Check validity of S/MIME public certificate.
+     *
+     * @param string $cert
+     *
+     * @return resource certificate|false
+     */
+    public static function checkCert ($cert = null) {
+      $res = openssl_x509_read($cert);
+      if ($res === false) {
+        return false;
+      }
+      else {
+        openssl_x509_export($res, $output);
+        return $output;
+      }
+    }
+
+    /**
      * Gets a user's S/MIME public certificate.
      *
      * @param WP_User|int|string $user
@@ -314,7 +332,7 @@ class WP_PGP_Encrypted_Emails {
             $ascii_key = $wp_user->{self::$meta_key_smime};
         }
 
-        return openssl_x509_read($ascii_key);
+        return self::checkCert($ascii_key);
     }
 
     /**
@@ -323,7 +341,7 @@ class WP_PGP_Encrypted_Emails {
      * @return resource identifier|false
      */
     public static function getAdminCert () {
-        return openssl_x509_read(get_option(self::$meta_key_smime));
+        return self::checkCert(get_option(self::$meta_key_smime));
     }
 
     /**
