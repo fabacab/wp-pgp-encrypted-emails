@@ -1115,7 +1115,7 @@ class WP_PGP_Encrypted_Emails {
         update_user_meta(
             $user_id,
             self::$meta_key_encryption_type,
-            self::sanitizeRadioButton($_POST[self::$meta_key_encryption_type])
+            $_POST[self::$meta_key_encryption_type]
         );
         update_user_meta(
             $user_id,
