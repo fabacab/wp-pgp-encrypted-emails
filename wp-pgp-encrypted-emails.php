@@ -432,8 +432,7 @@ class WP_PGP_Encrypted_Emails {
         );
         register_setting(
             'wp-pgp-encrypted-emails',
-            self::$meta_key_encryption_type,
-            array(__CLASS__, 'sanitizeRadioButton')
+            self::$meta_key_encryption_type
         );
 
         // PGP signing keypair
@@ -567,18 +566,6 @@ class WP_PGP_Encrypted_Emails {
      */
     public static function sanitizeCheckBox ($input) {
         return isset($input);
-    }
-
-    /**
-     * Sanitizes a radio button.
-     *
-     * @param mixed $input
-     *
-     * @return string
-     */
-    public static function sanitizeRadioButton ($input) {
-        // TODO: Actual sanitization
-        return $input;
     }
 
     /**
@@ -1113,7 +1100,8 @@ class WP_PGP_Encrypted_Emails {
      * @uses update_user_meta()
      *
      * @return void
-     */ function saveProfile ($user_id) {
+     */
+     public static function saveProfile ($user_id) {
         update_user_meta(
             $user_id,
             self::$meta_key,
@@ -1216,7 +1204,6 @@ class WP_PGP_Encrypted_Emails {
         $pub_cert      = false;
         $erase_subject = false;
 
-        // Note: If admin email is also a user and key only exists with user, this won't find it.
         if (get_option('admin_email') === $to) {
             if (get_option(self::$meta_key_encryption_type)==1) $pub_key = self::getAdminKey();
             else if (get_option(self::$meta_key_encryption_type)==2) $pub_cert = self::getAdminCert();
