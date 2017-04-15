@@ -298,14 +298,14 @@ class WP_PGP_Encrypted_Emails {
      * @return resource certificate|false
      */
     public static function checkCert ($cert = null) {
-      $res = openssl_x509_read($cert);
-      if ($res === false) {
-        return false;
-      }
-      else {
-        openssl_x509_export($res, $output);
-        return $output;
-      }
+        $res = openssl_x509_read($cert);
+        if ($res === false) {
+            return false;
+        }
+        else {
+            openssl_x509_export($res, $output);
+            return $output;
+        }
     }
 
     /**
@@ -356,13 +356,13 @@ class WP_PGP_Encrypted_Emails {
      * @return void
      */
     public static function registerAdminSettingsSubMenu () {
-      	add_options_page(
-          __('Email Encryption', 'wp-pgp-encrypted-emails'),
-          __('Email Encryption', 'wp-pgp-encrypted-emails'),
-      		'manage_options',
-      		'wp-pgp-encrypted-emails',
-      		array(__CLASS__, 'renderAdminSettingHeader')
-      	);
+        add_options_page(
+            __('Email Encryption', 'wp-pgp-encrypted-emails'),
+            __('Email Encryption', 'wp-pgp-encrypted-emails'),
+      		  'manage_options',
+      		  'wp-pgp-encrypted-emails',
+      		  array(__CLASS__, 'renderAdminSettingHeader')
+        );
     }
 
     /**
@@ -469,44 +469,6 @@ class WP_PGP_Encrypted_Emails {
             self::$meta_key_sign_for_unknown_recipients,
             array(__CLASS__, 'sanitizeCheckBox')
         );
-
-        // S/MIME signing keypair
-        /* Not implemented at this stage
-        add_settings_field(
-            self::$meta_keypair,
-            __('PGP Signing Keypair', 'wp-pgp-encrypted-emails'),
-            array(__CLASS__, 'renderSigningKeypairSetting'),
-            'wp-pgp-encrypted-emails',
-            'wp-pgp-encrypted-emails',
-            array(
-                'label_for' => self::$meta_keypair.'_publickey'
-            )
-        );
-        register_setting(
-            'wp-pgp-encrypted-emails',
-            self::$meta_keypair,
-            array(__CLASS__, 'sanitizeSigningKeypair')
-        );
-        */
-
-        // Unrecognized recipient signing toggle.
-        /* Signing not implemented for S/MIME
-        add_settings_field(
-            self::$meta_key_sign_for_unknown_recipients,
-            __('Sign email sent to unrecognized addresses', 'wp-pgp-encrypted-emails'),
-            array(__CLASS__, 'renderSignForUnknownRecipients'),
-            'wp-pgp-encrypted-emails',
-            'wp-pgp-encrypted-emails',
-            array(
-                'label_for' => self::$meta_key_sign_for_unknown_recipients
-            )
-        );
-        register_setting(
-            'wp-pgp-encrypted-emails',
-            self::$meta_key_sign_for_unknown_recipients,
-            array(__CLASS__, 'sanitizeCheckBox')
-        );
-        */
 
         // Toggle to purge all data, including private key material.
         add_settings_field(
@@ -738,16 +700,19 @@ class WP_PGP_Encrypted_Emails {
      * @return void
      */
     public static function renderAdminSettingHeader ($args) {
-?><div class="wrap"><h1>
-    <?php print sprintf(
-        esc_html__('Email Encryption', 'wp-pgp-encrypted-emails')
-    ); ?></h1>
-        <form action="options.php" method="POST">
-          <?php settings_fields('wp-pgp-encrypted-emails'); ?>
-          <?php do_settings_sections('wp-pgp-encrypted-emails'); ?>
-          <?php submit_button(); ?>
-        </form>
-    </div>
+?>
+<div class="wrap">
+    <h1><?php
+        print sprintf(
+            esc_html__('Email Encryption', 'wp-pgp-encrypted-emails')
+        );
+    ?></h1>
+    <form action="options.php" method="POST">
+        <?php settings_fields('wp-pgp-encrypted-emails'); ?>
+        <?php do_settings_sections('wp-pgp-encrypted-emails'); ?>
+        <?php submit_button(); ?>
+    </form>
+</div>
 <?php
     }
 
