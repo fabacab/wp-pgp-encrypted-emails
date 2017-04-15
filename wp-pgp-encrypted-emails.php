@@ -1225,14 +1225,14 @@ class WP_PGP_Encrypted_Emails {
             }
         }
         else if ($pub_cert) {
+            $clearfile = tempnam("temp","email");
+            $encfile = $clearfile.".enc";
+            $clearfile .= ".txt";
             try {
                 // Headers for encrypted part
                 $message = $headers."\n\n".$message;
 
                 // Set up files for openssl pkcs7 function, based on Elwing's S/MIME plugin
-            		$clearfile = tempnam("temp","email");
-            		$encfile = $clearfile.".enc";
-            		$clearfile .= ".txt";
             		$fp = fopen($clearfile,"w");
             		fwrite($fp,$message);
             		fclose($fp);
@@ -1247,16 +1247,17 @@ class WP_PGP_Encrypted_Emails {
                     $headers = $parts[0];
                 }
 
-            		//Unlink the temporary files:
-            		unlink($clearfile);
-            		unlink($encfile);
-
           } catch (Exception $e) {
                 error_log(sprintf(
                     __('Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails'),
                     $to
                 ));
             }
+
+            //Unlink the temporary files:
+            unlink($clearfile);
+            unlink($encfile);
+
         }
 
         if ($erase_subject && ($pub_key || $pub_cert)) {
