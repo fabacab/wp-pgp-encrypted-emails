@@ -86,7 +86,7 @@ class WP_PGP_Encrypted_Emails {
      *
      * @var string
      */
-    public static $meta_key_encryption_type = 'pgp_encryption_type';
+    public static $meta_key_encryption_type = 'email_encryption_type';
 
     /**
      * Meta key where unknown recipient signing toggle is stored.
@@ -763,28 +763,28 @@ class WP_PGP_Encrypted_Emails {
 ?>
 <label>
     <input type="radio"
-        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-0"
+        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-none"
         name="<?php print esc_attr(self::$meta_key_encryption_type);?>"
-        <?php checked(get_option(self::$meta_key_encryption_type),0);?>
-        value="0"
+        <?php checked(get_option(self::$meta_key_encryption_type),'none');?>
+        value="none"
     />
     <?php esc_html_e('No encryption', 'wp-pgp-encrypted-emails');?>
 </label><br/>
 <label>
     <input type="radio"
-        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-1"
+        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-pgp"
         name="<?php print esc_attr(self::$meta_key_encryption_type);?>"
-        <?php checked(get_option(self::$meta_key_encryption_type),1);?>
-        value="1"
+        <?php checked(get_option(self::$meta_key_encryption_type),'pgp');?>
+        value="pgp"
     />
     <?php esc_html_e('PGP', 'wp-pgp-encrypted-emails');?>
 </label><br/>
 <label>
     <input type="radio"
-        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-2"
+        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-smime"
         name="<?php print esc_attr(self::$meta_key_encryption_type);?>"
-        <?php checked(get_option(self::$meta_key_encryption_type),2);?>
-        value="2"
+        <?php checked(get_option(self::$meta_key_encryption_type),'smime');?>
+        value="smime"
     />
     <?php esc_html_e('S/MIME', 'wp-pgp-encrypted-emails');?>
 </label>
@@ -1205,12 +1205,12 @@ class WP_PGP_Encrypted_Emails {
         $erase_subject = false;
 
         if (get_option('admin_email') === $to) {
-            if (get_option(self::$meta_key_encryption_type)==1) $pub_key = self::getAdminKey();
-            else if (get_option(self::$meta_key_encryption_type)==2) $pub_cert = self::getAdminCert();
+            if (get_option(self::$meta_key_encryption_type)=='pgp') $pub_key = self::getAdminKey();
+            else if (get_option(self::$meta_key_encryption_type)=='smime') $pub_cert = self::getAdminCert();
             $erase_subject = get_option(self::$meta_key_empty_subject_line);
         } else if ($wp_user = get_user_by('email', $to)) {
-            if ($wp_user->{self::$meta_key_encryption_type}==1) $pub_key = self::getUserKey($wp_user);
-            else if ($wp_user->{self::$meta_key_encryption_type}==2) $pub_cert = self::getUserCert($wp_user);
+            if ($wp_user->{self::$meta_key_encryption_type}=='pgp') $pub_key = self::getUserKey($wp_user);
+            else if ($wp_user->{self::$meta_key_encryption_type}=='smime') $pub_cert = self::getUserCert($wp_user);
             $erase_subject = $wp_user->{self::$meta_key_empty_subject_line};
         }
 

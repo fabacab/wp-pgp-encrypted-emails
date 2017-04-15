@@ -48,28 +48,28 @@
             <td>
                 <label>
                     <input type="radio"
-                        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-0"
+                        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-none"
                         name="<?php print esc_attr(self::$meta_key_encryption_type);?>"
-                        <?php checked($profileuser->{self::$meta_key_encryption_type},0);?>
-                        value="0"
+                        <?php checked($profileuser->{self::$meta_key_encryption_type},'none');?>
+                        value="none"
                     />
                     <?php esc_html_e('No encryption', 'wp-pgp-encrypted-emails');?>
                 </label><br/>
                 <label>
                     <input type="radio"
-                        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-1"
+                        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-pgp"
                         name="<?php print esc_attr(self::$meta_key_encryption_type);?>"
-                        <?php checked($profileuser->{self::$meta_key_encryption_type},1);?>
-                        value="1"
+                        <?php checked($profileuser->{self::$meta_key_encryption_type},'pgp');?>
+                        value="pgp"
                     />
                     <?php esc_html_e('PGP', 'wp-pgp-encrypted-emails');?>
                 </label><br/>
                 <label>
                     <input type="radio"
-                        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-2"
+                        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-smime"
                         name="<?php print esc_attr(self::$meta_key_encryption_type);?>"
-                        <?php checked($profileuser->{self::$meta_key_encryption_type},2);?>
-                        value="2"
+                        <?php checked($profileuser->{self::$meta_key_encryption_type},'smime');?>
+                        value="smime"
                     />
                     <?php esc_html_e('S/MIME', 'wp-pgp-encrypted-emails');?>
                 </label>
