@@ -1,4 +1,4 @@
-<h2><?php esc_html_e('PGP/GPG Encryption', 'wp-pgp-encrypted-emails');?></h2>
+<h2><?php esc_html_e('Email Encryption', 'wp-pgp-encrypted-emails');?></h2>
 <table class="form-table">
     <tbody>
         <tr>
@@ -11,6 +11,8 @@
                 <textarea
                     id="<?php print esc_attr(self::$meta_key);?>"
                     name="<?php print esc_attr(self::$meta_key)?>"
+                    class="large-text code"
+                    rows="5"
                     ><?php print esc_textarea($profileuser->{self::$meta_key});?></textarea>
                 <p class="description">
                     <?php print sprintf(
@@ -21,7 +23,64 @@
         </tr>
         <tr>
             <th>
-                <?php esc_html_e('PGP email subject lines', 'wp-pgp-encrypted-emails');?>
+                <label for="<?php print esc_attr(self::$meta_key_smime);?>">
+                    <?php esc_html_e('S/MIME Public Certificate', 'wp-pgp-encrypted-emails');?>
+                </label>
+            </th>
+            <td>
+                <textarea
+                    id="<?php print esc_attr(self::$meta_key_smime);?>"
+                    name="<?php print esc_attr(self::$meta_key_smime)?>"
+                    class="large-text code"
+                    rows="5"
+                    ><?php print esc_textarea($profileuser->{self::$meta_key_smime});?></textarea>
+                <p class="description">
+                    <?php print sprintf(
+                        esc_html__('Paste your S/MIME public certificate here to have WordPress encrypt emails it sends you. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails')
+                    );?>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                <?php esc_html_e('Use PGP or S/MIME?', 'wp-pgp-encrypted-emails');?>
+            </th>
+            <td>
+                <label>
+                    <input type="radio"
+                        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-none"
+                        name="<?php print esc_attr(self::$meta_key_encryption_type);?>"
+                        <?php checked($profileuser->{self::$meta_key_encryption_type},'none');?>
+                        value="none"
+                    />
+                    <?php esc_html_e('No encryption', 'wp-pgp-encrypted-emails');?>
+                </label><br/>
+                <label>
+                    <input type="radio"
+                        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-pgp"
+                        name="<?php print esc_attr(self::$meta_key_encryption_type);?>"
+                        <?php checked($profileuser->{self::$meta_key_encryption_type},'pgp');?>
+                        value="pgp"
+                    />
+                    <?php esc_html_e('PGP', 'wp-pgp-encrypted-emails');?>
+                </label><br/>
+                <label>
+                    <input type="radio"
+                        id="<?php print esc_attr(self::$meta_key_encryption_type);?>-smime"
+                        name="<?php print esc_attr(self::$meta_key_encryption_type);?>"
+                        <?php checked($profileuser->{self::$meta_key_encryption_type},'smime');?>
+                        value="smime"
+                    />
+                    <?php esc_html_e('S/MIME', 'wp-pgp-encrypted-emails');?>
+                </label>
+                <p class="description"><?php print sprintf(
+                    esc_html__('PGP encryption will not work without a valid public key. S/MIME encryption will not work without a valid public certificate.', 'wp-pgp-encrypted-emails')
+                );?></p>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                <?php esc_html_e('Encrypted email subject lines', 'wp-pgp-encrypted-emails');?>
             </th>
             <td>
                 <label for="<?php print esc_attr(self::$meta_key_empty_subject_line);?>">
@@ -31,10 +90,10 @@
                         <?php checked($profileuser->{self::$meta_key_empty_subject_line});?>
                         value="1"
                     />
-                    <?php esc_html_e('Always empty subject lines for PGP-encrypted emails', 'wp-pgp-encrypted-emails');?>
+                    <?php esc_html_e('Always empty subject lines for encrypted emails', 'wp-pgp-encrypted-emails');?>
                 </label>
                 <p class="description"><?php print sprintf(
-                    esc_html__('PGP encryption cannot encrypt envelope information (such as the subject) of an email, so if you want maximum privacy, make sure this option is enabled to always erase the subject line from encrypted emails you receive.', 'wp-pgp-encrypted-emails')
+                    esc_html__('Email encryption cannot encrypt envelope information (such as the subject) of an email, so if you want maximum privacy, make sure this option is enabled to always erase the subject line from encrypted emails you receive.', 'wp-pgp-encrypted-emails')
                 );?></p>
             </td>
         </tr>
