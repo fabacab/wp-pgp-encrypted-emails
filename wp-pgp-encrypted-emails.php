@@ -178,8 +178,8 @@ class WP_PGP_Encrypted_Emails {
         require_once plugin_dir_path( __FILE__ ) . '/includes/class-wp-openpgp.php';
         WP_OpenPGP::register();
 
-        //require_once plugin_dir_path( __FILE__ ) . '/includes/class-wp-openpgp.php';
-        //WP_SMIME::register();
+        require_once plugin_dir_path( __FILE__ ) . '/includes/class-wp-smime.php';
+        WP_SMIME::register();
     }
 
     /**
@@ -287,7 +287,7 @@ class WP_PGP_Encrypted_Emails {
             $ascii_key = $wp_user->{self::$meta_key};
         }
 
-        return apply_filters('openpgp_key', $ascii_key);
+        return apply_filters( 'openpgp_key', $ascii_key );
     }
 
     /**
