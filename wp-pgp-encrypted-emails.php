@@ -178,8 +178,10 @@ class WP_PGP_Encrypted_Emails {
         require_once plugin_dir_path( __FILE__ ) . '/includes/class-wp-openpgp.php';
         WP_OpenPGP::register();
 
-        require_once plugin_dir_path( __FILE__ ) . '/includes/class-wp-smime.php';
-        WP_SMIME::register();
+        if ( function_exists( 'openssl_x509_read' ) ) {
+            require_once plugin_dir_path( __FILE__ ) . '/includes/class-wp-smime.php';
+            WP_SMIME::register();
+        }
     }
 
     /**
@@ -300,32 +302,15 @@ class WP_PGP_Encrypted_Emails {
     }
 
     /**
-     * Check validity of S/MIME public certificate.
-     *
-     * @param string $cert
-     *
-     * @return resource certificate|false
-     */
-    public static function checkCert ( $cert = null ) {
-        $res = openssl_x509_read( $cert );
-        if (false === $res ) {
-            return false;
-        } else {
-            openssl_x509_export( $res, $output );
-            return $output;
-        }
-    }
-
-    /**
      * Gets a user's S/MIME public certificate.
      *
      * @param WP_User|int|string $user
      *
-     * @return resource identifier|false
+     * @return resource|FALSE
      */
     public static function getUserCert ( $user = null ) {
-        $wp_user = false;
-        $ascii_key = false;
+        $wp_user    = false;
+        $ascii_cert = false;
 
         if ( $user instanceof WP_User ) {
             $wp_user = $user;
@@ -338,19 +323,55 @@ class WP_PGP_Encrypted_Emails {
         }
 
         if ( $wp_user ) {
-            $ascii_key = $wp_user->{self::$meta_smime_certificate};
+            $ascii_cert = $wp_user->{self::$meta_smime_certificate};
         }
 
-        return self::checkCert( $ascii_key );
+        return apply_filters( 'smime_certificate', $ascii_cert );
     }
 
     /**
      * Gets the admin's S/MIME public certificate.
      *
-     * @return resource identifier|false
+     * @return resource|FALSE
      */
     public static function getAdminCert () {
-        return self::checkCert( get_option( self::$meta_smime_certificate ) );
+        return apply_filters( 'smime_certificate', get_option( self::$meta_smime_certificate ) );
+    }
+
+    /**
+     * Gets the admin's preferred encryption method.
+     *
+     * @return string
+     */
+    public static function getAdminEncryptionMethod () {
+        return get_option( self::$meta_encryption_method, 'pgp' );
+    }
+
+    /**
+     * Gets the user's preferred encryption method.
+     *
+     * @param WP_User|int|string $user
+     *
+     * @return string
+     */
+    public static function getUserEncryptionMethod( $user ) {
+        $wp_user = false;
+
+        if ( $user instanceof WP_User ) {
+            $wp_user = $user;
+        } else if ( get_user_by('email', $user ) ) {
+            $wp_user = get_user_by( 'email', $user );
+        } else if ( get_userdata( $user ) ) {
+            $wp_user = get_userdata( $user );
+        } else {
+            $wp_user = wp_get_current_user();
+        }
+
+        if ( $wp_user ) {
+            $method = $wp_user->{self::$meta_encryption_method};
+        }
+
+        return ( ! empty( $method ) ) ? $method : 'pgp';
     }
 
     /**
@@ -388,7 +409,7 @@ class WP_PGP_Encrypted_Emails {
 
         // Register sections for the following, in order:
         //     1. OpenPGP
-        //     1. S/MIME
+        //     1. S/MIME (if OpenSSL is available)
         //     1. Delivery Options
         //     1. Plugin Extras
         add_settings_section(
@@ -397,12 +418,14 @@ class WP_PGP_Encrypted_Emails {
             array( __CLASS__, 'renderPGPSettingSection' ),
             'wp-pgp-encrypted-emails'
         );
-        add_settings_section(
-            'wp-pgp-encrypted-emails-smime-settings',
-            __( 'S/MIME Encryption', 'wp-pgp-encrypted-emails' ),
-            array( __CLASS__, 'renderSMIMESettingSection' ),
-            'wp-pgp-encrypted-emails'
-        );
+        if ( function_exists( 'openssl_x509_read' ) ) {
+            add_settings_section(
+                'wp-pgp-encrypted-emails-smime-settings',
+                __( 'S/MIME Encryption', 'wp-pgp-encrypted-emails' ),
+                array( __CLASS__, 'renderSMIMESettingSection' ),
+                'wp-pgp-encrypted-emails'
+            );
+        }
         add_settings_section(
             'wp-pgp-encrypted-emails-delivery-settings',
             __( 'Delivery Options', 'wp-pgp-encrypted-emails' ),
@@ -454,21 +477,23 @@ class WP_PGP_Encrypted_Emails {
         );
 
         // S/MIME Public Certificate
-        add_settings_field(
-            self::$meta_smime_certificate,
-            __( 'Admin Email S/MIME Public Certificate', 'wp-pgp-encrypted-emails' ),
-            array( __CLASS__, 'renderAdminSMIMEKeySetting' ),
-            'wp-pgp-encrypted-emails',
-            'wp-pgp-encrypted-emails-smime-settings', // S/MIME section
-            array(
-                'label_for' => self::$meta_smime_certificate
-            )
-        );
-        register_setting(
-            'wp-pgp-encrypted-emails',
-            self::$meta_smime_certificate,
-            array( __CLASS__, 'sanitizeTextArea' )
-        );
+        if ( function_exists( 'openssl_x509_read' ) ) {
+            add_settings_field(
+                self::$meta_smime_certificate,
+                __( 'Admin Email S/MIME Public Certificate', 'wp-pgp-encrypted-emails' ),
+                array( __CLASS__, 'renderAdminSMIMEKeySetting' ),
+                'wp-pgp-encrypted-emails',
+                'wp-pgp-encrypted-emails-smime-settings', // S/MIME section
+                array(
+                    'label_for' => self::$meta_smime_certificate
+                )
+            );
+            register_setting(
+                'wp-pgp-encrypted-emails',
+                self::$meta_smime_certificate,
+                array( __CLASS__, 'sanitizeTextArea' )
+            );
+        }
 
         // Encryption method preference, when both are available
         if ( self::getAdminKey() && self::getAdminCert() ) {
@@ -832,7 +857,7 @@ class WP_PGP_Encrypted_Emails {
      * @return void
      */
     public static function renderEncryptionMethodSetting () {
-        $method = get_option( self::$meta_encryption_method, 'pgp' );
+        $method = self::getAdminEncryptionMethod();
 ?>
 <select
     id="<?php print esc_attr( self::$meta_encryption_method ); ?>"
@@ -939,8 +964,8 @@ class WP_PGP_Encrypted_Emails {
      * @return void
      */
     public static function renderSigningKeypairSetting () {
-        $kp = get_option(self::$meta_keypair);
-        if (is_ssl()) {
+        $kp = get_option( self::$meta_keypair );
+        if ( is_ssl() ) {
 ?>
 <p class="submit">
     <label for="<?php print esc_attr(self::$meta_keypair)?>_privatekey">Private key</label>
@@ -1265,66 +1290,63 @@ class WP_PGP_Encrypted_Emails {
         $pub_key       = false;
         $pub_cert      = false;
         $erase_subject = false;
+        $chosen_method = false;
+        $was_encrypted = false;
 
         if ( get_option( 'admin_email' ) === $to ) {
-            if ( get_option( self::$meta_encryption_method ) == 'pgp') {
-                $pub_key = self::getAdminKey();
-            }
-            else if (get_option(self::$meta_encryption_method)=='smime') $pub_cert = self::getAdminCert();
-            $erase_subject = get_option(self::$meta_key_empty_subject_line);
-        } else if ($wp_user = get_user_by('email', $to)) {
-            if ($wp_user->{self::$meta_encryption_method}=='pgp') $pub_key = self::getUserKey($wp_user);
-            else if ($wp_user->{self::$meta_encryption_method}=='smime') $pub_cert = self::getUserCert($wp_user);
+            $pub_key  = self::getAdminKey();
+            $pub_cert = self::getAdminCert();
+            $erase_subject = get_option( self::$meta_key_empty_subject_line );
+            $chosen_method = self::getAdminEncryptionMethod();
+        } else if ( $wp_user = get_user_by( 'email', $to ) ) {
+            $pub_key  = self::getUserKey( $wp_user );
+            $pub_cert = self::getUserCert($wp_user);
             $erase_subject = $wp_user->{self::$meta_key_empty_subject_line};
+            $chosen_method = self::getUserEncryptionMethod( $wp_user );
         }
 
-        if ($pub_key instanceof OpenPGP_Message) {
-            try {
-                $message = apply_filters('openpgp_encrypt', $message, $pub_key);
-            } catch (Exception $e) {
-                error_log(sprintf(
-                    __('Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails'),
-                    $to
-                ));
-            }
+        $methods = array();
+        if ( $pub_key instanceof OpenPGP_Message && $pub_cert ) {
+            $methods[] = $chosen_method; // try chosen method first
+        } else if ( $pub_key instanceof OpenPGP_Message ) {
+            $methods[] = 'pgp';
+        } else if ( $pub_cert ) {
+            $methods[] = 'smime';
         }
-        else if ($pub_cert) {
-            $clearfile = tempnam("temp","email");
-            $encfile = $clearfile.".enc";
-            $clearfile .= ".txt";
-            try {
-                // Headers for encrypted part
-                $message = $headers."\n\n".$message;
 
-                // Set up files for openssl pkcs7 function, based on Elwing's S/MIME plugin
-            		$fp = fopen($clearfile,"w");
-            		fwrite($fp,$message);
-            		fclose($fp);
-
-                // Do the encryption
-                if (openssl_pkcs7_encrypt($clearfile,$encfile,$pub_cert,array("From" => get_option('admin_email'))))
-                {
-                    $data = file_get_contents($encfile);
-                    //separate header and body, to use with mail function
-                    $parts = explode("\n\n",$data, 2);
-                    $message = $parts[1];
-                    $headers = $parts[0];
+        foreach ( $methods as $method ) {
+            if ( 'pgp' === $method ) {
+                if ( $pub_key instanceof OpenPGP_Message ) {
+                    try {
+                        $message = apply_filters( 'openpgp_encrypt', $message, $pub_key );
+                        $was_encrypted = true;
+                    } catch ( Exception $e ) {
+                        error_log( sprintf(
+                            __( 'Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails' ),
+                            $to
+                        ) );
+                    }
                 }
-
-          } catch (Exception $e) {
-                error_log(sprintf(
-                    __('Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails'),
-                    $to
-                ));
             }
 
-            //Unlink the temporary files:
-            unlink($clearfile);
-            unlink($encfile);
-
+            if ( 'smime' === $method ) {
+                if ( $pub_cert ) {
+                    $smime_data = apply_filters( 'smime_encrypt', $message, $headers, $pub_cert );
+                    if ( $smime_data ) {
+                        $headers = $smime_data['headers'];
+                        $message = $smime_data['message'];
+                        $was_encrypted = true;
+                    } else {
+                        error_log( sprintf(
+                            __( 'Cannot send encrypted email to %1$s', 'wp-pgp-encrypted-emails' ),
+                            $to
+                        ) );
+                    }
+                }
+            }
         }
 
-        if ($erase_subject && ($pub_key || $pub_cert)) {
+        if ( $erase_subject && $was_encrypted ) {
             $subject = '';
         }
 

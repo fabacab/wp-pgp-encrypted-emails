@@ -38,18 +38,19 @@ class WP_OpenPGP {
     /**
      * Gets an OpenPGP public key.
      *
+     * @param mixed $key The OpenPGP key.
      * @param bool $ascii Whether or not the key is ASCII-armored.
      *
      * @return OpenPGP_Message|false
      */
-    public static function getKey ($key, $ascii = true) {
-        if ($ascii) {
-            preg_match('/-----BEGIN ([A-Za-z ]+)-----/', $key, $matches);
-            $marker = (empty($matches[1])) ? 'MESSAGE' : $matches[1];
-            $key = OpenPGP::unarmor($key, $marker);
+    public static function getKey ( $key, $ascii = true ) {
+        if ( $ascii ) {
+            preg_match( '/-----BEGIN ([A-Za-z ]+)-----/', $key, $matches );
+            $marker = ( empty( $matches[1] ) ) ? 'MESSAGE' : $matches[1];
+            $key = OpenPGP::unarmor( $key, $marker );
         }
-        $openpgp_msg = OpenPGP_Message::parse($key);
-        return (is_null($openpgp_msg)) ? false : $openpgp_msg;
+        $openpgp_msg = OpenPGP_Message::parse( $key );
+        return ( is_null( $openpgp_msg ) ) ? false : $openpgp_msg;
     }
 
     /**

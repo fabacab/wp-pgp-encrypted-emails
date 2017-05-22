@@ -21,6 +21,7 @@
                 </p>
             </td>
         </tr>
+<?php if ( function_exists( 'openssl_x509_read' ) ) { ?>
         <tr>
             <th>
                 <label for="<?php print esc_attr( self::$meta_smime_certificate ); ?>">
@@ -36,12 +37,15 @@
                     ><?php print esc_textarea( $profileuser->{self::$meta_smime_certificate} ); ?></textarea>
                 <p class="description">
                     <?php print sprintf(
-                        esc_html__('Paste your S/MIME public certificate here to have WordPress encrypt emails it sends you. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails')
+                        esc_html__( 'Paste your S/MIME public certificate here to have WordPress encrypt emails it sends you. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails' )
                     );?>
                 </p>
             </td>
         </tr>
-<?php if ( self::getUserKey() && self::getUserCert() ) { ?>
+<?php
+}
+
+if ( self::getUserKey() && self::getUserCert() ) { ?>
         <tr>
             <th>
                 <?php esc_html_e( 'Your encryption method preference', 'wp-pgp-encrypted-emails' ); ?>
