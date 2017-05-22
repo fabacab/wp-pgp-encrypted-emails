@@ -9,14 +9,14 @@
  * @package WordPress\Plugin\WP_PGP_Encrypted_Emails\WP_OpenPGP
  */
 
-if (!defined('ABSPATH')) { exit; } // Disallow direct HTTP access.
+if ( ! defined( 'ABSPATH' ) ) { exit; } // Disallow direct HTTP access.
 
 // Load dependencies.
-if (!class_exists('OpenPGP')) {
-    require_once plugin_dir_path(__FILE__).'vendor/openpgp-php/vendor/autoload.php';
-    require_once plugin_dir_path(__FILE__).'vendor/openpgp-php/openpgp.php';
-    require_once plugin_dir_path(__FILE__).'vendor/openpgp-php/openpgp_crypt_rsa.php';
-    require_once plugin_dir_path(__FILE__).'vendor/openpgp-php/openpgp_crypt_symmetric.php';
+if ( ! class_exists( 'OpenPGP' ) ) {
+    require_once plugin_dir_path( __FILE__ ) . '../vendor/openpgp-php/vendor/autoload.php';
+    require_once plugin_dir_path( __FILE__ ) . '../vendor/openpgp-php/openpgp.php';
+    require_once plugin_dir_path( __FILE__ ) . '../vendor/openpgp-php/openpgp_crypt_rsa.php';
+    require_once plugin_dir_path( __FILE__ ) . '../vendor/openpgp-php/openpgp_crypt_symmetric.php';
 }
 
 /**
@@ -28,11 +28,11 @@ class WP_OpenPGP {
      * Registers WordPress plugin API hooks for other plugins.
      */
     public static function register () {
-        add_filter('openpgp_enarmor', array(__CLASS__, 'enarmor'), 10, 3);
-        add_filter('openpgp_encrypt', array(__CLASS__, 'encrypt'), 10, 3);
-        add_filter('openpgp_key', array(__CLASS__, 'getKey'));
-        add_filter('openpgp_sign', array(__CLASS__, 'sign'), 10, 2);
-        add_filter('openpgp_sign_and_encrypt', array(__CLASS__, 'signAndEncrypt'), 10, 4);
+        add_filter( 'openpgp_enarmor', array( __CLASS__, 'enarmor' ), 10, 3);
+        add_filter( 'openpgp_encrypt', array( __CLASS__, 'encrypt' ), 10, 3);
+        add_filter( 'openpgp_key', array( __CLASS__, 'getKey' ) );
+        add_filter( 'openpgp_sign', array( __CLASS__, 'sign' ), 10, 2 );
+        add_filter( 'openpgp_sign_and_encrypt', array( __CLASS__, 'signAndEncrypt' ), 10, 4 );
     }
 
     /**
