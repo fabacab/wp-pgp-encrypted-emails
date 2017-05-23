@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
 Tested up to: 4.7.2
-Stable tag: 0.6.0
+Stable tag: 0.6.1
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -151,6 +151,10 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 4. Administrators can generate an OpenPGP signing keypair with which to automatically sign outgoing emails. This helps recipients verify that email they receive actually came from your website. Admins can regenerate the keypair automatically by clicking the "Regenerate keypair" button, or they can manually paste an ASCII-armored keypair for the site to use. For security, the private key part of the site's signing key will only be transmitted over a secure (HTTPS) connection, so you will see a prompt to switch to a secure connection if you try to view it insecurely. You can still (re)generate a keypair, including the private key part, over an insecure connection because the key is generated on the server itself.
 
 == Change log ==
+
+= 0.6.1 =
+
+* Bugfix: Fix comment filter call.
 
 = 0.6.0 =
 
