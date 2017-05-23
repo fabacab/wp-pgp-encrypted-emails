@@ -146,7 +146,7 @@ class WP_PGP_Encrypted_Emails {
                 add_action( 'admin_notices', array( __CLASS__, 'showMissingSigningKeyNotice' ) );
             }
         } else {
-            remove_filtera( 'comment_text', 'wptexturize' ); // we do wptexturize() ourselves
+            remove_filter( 'comment_text', 'wptexturize' ); // we do wptexturize() ourselves
             add_filter( 'comment_text', array( __CLASS__, 'commentText' ));
             add_filter( 'comment_form_submit_field', array( __CLASS__, 'renderCommentFormFields' ) );
             add_filter( 'comment_class', array( __CLASS__, 'commentClass' ), 10, 4 );
