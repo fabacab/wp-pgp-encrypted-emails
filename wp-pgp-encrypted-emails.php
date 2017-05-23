@@ -13,10 +13,10 @@
  * * Plugin Name: WP PGP Encrypted Emails
  * * Plugin URI: https://github.com/meitar/wp-pgp-encrypted-emails
  * * Description: Encrypts email sent to users who opt-in to OpenPGP- and/or S/MIME-compatible protection. <strong>Like this plugin? Please <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="Send a donation to the developer of WP PGP Encrypted Emails">donate</a>. &hearts; Thank you!</strong>
- * * Version: 0.5.0
+ * * Version: 0.6.0
  * * Author: Maymay <bitetheappleback@gmail.com>
  * * Author URI: https://maymay.net/
- * * License: GPL-3
+ * * License: GPL-3.0
  * * License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
  * * Text Domain: wp-pgp-encrypted-emails
  * * Domain Path: /languages
