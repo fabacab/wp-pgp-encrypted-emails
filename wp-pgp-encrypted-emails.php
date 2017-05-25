@@ -1194,21 +1194,27 @@ class WP_PGP_Encrypted_Emails {
             self::$meta_key,
             self::sanitizeTextArea( $_POST[ self::$meta_key ] )
         );
+
         update_user_meta(
             $user_id,
             self::$meta_smime_certificate,
             self::sanitizeTextArea( $_POST[ self::$meta_smime_certificate ] )
         );
-        update_user_meta(
-            $user_id,
-            self::$meta_encryption_method,
-            sanitize_text_field( $_POST[ self::$meta_encryption_method ] )
-        );
+
         update_user_meta(
             $user_id,
             self::$meta_key_empty_subject_line,
             isset( $_POST[ self::$meta_key_empty_subject_line ] )
         );
+
+        if ( isset( $_POST[ self::$meta_encryption_method ] ) ) {
+            update_user_meta(
+                $user_id,
+                self::$meta_encryption_method,
+                sanitize_text_field( $_POST[ self::$meta_encryption_method ] )
+            );
+        }
+
     }
 
     /**
