@@ -41,8 +41,9 @@ Similarly, there are *many* pitfalls and "gotchas" when implementing your own en
 The S/MIME API consists of the following WordPress filter hooks:
 
 * `smime_certificate` - Retrieves a usable PHP `resource` of type `'OpenSSL X.509'` from some appropriately-formatted data.
-* `smime_certificate_pem_encode` - Converts an `OpenSSL X.509` resource into a PEM-encoded string.
+* `smime_certificate_pem_encode` - Converts an `OpenSSL X.509` resource into a [PEM](https://en.wikipedia.org/wiki/Privacy-enhanced_Electronic_Mail)-encoded string.
 * `smime_encrypt` - Performs the actual encryption given a message and an user's certificate.
+* `smime_pem_to_der` - A convenience function to convert a PEM-encoded object to its [(X.690) DER](https://en.wikipedia.org/wiki/X.690#DER_encoding) equivalent.
 
 Again, see the "Other Notes" section in the user-facing [`readme.txt`](readme.txt) for usage details.
 

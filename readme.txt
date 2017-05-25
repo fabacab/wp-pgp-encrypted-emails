@@ -3,8 +3,8 @@ Contributors: meitar
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
-Tested up to: 4.7.2
-Stable tag: 0.6.1
+Tested up to: 4.7.5
+Stable tag: 0.6.2
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -152,6 +152,11 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Change log ==
 
+= 0.6.2 =
+
+* Feature: New S/MIME API filter, `smime_pem_to_der`.
+    * This supports certain applications that need certificate data in DER format.
+
 = 0.6.1 =
 
 * Bugfix: Fix comment filter call.
@@ -220,12 +225,6 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 = 0.6.0 =
 This release adds S/MIME support. :)
-
-= 0.5.0 =
-Configure whether all users or only registered users receive signed email. New option to delete private key material on uninstall.
-
-= 0.4.4 =
-Site signing keys were incorrectly generated. Regenerate your signing keys ASAP.
 
 == Other notes ==
 

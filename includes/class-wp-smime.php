@@ -22,6 +22,7 @@ class WP_SMIME {
     public static function register () {
         add_filter( 'smime_certificate', array( __CLASS__, 'getCertificate' ) );
         add_filter( 'smime_certificate_pem_encode', array( __CLASS__, 'pemEncode' ) );
+        add_filter( 'smime_pem_to_der', array( __CLASS__, 'pemToDer' ) );
         add_filter( 'smime_encrypt', array( __CLASS__, 'encrypt'), 10, 4 );
     }
 
@@ -54,6 +55,46 @@ class WP_SMIME {
         return ( openssl_x509_export( $cert, $r ) )
             ? $r
             : false;
+    }
+
+    /**
+     * Encodes a PEM-encoded (RFC 7468) string to its DER equivalent.
+     *
+     * PEM is two things: a header/footer labeling and a Base 64
+     * encoding. Therefore, to go from a valid PEM format back to DER
+     * (raw binary) representation of the same data, one need merely
+     * strip the labels and base-64 decode the data. The process does
+     * not verify the data is actually valid DER data, just that the
+     * representation of it is correct.
+     *
+     * This means that if your input PEM data is a string containing
+     * multiple objects (i.e., it has more than one pair of labels),
+     * then this method may not actually work for your use case. For
+     * safety, you should call this function only on a single object,
+     * like one (and only one) certificate, or key, at a time.
+     *
+     * @see https://tools.ietf.org/html/rfc7468
+     * @see https://en.wikipedia.org/wiki/X.690#DER_encoding
+     *
+     * @param string $pem_str Data that is PEM-encoded.
+     *
+     * @return string The same data, but in DER format.
+     */
+    public static function pemToDer ( $pem_str ) {
+        $pem_lines = array_map( 'trim', explode( "\n", $pem_str ) );
+        $der_lines = array();
+
+        // Remove any lines that begin with five dashes.
+        // (These are labels.)
+        foreach ( $pem_lines as $pem_line ) {
+            if ( 0 === strpos( $pem_line, '-----' ) ) {
+                continue;
+            } else {
+                $der_lines[] = $pem_line;
+            }
+        }
+
+        return base64_decode( implode( '', $der_lines ) );
     }
 
     /**
