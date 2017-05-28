@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
 Tested up to: 4.7.5
-Stable tag: 0.6.2
+Stable tag: 0.6.3
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -152,6 +152,11 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Change log ==
 
+= 0.6.3 =
+
+* [Bugfix](https://wordpress.org/support/topic/accept-also-smime-keys/#post-9171196): Fix compatiblity with third-party contact form plugins (namely Contact Form 7).
+* [Bugfix](https://wordpress.org/support/topic/delete-plugin-not-working/): Fix issue with uninstallation.
+
 = 0.6.2 =
 
 * Feature: New S/MIME API filter, `smime_pem_to_der`.
@@ -222,6 +227,9 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 * Initial release.
 
 == Upgrade Notice ==
+
+= 0.6.3 =
+This release fixes an uninstallation bug and improves S/MIME compatibility with third-party contact form plugins.
 
 = 0.6.0 =
 This release adds S/MIME support. :)
