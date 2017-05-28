@@ -107,27 +107,27 @@ class WP_SMIME {
      * @return array|FALSE An array with two keys, `headers` and `message`, wherein the message is encrypted.
      */
     public static function encrypt ( $message, $headers, $certificates ) {
-        if ( is_string( $headers ) ) {
-            // PHP's openssl_pkcs7_encrypt expects headers as an array.
-            $headers = explode( "\n", $headers );
-        }
-
         $infile  = tempnam( '/tmp', 'wp_email_' );
         $outfile = $infile . '.enc';
 
-        // Set headers in the encrypted part.
-        $plaintext = $headers . "\n\n" . $message;
-
-        // Write files for OpenSSL's encryption (which takes a file path).
-        file_put_contents( $infile, $plaintext );
+        $plaintext  = ( is_array( $headers ) ) ? implode( "\n", $headers ) : $headers;
+        $plaintext .= "\n\n" . $message;
 
         // If we have it available, use a better cipher than the default.
         // This will be available in PHP 5.4 or later.
         // See https://secure.php.net/manual/en/openssl.ciphers.php
         $cipher_id = ( defined( 'OPENSSL_CIPHER_AES_256_CBC' ) ) ? OPENSSL_CIPHER_AES_256_CBC : OPENSSL_CIPHER_RC2_40;
 
+        if ( is_string( $headers ) ) {
+            // PHP's openssl_pkcs7_encrypt expects headers as an array.
+            $headers = explode( "\n", $headers );
+        }
+
+        // Write files for OpenSSL's encryption (which takes a file path).
+        file_put_contents( $infile, $plaintext );
+
         // Do the encryption.
-        if ( openssl_pkcs7_encrypt( $infile, $outfile, $certificates, $headers, 0, $cipher_id ) ) {
+        if ( openssl_pkcs7_encrypt( $infile, $outfile, $certificates, array_filter( $headers ), 0, $cipher_id ) ) {
             $smime = file_get_contents( $outfile );
         }
 
@@ -140,7 +140,7 @@ class WP_SMIME {
         unlink( $outfile );
 
         if ( $smime ) {
-            $parts   = explode( "\n\n", $smime, 2 );
+            $parts = explode( "\n\n", $smime, 2 );
             $r = array(
                 'headers' => $parts[0],
                 'message' => $parts[1],

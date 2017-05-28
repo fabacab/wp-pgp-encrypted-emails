@@ -17,15 +17,15 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) { exit(); }
 require_once plugin_dir_path( __FILE__ ) . 'wp-pgp-encrypted-emails.php';
 
 $meta_keys = array(
-    WP_PGP_Encrypted_Emails::$meta_key,
-    WP_PGP_Encrypted_Emails::$meta_smime_certificate,
-    WP_PGP_Encrypted_Emails::$meta_encryption_method,
-    WP_PGP_Encrypted_Emails::$meta_key_empty_subject_line,
-    WP_PGP_Encrypted_Emails::$meta_key_sign_for_unknown_recipients,
+    WP_PGP_Encrypted_Emails::meta_key,
+    WP_PGP_Encrypted_Emails::meta_smime_certificate,
+    WP_PGP_Encrypted_Emails::meta_encryption_method,
+    WP_PGP_Encrypted_Emails::meta_key_empty_subject_line,
+    WP_PGP_Encrypted_Emails::meta_key_sign_for_unknown_recipients,
 );
-if ( get_option( WP_PGP_Encrypted_Emails::$meta_key_purge_all ) ) {
-    $meta_keys[] = WP_PGP_Encrypted_Emails::$meta_keypair;
-    $meta_keys[] = WP_PGP_Encrypted_Emails::$meta_key_purge_all;
+if ( get_option( WP_PGP_Encrypted_Emails::meta_key_purge_all ) ) {
+    $meta_keys[] = WP_PGP_Encrypted_Emails::meta_keypair;
+    $meta_keys[] = WP_PGP_Encrypted_Emails::meta_key_purge_all;
 }
 
 foreach ( $meta_keys as $name ) {
