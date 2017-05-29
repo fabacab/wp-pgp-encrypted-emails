@@ -153,6 +153,9 @@ class WP_PGP_Encrypted_Emails {
             add_filter( 'preprocess_comment', array( __CLASS__, 'preprocessComment' ) );
         }
 
+        add_filter( 'wp_openpgp_user_key', array( __CLASS__, 'getUserKey' ) );
+        add_filter( 'wp_smime_user_certificate', array( __CLASS__, 'getUserCert' ) );
+        add_filter( 'wp_user_encryption_method', array( __CLASS__, 'getUserEncryptionMethod' ) );
         add_filter( 'wp_mail', array( __CLASS__, 'wp_mail' ) );
 
         register_activation_hook( __FILE__, array( __CLASS__, 'activate' ) );

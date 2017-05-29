@@ -250,6 +250,20 @@ This plugin offers additional functionality intended for other plugin developers
 
 == Filters ==
 
+= `wp_user_encryption_method` =
+
+Gets the user's preferred encryption method (either `pgp` or `smime`), if they have provided both an OpenPGP public key and an S/MIME certificate.
+
+* Optional arguments:
+    * `WP_User` `$user` - The WordPress user object. Defaults to the current user.
+
+= `wp_openpgp_user_key` =
+
+Gets the user's saved OpenPGP public key from their WordPress profile data, immediately usable in other `openpgp_*` filters.
+
+* Optional arguments:
+    * `WP_User` `$user` - The WordPress user object. Defaults to the current user.
+
 = `openpgp_enarmor` =
 
 Gets an ASCII-armored representation of an OpenPGP data structure (like a key, or an encrypted message).
@@ -337,6 +351,13 @@ A convenience filter that applies `openpgp_sign` and then `openpgp_encrypt` to t
     * `string` `$data` - The data to sign and encrypt.
     * `string` `$signing_key` - The signing key to use.
     * `array|string` `$recipient_keys_and_passphrases` - Public key(s) of the recipient(s), or passphrases to encrypt to.
+
+= `wp_openpgp_user_key` =
+
+Gets the user's saved S/MIME public certificate from their WordPress profile data, immediately usable in other `smime_*` filters.
+
+* Optional arguments:
+    * `WP_User` `$user` - The WordPress user object. Defaults to the current user.
 
 = `smime_certificate` =
 

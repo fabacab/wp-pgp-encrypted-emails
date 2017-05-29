@@ -40,7 +40,7 @@ Similarly, there are *many* pitfalls and "gotchas" when implementing your own en
 
 The S/MIME API consists of the following WordPress filter hooks:
 
-* `smime_certificate` - Retrieves a usable PHP `resource` of type `'OpenSSL X.509'` from some appropriately-formatted data.
+* `smime_certificate` - Retrieves a usable PHP `resource` of type `OpenSSL X.509` from some appropriately-formatted data.
 * `smime_certificate_pem_encode` - Converts an `OpenSSL X.509` resource into a [PEM](https://en.wikipedia.org/wiki/Privacy-enhanced_Electronic_Mail)-encoded string.
 * `smime_encrypt` - Performs the actual encryption given a message and an user's certificate.
 * `smime_pem_to_der` - A convenience function to convert a PEM-encoded object to its [(X.690) DER](https://en.wikipedia.org/wiki/X.690#DER_encoding) equivalent.
@@ -59,18 +59,18 @@ This plugin makes no additional attempt to protect key material from other runni
 
 > :construction: Note that some parts of this enforcement still need a better user interface. :(
 
-A user's key material will be stored as part of their WordPress profile information and is therefore accessible to other running code. However, you are strongly encouraged to use the following `public static` methods this plugin provides instead of directly accessing the user's metadata.
+A user's key material will be stored as part of their WordPress profile information and is therefore accessible to other running code. However, you are strongly encouraged to use the following WordPress filters provided by this plugin instead of directly accessing the user's metadata.
 
-* `WP_PGP_Encrypted_Emails::getUserKey( $wp_user )` - To retrieve the user's OpenPGP public key.
-* `WP_PGP_Encrypted_Emails::getUserCert( $wp_user )` - To retrieve the user's S/MIME public certificate.
+* `wp_openpgp_get_key` - To retrieve the user's OpenPGP public key.
+* `wp_smime_get_certificate` - To retrieve the user's S/MIME public certificate.
 
-Both these methods automatically invoke the `openpgp_key` or `smime_certificate` API methods so that they `return` native PHP objects rather than raw strings. You can then immediately use the results in further operations. This radically simplifies the process from plaintext to successful encryption, as shown here using both schemes:
+Both these filters automatically invoke the `openpgp_key` or `smime_certificate` filters so that they `return` native PHP objects rather than raw strings. You can then immediately use the results in further operations. This radically simplifies the process from plaintext to successful encryption, as shown here using both schemes:
 
 ```php
 // Get the key material.
-$wp_user = get_user_by( 'email', 'example.user@example.com' );  // `$wp_user` is now a `WP_User` object.
-$public_key = WP_PGP_Encrypted_Emails::getUserKey( $wp_user );  //< The OpenPGP public key for this user.
-$smime_cert = WP_PGP_Encrypted_Emails::getUserCert( $wp_user ); //< The S/MIME certificate for this user.
+$wp_user    = get_user_by( 'email', 'example.user@example.com' );     // `$wp_user` is now a `WP_User` object.
+$public_key = apply_filters( 'wp_openpgp_user_key', $wp_user );       //< The OpenPGP public key for this user.
+$smime_cert = apply_filters( 'wp_smime_user_certificate', $wp_user ); //< The S/MIME certificate for this user.
 
 // Compose a message to encrypt.
 $message = 'This is a test.';
@@ -82,10 +82,10 @@ $smime_encrypted_message = apply_filters( 'smime_encrypt', $message, array(), $s
 
 This way, each WordPress user is able to indicate to you (and your plugin) that they wish to use one (or both) of the secure communication protocols widely deployed today. The API also makes implementing both schemes in your own code effectively identical. All of the differences between OpenPGP and S/MIME encryption are taken care of for you in as secure a manner as I know how.
 
-If you want to support both OpenPGP and S/MIME *and* a given user has provided *both* an OpenPGP public key and an S/MIME certificate, you should additionally use this plugin's `getUserEncryptionMethod()` method:
+If you want to support both OpenPGP and S/MIME *and* a given user has provided *both* an OpenPGP public key and an S/MIME certificate, you should additionally use the plugin's `wp_user_encryption_method` filter:
 
 ```php
-$preferred_method = WP_PGP_Encrypted_Emails::getUserEncryptionMethod( $wp_user );
+$preferred_method = apply_filters( 'wp_user_encryption_method', $wp_user );
 if ( 'pgp' === $preferred_method ) {
     print 'This user preferrs to use OpenPGP.';
 } else if ( 'smime' === $preferred_method ) {
