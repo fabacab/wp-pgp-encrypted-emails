@@ -185,6 +185,30 @@ class WP_PGP_Encrypted_Emails {
             require_once plugin_dir_path( __FILE__ ) . '/includes/class-wp-smime.php';
             WP_SMIME::register();
         }
+
+        // Integrations.
+        //
+        // This allows an end-user to create a file in their
+        // current theme directory with the name of a plugin
+        // slug and `-functions.php` appended to it in order
+        // to automatically override any defaults defined by
+        // this plugin. It's "pluggable," in WP jargon.
+        require_once ABSPATH . '/wp-admin/includes/plugin.php';
+        $plugins = array(
+            // Whitelist of allowed plugins.
+            'woocommerce',
+        );
+        $tpl_dir = get_template_directory();
+        $our_dir = plugin_dir_path( __FILE__ ) . '/includes';
+        foreach ( $plugins as $p ) {
+            if ( is_plugin_active( "$p/$p.php" ) ) {
+                if ( is_readable( "{$tpl_dir}/{$p}-functions.php" ) ) {
+                    include_once "{$tpl_dir}/{$p}-functions.php";
+                } else if ( is_readable( "{$our_dir}/$p-functions.php" ) ) {
+                    include_once "{$our_dir}/{$p}-functions.php";
+                }
+            }
+        }
     }
 
     /**
