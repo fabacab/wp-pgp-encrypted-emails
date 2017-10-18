@@ -6,6 +6,15 @@ A pure PHP [WordPress plugin](https://developer.wordpress.org/plugins/) that add
 
 OpenPGP implementation is based on the [OpenPGP.php](https://github.com/singpolyma/openpgp-php) project. S/MIME support uses the ubiquitous [OpenSSL extension](https://secure.php.net/manual/book.openssl.php) for PHP.
 
+## Contents
+
+1. [Cryptographic implementation notes](#cryptographic-implementation-notes)
+    1. [OpenPGP API](#openpgp-api)
+    1. [S/MIME API](#smime-api)
+    1. [Handling key material](#handling-key-material)
+1. [Third-party plugin integrations](#third-party-plugin-integrations)
+1. [Disclaimer and bugs](#disclaimer-and-bugs)
+
 ## Cryptographic implementation notes
 
 Beyond merely processing WordPress-generated email automatically (i.e., any email sent via [WordPress's built-in `wp_mail()` function](https://developer.wordpress.org/reference/functions/wp_mail/)), this plugin also provides an easy-to-use API to cryptographically secure operations for encrypting arbitrary data to protect data-at-rest or data-in-motion intended to be familiar to WordPress plugin and theme developers. This API ensures WordPress developers have ready access to otherwise potentially difficult and obscure mechanisms for protecting user data. My hope is that developers can therefor build more secure, more private coordination and communication tools atop WordPress without needing to become security gurus, themselves.
@@ -94,6 +103,12 @@ if ( 'pgp' === $preferred_method ) {
 ```
 
 Obviously, if a given user only has an OpenPGP public key, or only has an S/MIME certificate, then use that method to communicate with them since you cannot use the other. ;)
+
+## Third-party plugin integrations
+
+It is possible to add custom integrations with popular third-party plugins for your site by adding a file with the name `PLUGIN-functions.php`, where `PLUGIN` is the plugin slug for a recognized plugin. This file will be automatically loaded by WP PGP Encrypted Emails during initialization if and only if the plugin is currently active on your site. Your code will then *replace* the built-in integrations for that plugin shipped with this plugin.
+
+For example, to customize your WooCommerce integration, create a file in your current Theme directory called `woocommerce-functions.php`. You will need to write your own calls to [`add_action()`](https://developer.wordpress.org/reference/functions/add_action) and so forth for your code to have any meaningful effect. You can use the [integrations shipped with this plugin](includes/woocommerce-functions.php) as a guide.
 
 ## Disclaimer and bugs
 
