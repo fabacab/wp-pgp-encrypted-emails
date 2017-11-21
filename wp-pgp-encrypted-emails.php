@@ -151,6 +151,15 @@ class WP_PGP_Encrypted_Emails {
             add_filter( 'comment_form_submit_field', array( __CLASS__, 'renderCommentFormFields' ) );
             add_filter( 'comment_class', array( __CLASS__, 'commentClass' ), 10, 4 );
             add_filter( 'preprocess_comment', array( __CLASS__, 'preprocessComment' ) );
+
+            if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+                global $woocommerce;
+                if ( version_compare ( $woocommerce->version, '2.6', ">=" ) ) {
+                    add_action( 'woocommerce_edit_account_form', array( __CLASS__, 'renderProfile' ), 999 );
+                    add_action( 'woocommerce_save_account_details', array( __CLASS__, 'saveProfile' ) );
+                    add_action( 'woocommerce_save_account_details_errors', array( __CLASS__, 'wooc_validate_key_cert') );
+                }
+            }
         }
 
         add_filter( 'wp_openpgp_user_key', array( __CLASS__, 'getUserKey' ) );
@@ -767,6 +776,8 @@ class WP_PGP_Encrypted_Emails {
      * @return void
      */
     public static function renderProfile ( $profileuser ) {
+        if ( ! is_admin() ) 
+            $profileuser = get_userdata( get_current_user_id() );
         require_once 'admin/profile.php';
     }
 
@@ -1410,6 +1421,22 @@ class WP_PGP_Encrypted_Emails {
         return $comment_data;
     }
 
+    /**
+     * Validates PGP public key & S/MIME certificate for front-end WooCommerce entry 
+     *
+     * @return void
+     */
+    function wooc_validate_key_cert( $args ) {
+        if ( ! empty($_POST['pgp_public_key'] ) ) {
+            if ( ! apply_filters( 'openpgp_key', $_POST['pgp_public_key'] ) ) 
+                $args->add( 'error', __( 'There is a problem with your PGP public key.', 'wp-pgp-encrypted-emails' ),'');
+        }
+        if ( ! empty($_POST['smime_certificate'] ) ) {
+            if ( ! apply_filters( 'smime_certificate', $_POST['smime_certificate'] ) ) 
+                $args->add( 'error', __( 'There is a problem with your S/MIME public certificate.', 'wp-pgp-encrypted-emails' ),'');
+        }
+    }
+    
 }
 
 WP_PGP_Encrypted_Emails::register();
