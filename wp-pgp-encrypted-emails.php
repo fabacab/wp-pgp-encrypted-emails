@@ -13,7 +13,7 @@
  * * Plugin Name: WP PGP Encrypted Emails
  * * Plugin URI: https://github.com/meitar/wp-pgp-encrypted-emails
  * * Description: Encrypts email sent to users who opt-in to OpenPGP- and/or S/MIME-compatible protection. <strong>Like this plugin? Please <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="Send a donation to the developer of WP PGP Encrypted Emails">donate</a>. &hearts; Thank you!</strong>
- * * Version: 0.6.3
+ * * Version: 0.7
  * * Author: Maymay <bitetheappleback@gmail.com>
  * * Author URI: https://maymay.net/
  * * License: GPL-3.0
@@ -102,6 +102,13 @@ class WP_PGP_Encrypted_Emails {
     const meta_key_sign_for_unknown_recipients = 'pgp_sign_for_unknown_recipients';
 
     /**
+     * Whether a user should receive signed email or not.
+     *
+     * @var string
+     */
+    const meta_key_receive_signed_email = 'openpgp_receive_signed_email';
+
+    /**
      * Meta key where toggle to purge options on uninstall is stored.
      *
      * @var string
@@ -153,6 +160,9 @@ class WP_PGP_Encrypted_Emails {
             add_filter( 'preprocess_comment', array( __CLASS__, 'preprocessComment' ) );
         }
 
+        add_filter( 'wp_openpgp_user_key', array( __CLASS__, 'getUserKey' ) );
+        add_filter( 'wp_smime_user_certificate', array( __CLASS__, 'getUserCert' ) );
+        add_filter( 'wp_user_encryption_method', array( __CLASS__, 'getUserEncryptionMethod' ) );
         add_filter( 'wp_mail', array( __CLASS__, 'wp_mail' ) );
 
         register_activation_hook( __FILE__, array( __CLASS__, 'activate' ) );
@@ -181,6 +191,30 @@ class WP_PGP_Encrypted_Emails {
         if ( function_exists( 'openssl_x509_read' ) ) {
             require_once plugin_dir_path( __FILE__ ) . '/includes/class-wp-smime.php';
             WP_SMIME::register();
+        }
+
+        // Integrations.
+        //
+        // This allows an end-user to create a file in their
+        // current theme directory with the name of a plugin
+        // slug and `-functions.php` appended to it in order
+        // to automatically override any defaults defined by
+        // this plugin. It's "pluggable," in WP jargon.
+        require_once ABSPATH . '/wp-admin/includes/plugin.php';
+        $plugins = array(
+            // Whitelist of allowed plugins.
+            'woocommerce',
+        );
+        $tpl_dir = get_template_directory();
+        $our_dir = plugin_dir_path( __FILE__ ) . '/includes';
+        foreach ( $plugins as $p ) {
+            if ( is_plugin_active( "$p/$p.php" ) ) {
+                if ( is_readable( "{$tpl_dir}/{$p}-functions.php" ) ) {
+                    include_once "{$tpl_dir}/{$p}-functions.php";
+                } else if ( is_readable( "{$our_dir}/$p-functions.php" ) ) {
+                    include_once "{$our_dir}/{$p}-functions.php";
+                }
+            }
         }
     }
 
@@ -1188,7 +1222,20 @@ class WP_PGP_Encrypted_Emails {
      *
      * @return void
      */
-     public static function saveProfile ( $user_id ) {
+    public static function saveProfile ( $user_id ) {
+        if ( isset( $_POST[ self::meta_key_receive_signed_email ] ) ) {
+            update_user_meta(
+                $user_id,
+                self::meta_key_receive_signed_email,
+                (bool) $_POST[ self::meta_key_receive_signed_email ]
+            );
+        } else {
+            delete_user_meta(
+                $user_id,
+                self::meta_key_receive_signed_email
+            );
+        }
+
         update_user_meta(
             $user_id,
             self::meta_key,
@@ -1231,36 +1278,36 @@ class WP_PGP_Encrypted_Emails {
      *
      * @return array
      */
-    public static function wp_mail ($args) {
-        if (!is_array($args['to'])) {
-            $args['to'] = explode(',', $args['to']);
+    public static function wp_mail ( $args ) {
+        if ( ! is_array( $args['to'] ) ) {
+            $args['to'] = explode( ',', $args['to'] );
         }
-        $args['headers'] = (isset($args['headers'])) ? $args['headers'] : '';
-        $args['attachments'] = (isset($args['attachments'])) ? $args['attachments'] : array();
+        $args['headers'] = ( isset( $args['headers'] ) ) ? $args['headers'] : '';
+        $args['attachments'] = ( isset( $args['attachments'] ) ) ? $args['attachments'] : array();
 
         // First sign the message, if we can.
-        $kp = get_option(self::meta_keypair);
-        if ($kp && !empty($kp['privatekey']) && $sec_key = apply_filters('openpgp_key', $kp['privatekey'])) {
-            $signed_message = apply_filters('openpgp_sign', $args['message'], $sec_key);
+        $kp = get_option( self::meta_keypair );
+        if ( $kp && ! empty( $kp['privatekey'] ) && $sec_key = apply_filters( 'openpgp_key', $kp['privatekey'] ) ) {
+            $signed_message = apply_filters( 'openpgp_sign', $args['message'], $sec_key );
         }
 
-        while ($to = array_pop($args['to'])) {
+        while ( $to = array_pop( $args['to'] ) ) {
             $mail = self::prepareMail(
                 $to,
                 $args['subject'],
-                (self::shouldSign($to) && isset($signed_message)) ? $signed_message : $args['message'],
+                ( self::shouldSign( $to ) && isset( $signed_message ) ) ? $signed_message : $args['message'],
                 $args['headers'],
                 $args['attachments']
             );
-            if (0 === count($args['to'])) {
+            if ( 0 === count( $args['to'] ) ) {
                 return $mail;
             } else {
                 // Now that we've re-configured the message, we run this
                 // back through wp_mail() without calling this same
                 // function again.
-                remove_filter('wp_mail', array(__CLASS__, __FUNCTION__));
-                wp_mail($mail['to'], $mail['subject'], $mail['message'], $mail['headers'], $mail['attachments']);
-                add_filter('wp_mail', array(__CLASS__, __FUNCTION__));
+                remove_filter( 'wp_mail', array( __CLASS__, __FUNCTION__ ) );
+                wp_mail( $mail['to'], $mail['subject'], $mail['message'], $mail['headers'], $mail['attachments'] );
+                add_filter( 'wp_mail', array( __CLASS__, __FUNCTION__ ) );
             }
         }
     }
@@ -1268,13 +1315,24 @@ class WP_PGP_Encrypted_Emails {
     /**
     * Checks whether or not to sign email sent to unknown addresses.
     *
+    * @param string $to The email address to which this message is addressed.
+    *
     * @return bool
     */
     private static function shouldSign ( $to ) {
         if ( false === get_user_by( 'email', $to ) ) {
             return (bool) get_option( self::meta_key_sign_for_unknown_recipients );
         }
-        return true; // Default to signing for recognized addresses.
+
+        /**
+         * Filters whether or not to sign this message.
+         *
+         * @since 0.7
+         *
+         * @param bool
+         * @param string $to The email address to which this message is addressed.
+         */
+        return apply_filters( 'openpgp_sign_email', true, $to );
     }
 
     /**

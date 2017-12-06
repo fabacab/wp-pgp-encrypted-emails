@@ -1,0 +1,37 @@
+{
+    "name": "meitar/wp-pgp-encrypted-emails",
+    "description": "Encrypts WordPress emails using OpenPGP or S/MIME with a familiar API.",
+    "type": "wordpress-plugin",
+    "keywords": [
+        "OpenPGP",
+        "GPG",
+        "WordPress",
+        "Security",
+        "Privacy",
+        "Email",
+        "SMIME",
+        "encryption",
+        "PGP",
+        "API wrapper"
+    ],
+    "homepage": "https://github.com/meitar/wp-pgp-encrypted-emails/#readme",
+    "require": {
+        "singpolyma/openpgp-php": "^0.3.0"
+    },
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Maymay",
+            "email": "bitetheappleback@gmail.com",
+            "homepage": "https://maymay.net/",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/meitar/wp-pgp-encrypted-emails/issues",
+        "forum": "https://wordpress.org/support/plugin/wp-pgp-encrypted-emails",
+        "wiki": "https://github.com/meitar/wp-pgp-encrypted-emails/wiki",
+        "source": "https://github.com/meitar/wp-pgp-encrypted-emails",
+        "docs": "https://github.com/meitar/wp-pgp-encrypted-emails/blob/master/README.markdown"
+    }
+}

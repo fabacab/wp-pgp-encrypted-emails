@@ -13,10 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; } // Disallow direct HTTP access.
 
 // Load dependencies.
 if ( ! class_exists( 'OpenPGP' ) ) {
-    require_once plugin_dir_path( __FILE__ ) . '../vendor/openpgp-php/vendor/autoload.php';
-    require_once plugin_dir_path( __FILE__ ) . '../vendor/openpgp-php/openpgp.php';
-    require_once plugin_dir_path( __FILE__ ) . '../vendor/openpgp-php/openpgp_crypt_rsa.php';
-    require_once plugin_dir_path( __FILE__ ) . '../vendor/openpgp-php/openpgp_crypt_symmetric.php';
+    require_once plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
 }
 
 /**
