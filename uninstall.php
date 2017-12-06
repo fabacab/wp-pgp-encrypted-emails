@@ -22,6 +22,7 @@ $meta_keys = array(
     WP_PGP_Encrypted_Emails::meta_encryption_method,
     WP_PGP_Encrypted_Emails::meta_key_empty_subject_line,
     WP_PGP_Encrypted_Emails::meta_key_sign_for_unknown_recipients,
+    WP_PGP_Encrypted_emails::meta_key_receive_signed_email,
 );
 if ( get_option( WP_PGP_Encrypted_Emails::meta_key_purge_all ) ) {
     $meta_keys[] = WP_PGP_Encrypted_Emails::meta_keypair;

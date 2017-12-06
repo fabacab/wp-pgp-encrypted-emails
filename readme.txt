@@ -3,7 +3,7 @@ Contributors: meitar
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
-Tested up to: 4.8.2
+Tested up to: 4.9
 Stable tag: 0.7
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -153,6 +153,10 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Change log ==
 
+= 0.7 =
+* Feature: WooCommerce integration. Customers can add their own OpenPGP keys or S/MIME certificates on their "My Account" front-end supplied by WooCommerce. By default, emails sent to Customers are *not* signed with the site's PGP signing key, though individual customers can opt-in to receive either encrypted and signed or just signed emails as they wish.
+* Developer: Theme authors can override the plugin's default WooCommerce integration file by adding a `woocommerce-functions.php` file to their theme. Please only do this if you know what you are doing.
+
 = 0.6.4 =
 
 * Feature: Customizable WooCommerce integration. Create a file called `woocommerce-functions.php` in your active Theme folder to define your own WooCommerce integrations. Built-in integrations are provided out-of-the-box if that file does not exist.
@@ -234,11 +238,11 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Upgrade Notice ==
 
+= 0.7 =
+This release adds WooCommerce integration to help protect your business and your customer's information.
+
 = 0.6.4 =
 This is a feature and maintenance release that brings WooCommerce integration for your store's customers.
-
-= 0.6.3 =
-This release fixes an uninstallation bug and improves S/MIME compatibility with third-party contact form plugins.
 
 == Other notes ==
 

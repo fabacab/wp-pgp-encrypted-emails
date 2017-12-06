@@ -102,6 +102,13 @@ class WP_PGP_Encrypted_Emails {
     const meta_key_sign_for_unknown_recipients = 'pgp_sign_for_unknown_recipients';
 
     /**
+     * Whether a user should receive signed email or not.
+     *
+     * @var string
+     */
+    const meta_key_receive_signed_email = 'openpgp_receive_signed_email';
+
+    /**
      * Meta key where toggle to purge options on uninstall is stored.
      *
      * @var string
@@ -1215,7 +1222,20 @@ class WP_PGP_Encrypted_Emails {
      *
      * @return void
      */
-     public static function saveProfile ( $user_id ) {
+    public static function saveProfile ( $user_id ) {
+        if ( isset( $_POST[ self::meta_key_receive_signed_email ] ) ) {
+            update_user_meta(
+                $user_id,
+                self::meta_key_receive_signed_email,
+                (bool) $_POST[ self::meta_key_receive_signed_email ]
+            );
+        } else {
+            delete_user_meta(
+                $user_id,
+                self::meta_key_receive_signed_email
+            );
+        }
+
         update_user_meta(
             $user_id,
             self::meta_key,
@@ -1258,36 +1278,36 @@ class WP_PGP_Encrypted_Emails {
      *
      * @return array
      */
-    public static function wp_mail ($args) {
-        if (!is_array($args['to'])) {
-            $args['to'] = explode(',', $args['to']);
+    public static function wp_mail ( $args ) {
+        if ( ! is_array( $args['to'] ) ) {
+            $args['to'] = explode( ',', $args['to'] );
         }
-        $args['headers'] = (isset($args['headers'])) ? $args['headers'] : '';
-        $args['attachments'] = (isset($args['attachments'])) ? $args['attachments'] : array();
+        $args['headers'] = ( isset( $args['headers'] ) ) ? $args['headers'] : '';
+        $args['attachments'] = ( isset( $args['attachments'] ) ) ? $args['attachments'] : array();
 
         // First sign the message, if we can.
-        $kp = get_option(self::meta_keypair);
-        if ($kp && !empty($kp['privatekey']) && $sec_key = apply_filters('openpgp_key', $kp['privatekey'])) {
-            $signed_message = apply_filters('openpgp_sign', $args['message'], $sec_key);
+        $kp = get_option( self::meta_keypair );
+        if ( $kp && ! empty( $kp['privatekey'] ) && $sec_key = apply_filters( 'openpgp_key', $kp['privatekey'] ) ) {
+            $signed_message = apply_filters( 'openpgp_sign', $args['message'], $sec_key );
         }
 
-        while ($to = array_pop($args['to'])) {
+        while ( $to = array_pop( $args['to'] ) ) {
             $mail = self::prepareMail(
                 $to,
                 $args['subject'],
-                (self::shouldSign($to) && isset($signed_message)) ? $signed_message : $args['message'],
+                ( self::shouldSign( $to ) && isset( $signed_message ) ) ? $signed_message : $args['message'],
                 $args['headers'],
                 $args['attachments']
             );
-            if (0 === count($args['to'])) {
+            if ( 0 === count( $args['to'] ) ) {
                 return $mail;
             } else {
                 // Now that we've re-configured the message, we run this
                 // back through wp_mail() without calling this same
                 // function again.
-                remove_filter('wp_mail', array(__CLASS__, __FUNCTION__));
-                wp_mail($mail['to'], $mail['subject'], $mail['message'], $mail['headers'], $mail['attachments']);
-                add_filter('wp_mail', array(__CLASS__, __FUNCTION__));
+                remove_filter( 'wp_mail', array( __CLASS__, __FUNCTION__ ) );
+                wp_mail( $mail['to'], $mail['subject'], $mail['message'], $mail['headers'], $mail['attachments'] );
+                add_filter( 'wp_mail', array( __CLASS__, __FUNCTION__ ) );
             }
         }
     }
@@ -1295,13 +1315,24 @@ class WP_PGP_Encrypted_Emails {
     /**
     * Checks whether or not to sign email sent to unknown addresses.
     *
+    * @param string $to The email address to which this message is addressed.
+    *
     * @return bool
     */
     private static function shouldSign ( $to ) {
         if ( false === get_user_by( 'email', $to ) ) {
             return (bool) get_option( self::meta_key_sign_for_unknown_recipients );
         }
-        return true; // Default to signing for recognized addresses.
+
+        /**
+         * Filters whether or not to sign this message.
+         *
+         * @since 0.7
+         *
+         * @param bool
+         * @param string $to The email address to which this message is addressed.
+         */
+        return apply_filters( 'openpgp_sign_email', true, $to );
     }
 
     /**

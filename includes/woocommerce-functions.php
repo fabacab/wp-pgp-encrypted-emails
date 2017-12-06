@@ -22,6 +22,8 @@ class WP_PGP_Encrypted_Emails_WooCommerce {
     public static function register () {
         add_action( 'woocommerce_edit_account_form', array( __CLASS__, 'renderEditAccountForm' ) );
         add_action( 'woocommerce_save_account_details', array( 'WP_PGP_Encrypted_Emails', 'saveProfile' ) );
+
+        add_action( 'openpgp_sign_email', array( __CLASS__, 'maybeSignEmail' ), 10, 2 );
     }
 
     /**
@@ -44,10 +46,21 @@ class WP_PGP_Encrypted_Emails_WooCommerce {
                 href="<?php print esc_attr( admin_url( 'admin-ajax.php?action=download_pgp_signing_public_key' ) ); ?>"
             ><?php esc_html_e( 'Download public key', 'wp-pgp-encrypted-emails' ); ?></a>
         </p>
+        <p>
+            <label>
+                <input type="checkbox"
+                    id="<?php print esc_attr( WP_PGP_Encrypted_Emails::meta_key_receive_signed_email );?>"
+                    name="<?php print esc_attr( WP_PGP_Encrypted_Emails::meta_key_receive_signed_email );?>"
+                    <?php checked( $wp_user->{WP_PGP_Encrypted_Emails::meta_key_receive_signed_email} );?>
+                    value="1"
+                />
+                <?php esc_html_e( 'Receive OpenPGP-signed emails', 'wp-pgp-encrypted-emails' ); ?>
+            </label>
+        </p>
         <p class="description"><?php $lang = get_locale(); $lang = substr( $lang, 0, 2 ); print sprintf(
             esc_html__( '%1$s sends digitally signed emails to help you verify that email you receive purporting to be from this website was in fact sent from this website. To authenticate the emails, download the PGP public key and import it to %2$san OpenPGP-compatible client%3$s.', 'wp-pgp-encrypted-emails' ),
             get_bloginfo( 'name' ),
-            '<a href="https://prism-break.org/' . $lang . '/protocols/gpg/" target="_blank">', '</a>'
+            links_add_target( '<a href="https://prism-break.org/' . $lang . '/protocols/gpg/">' ), '</a>'
         );?></p>
     </fieldset>
     <?php } // endif ?>
@@ -62,8 +75,9 @@ class WP_PGP_Encrypted_Emails_WooCommerce {
     </p>
     <p class="description">
         <?php print sprintf(
-            esc_html__( 'Paste your PGP public key here to have WordPress encrypt emails it sends you. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails' )
-        );?>
+            esc_html__( 'Paste your PGP public key here to have %1$s encrypt emails it sends you. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails' ),
+            get_bloginfo( 'name' )
+        ) ;?>
     </p>
     <p class="woocommerce-form-row">
         <label for="<?php print esc_attr( WP_PGP_Encrypted_Emails::meta_smime_certificate ); ?>"><?php esc_html_e( 'Your S/MIME Public Certificate', 'wp-pgp-encrypted-emails' ); ?></label>
@@ -76,8 +90,9 @@ class WP_PGP_Encrypted_Emails_WooCommerce {
     </p>
     <p class="description">
         <?php print sprintf(
-            esc_html__( 'Paste your S/MIME public certificate here to have WordPress encrypt emails it sends you. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails' )
-        );?>
+            esc_html__( 'Paste your S/MIME public certificate here to have %1$s encrypt emails it sends you. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails' ),
+            get_bloginfo( 'name' )
+        ) ;?>
     </p>
 <?php if ( WP_PGP_Encrypted_Emails::getUserKey() && WP_PGP_Encrypted_Emails::getUserCert() ) { ?>
     <p>
@@ -108,9 +123,9 @@ class WP_PGP_Encrypted_Emails_WooCommerce {
     <p>
         <label>
             <input type="checkbox"
-                id="<?php print esc_attr(WP_PGP_Encrypted_Emails::meta_key_empty_subject_line);?>"
-                name="<?php print esc_attr(WP_PGP_Encrypted_Emails::meta_key_empty_subject_line);?>"
-                <?php checked($wp_user->{WP_PGP_Encrypted_Emails::meta_key_empty_subject_line});?>
+                id="<?php print esc_attr( WP_PGP_Encrypted_Emails::meta_key_empty_subject_line );?>"
+                name="<?php print esc_attr( WP_PGP_Encrypted_Emails::meta_key_empty_subject_line );?>"
+                <?php checked( $wp_user->{WP_PGP_Encrypted_Emails::meta_key_empty_subject_line} );?>
                 value="1"
             />
             <?php esc_html_e('Always empty subject lines for encrypted emails', 'wp-pgp-encrypted-emails');?>
@@ -121,6 +136,23 @@ class WP_PGP_Encrypted_Emails_WooCommerce {
     );?></p>
 </fieldset>
 <?php
+    }
+
+    /**
+     * Filters the `openpgp_sign_email` hook to determine whether or
+     * not to add an OpenPGP signature for this particular recipient.
+     *
+     * @param bool $do_sign Whether or not to sign this message.
+     * @param string $to The email address to which this message is addressed.
+     *
+     * @return bool
+     */
+    public static function maybeSignEmail ( $do_sign, $to ) {
+        $wp_user = get_user_by( 'email', $to );
+        if ( in_array( 'customer', $wp_user->roles ) ) {
+            return (bool) get_user_meta( $wp_user->ID, WP_PGP_Encrypted_Emails::meta_key_receive_signed_email, true );
+        }
+        return $do_sign;
     }
 
 }

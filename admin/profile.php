@@ -16,8 +16,9 @@
                     ><?php print esc_textarea( $profileuser->{self::meta_key} ); ?></textarea>
                 <p class="description">
                     <?php print sprintf(
-                        esc_html__( 'Paste your PGP public key here to have WordPress encrypt emails it sends you. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails' )
-                    );?>
+                        esc_html__( 'Paste your PGP public key here to have %1$s encrypt emails it sends you. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails' ),
+                        get_bloginfo( 'name' )
+                    ) ;?>
                 </p>
             </td>
         </tr>
@@ -37,8 +38,9 @@
                     ><?php print esc_textarea( $profileuser->{self::meta_smime_certificate} ); ?></textarea>
                 <p class="description">
                     <?php print sprintf(
-                        esc_html__( 'Paste your S/MIME public certificate here to have WordPress encrypt emails it sends you. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails' )
-                    );?>
+                        esc_html__( 'Paste your S/MIME public certificate here to have %1$s encrypt emails it sends you. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails' ),
+                        get_bloginfo( 'name' )
+                    ) ;?>
                 </p>
             </td>
         </tr>
@@ -107,7 +109,7 @@ if ( ! empty( $kp['publickey'] ) ) {
                 <p class="description"><?php $lang = get_locale(); $lang = substr( $lang, 0, 2 ); print sprintf(
                     esc_html__( '%1$s sends digitally signed emails to help you verify that email you receive purporting to be from this website was in fact sent from this website. To authenticate the emails, download the PGP public key and import it to %2$san OpenPGP-compatible client%3$s.', 'wp-pgp-encrypted-emails' ),
                     get_bloginfo( 'name' ),
-                    '<a href="https://prism-break.org/' . $lang . '/protocols/gpg/" target="_blank">', '</a>'
+                    links_add_target( '<a href="https://prism-break.org/' . $lang . '/protocols/gpg/">' ), '</a>'
                 );?></p>
             </td>
         </tr>
