@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
 Tested up to: 4.9
-Stable tag: 0.7
+Stable tag: 0.7.1
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -153,6 +153,9 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Change log ==
 
+= 0.7.1 =
+* [Enhancement](https://github.com/meitar/wp-pgp-encrypted-emails/issues/28): Offer a simple "Send me a test email" button to let inexperienced users easily test their encryption setup.
+
 = 0.7 =
 * Feature: WooCommerce integration. Customers can add their own OpenPGP keys or S/MIME certificates on their "My Account" front-end supplied by WooCommerce. By default, emails sent to Customers are *not* signed with the site's PGP signing key, though individual customers can opt-in to receive either encrypted and signed or just signed emails as they wish.
 * Developer: Theme authors can override the plugin's default WooCommerce integration file by adding a `woocommerce-functions.php` file to their theme. Please only do this if you know what you are doing.
@@ -233,6 +236,9 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 * Initial release.
 
 == Upgrade Notice ==
+
+= 0.7.1 =
+This release adds a "Send me a test email" button to your profile page. It also includes minor code cleanup.
 
 = 0.7 =
 This release adds WooCommerce integration to help protect your business and your customer's information.
