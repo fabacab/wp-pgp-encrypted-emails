@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
 Tested up to: 4.9
-Stable tag: 0.7
+Stable tag: 0.7.1
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -37,7 +37,7 @@ The plugin works transparently for *all email* your site generates, and will als
 
 Each of your site's users can supply their own, personal public key and/or X.509 S/MIME certificate for their own email address to have WordPress automatically encrypt any email destined for them. (They merely need to update their user profile.) They can choose which encryption method to use. Once set up, all future emails WordPress sends to that user will be encrypted using the standards-based OpenPGP or S/MIME technologies.
 
-The PGP-encrypted emails can be decrypted by any OpenPGP-compatible mail client, such as [MacGPG](https://gpgtools.org/), [GPG4Win](https://www.gpg4win.org/), or [Enigmail](https://www.enigmail.net/). For more information on reading encrypted emails, generating keys, and other uses for OpenPGP-compatible encrpytion, consult any (or all!) of the following guides:
+The PGP-encrypted emails can be decrypted by any OpenPGP-compatible mail client, such as [MacGPG](https://gpgtools.org/), [GPG4Win](https://www.gpg4win.org/), or [Enigmail](https://www.enigmail.net/). For more information on reading encrypted emails, generating keys, and other uses for OpenPGP-compatible encryption, consult any (or all!) of the following guides:
 
 * [The Electronic Frontier Foundation's Surveillance Self-Defense guide to PGP](https://ssd.eff.org/en/module/introduction-public-key-cryptography-and-pgp)
 * [RiseUp.net's OpenPGP best practices guide](https://help.riseup.net/en/gpg-best-practices)
@@ -153,13 +153,12 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Change log ==
 
+= 0.7.1 =
+* [Enhancement](https://github.com/meitar/wp-pgp-encrypted-emails/issues/28): Offer a simple "Send me a test email" button to let inexperienced users easily test their encryption setup.
+
 = 0.7 =
 * Feature: WooCommerce integration. Customers can add their own OpenPGP keys or S/MIME certificates on their "My Account" front-end supplied by WooCommerce. By default, emails sent to Customers are *not* signed with the site's PGP signing key, though individual customers can opt-in to receive either encrypted and signed or just signed emails as they wish.
 * Developer: Theme authors can override the plugin's default WooCommerce integration file by adding a `woocommerce-functions.php` file to their theme. Please only do this if you know what you are doing.
-
-= 0.6.4 =
-
-* Feature: Customizable WooCommerce integration. Create a file called `woocommerce-functions.php` in your active Theme folder to define your own WooCommerce integrations. Built-in integrations are provided out-of-the-box if that file does not exist.
 * Update OpenPGP-PHP libraries to current released version.
 
 = 0.6.3 =
@@ -238,11 +237,11 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Upgrade Notice ==
 
+= 0.7.1 =
+This release adds a "Send me a test email" button to your profile page. It also includes minor code cleanup.
+
 = 0.7 =
 This release adds WooCommerce integration to help protect your business and your customer's information.
-
-= 0.6.4 =
-This is a feature and maintenance release that brings WooCommerce integration for your store's customers.
 
 == Other notes ==
 

@@ -134,6 +134,11 @@ class WP_PGP_Encrypted_Emails_WooCommerce {
     <p class="description"><?php print sprintf(
         esc_html__('Email encryption cannot encrypt envelope information (such as the subject) of an email, so if you want maximum privacy, make sure this option is enabled to always erase the subject line from encrypted emails you receive.', 'wp-pgp-encrypted-emails')
     );?></p>
+
+    <fieldset id="wp-pgp-encrypted-emails-send-test-email">
+        <legend><?php esc_html_e( 'Testing emails', 'wp-pgp-encrypted-emails' ); ?></legend>
+        <?php load_template( dirname( __FILE__ ) . '/../templates/send-test-email.php' ); ?>
+    </fieldset>
 </fieldset>
 <?php
     }

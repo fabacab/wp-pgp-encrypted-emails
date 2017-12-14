@@ -13,7 +13,7 @@
  * * Plugin Name: WP PGP Encrypted Emails
  * * Plugin URI: https://github.com/meitar/wp-pgp-encrypted-emails
  * * Description: Encrypts email sent to users who opt-in to OpenPGP- and/or S/MIME-compatible protection. <strong>Like this plugin? Please <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="Send a donation to the developer of WP PGP Encrypted Emails">donate</a>. &hearts; Thank you!</strong>
- * * Version: 0.7
+ * * Version: 0.7.1
  * * Author: Maymay <bitetheappleback@gmail.com>
  * * Author URI: https://maymay.net/
  * * License: GPL-3.0
@@ -133,10 +133,13 @@ class WP_PGP_Encrypted_Emails {
     public static function register () {
         add_action( 'plugins_loaded', array( __CLASS__, 'registerL10n' ) );
         add_action( 'init', array( __CLASS__, 'initialize' ) );
+        add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueueStyles' ) );
+        add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueueStyles') );
 
         add_action( 'wp_ajax_nopriv_download_pgp_signing_public_key', array( __CLASS__, 'downloadSigningPublicKey' ) );
         add_action( 'wp_ajax_download_pgp_signing_public_key', array( __CLASS__, 'downloadSigningPublicKey' ) );
         add_action( 'wp_ajax_openpgp_regen_keypair', array( __CLASS__, 'regenerateKeypair' ) );
+        add_action( 'wp_ajax_wp_pgp_encrypted_emails_send_test_email', array( __CLASS__, 'sendTestEmail' ) );
 
         if ( is_admin() ) {
             add_action( 'admin_menu', array( __CLASS__, 'registerOptionsPage') );
@@ -216,6 +219,19 @@ class WP_PGP_Encrypted_Emails {
                 }
             }
         }
+    }
+
+    /**
+     * Enqueues the plugin's stylesheet.
+     *
+     * @see https://developer.wordpress.org/reference/hooks/wp_enqueue_scripts/
+     * @see https://developer.wordpress.org/reference/hooks/admin_enqueue_scripts/
+     */
+    public static function enqueueStyles () {
+        wp_enqueue_style(
+            'wp-pgp-encrypted-emails',
+            plugin_dir_url( __FILE__ ) . '/style.css'
+        );
     }
 
     /**
@@ -1094,43 +1110,72 @@ class WP_PGP_Encrypted_Emails {
      * @return void
      */
     public static function regenerateKeypair () {
-        if (empty($_GET['wp_pgp_nonce']) || !wp_verify_nonce($_GET['wp_pgp_nonce'], 'wp_pgp_regen_keypair')) {
-            add_settings_error('general', 'settings_updated', __('Invalid keygen request.', 'wp-pgp-encrypted-emails'));
-            set_transient('settings_errors', get_settings_errors(), 30);
-            wp_safe_redirect(admin_url('options-general.php?page=wp-pgp-encrypted-emails&settings-updated=true'));
-            exit(1); // error exit code
+        if ( empty( $_GET['wp_pgp_nonce'] ) || ! wp_verify_nonce( $_GET['wp_pgp_nonce'], 'wp_pgp_regen_keypair' ) ) {
+            add_settings_error( 'general', 'settings_updated', __( 'Invalid keygen request.', 'wp-pgp-encrypted-emails' ) );
+            set_transient( 'settings_errors', get_settings_errors(), 30 );
+            wp_safe_redirect( admin_url( 'options-general.php?page=wp-pgp-encrypted-emails&settings-updated=true' ) );
+            exit( 1 ); // error exit code
         }
         // Make up an email address to use as the site's key identity.
         // This is also what WordPress core's wp_mail() function does.
         // See: https://core.trac.wordpress.org/browser/tags/4.4.2/src/wp-includes/pluggable.php#L371
         $sitename = strtolower( $_SERVER['SERVER_NAME'] );
-        if (substr($sitename, 0, 4) == 'www.') {
-            $sitename = substr($sitename, 4);
+        if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+            $sitename = substr( $sitename, 4 );
         }
         $from_email = 'wordpress@'.$sitename;
 
         // Key generation could take some time, so try raising the limit.
-        $old_time_limit = ini_get('max_execution_time');
-        set_time_limit(0);
+        $old_time_limit = ini_get( 'max_execution_time' );
+        set_time_limit( 0 );
 
         // If that doesn't work, make sure we can gracefully fail.
-        add_action('shutdown', array(__CLASS__, 'keygenTimeoutError'));
+        add_action( 'shutdown', array( __CLASS__, 'keygenTimeoutError' ) );
 
         // Now try generating a new keypair.
-        $keypair = WP_OpenPGP::generateKeypair("WordPress <$from_email>");
+        $keypair = WP_OpenPGP::generateKeypair( "WordPress <$from_email>" );
 
         // If we're still running, restore the old settings.
-        set_time_limit($old_time_limit);
+        set_time_limit( $old_time_limit );
 
         $ascii_keypair = array();
-        $ascii_keypair['privatekey'] = apply_filters('openpgp_enarmor', $keypair['privatekey'], 'PGP PRIVATE KEY BLOCK');
-        $ascii_keypair['publickey']  = apply_filters('openpgp_enarmor', $keypair['publickey'], 'PGP PUBLIC KEY BLOCK');
-        update_option(self::meta_keypair, $ascii_keypair);
+        $ascii_keypair['privatekey'] = apply_filters( 'openpgp_enarmor', $keypair['privatekey'], 'PGP PRIVATE KEY BLOCK' );
+        $ascii_keypair['publickey']  = apply_filters( 'openpgp_enarmor', $keypair['publickey'], 'PGP PUBLIC KEY BLOCK' );
+        update_option( self::meta_keypair, $ascii_keypair );
 
-        add_settings_error('general', 'settings_updated', __('OpenPGP signing keypair successfully regenerated.', 'wp-pgp-encrypted-emails'), 'updated');
-        set_transient('settings_errors', get_settings_errors(), 30);
-        wp_safe_redirect(admin_url('options-general.php?page=wp-pgp-encrypted-emails&settings-updated=true'));
-        exit(0); // success exit code
+        add_settings_error( 'general', 'settings_updated', __( 'OpenPGP signing keypair successfully regenerated.', 'wp-pgp-encrypted-emails' ), 'updated' );
+        set_transient( 'settings_errors', get_settings_errors(), 30 );
+        wp_safe_redirect( admin_url( 'options-general.php?page=wp-pgp-encrypted-emails&settings-updated=true' ) );
+        exit( 0 );
+    }
+
+    /**
+     * Sends the current user a test email so they can check their encryption settings.
+     */
+    public static function sendTestEmail () {
+        if ( ! isset( $_GET['wp_pgp_encrypted_emails_send_test_email'] ) ) {
+            return;
+        } else if ( ! wp_verify_nonce( $_GET['wp_pgp_encrypted_emails_send_test_email'], 'wp_pgp_encrypted_emails_send_test_email' ) ) {
+            return;
+        }
+
+        $current_user = wp_get_current_user();
+        $email_body = sprintf(
+            esc_html__( 'This is a test message from %1$s.', 'wp-pgp-encrypted-emails' ),
+            get_bloginfo( 'name' )
+        );
+        wp_mail(
+            $current_user->user_email,
+            sanitize_text_field( sprintf(
+                __( 'Test email from %s', 'wp-pgp-encrypted-emails' ),
+                get_bloginfo( 'name' )
+            ) ),
+            $email_body
+        );
+
+        $return_url = ( ! empty( $_GET['return_url'] ) ) ? $_GET['return_url'] : admin_url( 'profile.php' ) ;
+        wp_safe_redirect( "$return_url#wp-pgp-encrypted-emails-send-test-email" );
+        exit( 0 );
     }
 
     /**

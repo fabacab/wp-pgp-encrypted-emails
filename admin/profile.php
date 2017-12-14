@@ -18,7 +18,7 @@
                     <?php print sprintf(
                         esc_html__( 'Paste your PGP public key here to have %1$s encrypt emails it sends you. Leave this blank if you do not want to get or know how to decrypt encrypted emails.', 'wp-pgp-encrypted-emails' ),
                         get_bloginfo( 'name' )
-                    ) ;?>
+                    ); ?>
                 </p>
             </td>
         </tr>
@@ -114,5 +114,13 @@ if ( ! empty( $kp['publickey'] ) ) {
             </td>
         </tr>
 <?php } // endif ?>
+        <tr id="wp-pgp-encrypted-emails-send-test-email">
+            <th>
+                <?php esc_html_e( 'Testing emails', 'wp-pgp-encrypted-emails' ); ?>
+            </th>
+            <td>
+                <?php load_template( dirname( __FILE__ ) . '/../templates/send-test-email.php' ); ?>
+            </td>
+        </tr>
     </tbody>
 </table>
