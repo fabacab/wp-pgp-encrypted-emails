@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
 Tested up to: 4.9
-Stable tag: 0.7.1
+Stable tag: 0.7.2
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -153,6 +153,9 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Change log ==
 
+= 0.7.2 =
+* [Bugfix](https://github.com/meitar/wp-pgp-encrypted-emails/pull/29): Fixes a problem where S/MIME email sending fails due to a web hoster restriction.
+
 = 0.7.1 =
 * [Enhancement](https://github.com/meitar/wp-pgp-encrypted-emails/issues/28): Offer a simple "Send me a test email" button to let inexperienced users easily test their encryption setup.
 
@@ -237,8 +240,8 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Upgrade Notice ==
 
-= 0.7.1 =
-This release adds a "Send me a test email" button to your profile page. It also includes minor code cleanup.
+= 0.7.2 =
+Fixes a problem where S/MIME email sending fails due to a web hoster restriction.
 
 = 0.7 =
 This release adds WooCommerce integration to help protect your business and your customer's information.

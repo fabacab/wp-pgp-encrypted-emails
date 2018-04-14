@@ -107,7 +107,7 @@ class WP_SMIME {
      * @return array|FALSE An array with two keys, `headers` and `message`, wherein the message is encrypted.
      */
     public static function encrypt ( $message, $headers, $certificates ) {
-        $infile  = tempnam( '/tmp', 'wp_email_' );
+        $infile  = tempnam( sys_get_temp_dir(), 'wp_email_' );
         $outfile = $infile . '.enc';
 
         $plaintext  = ( is_array( $headers ) ) ? implode( "\n", $headers ) : $headers;
