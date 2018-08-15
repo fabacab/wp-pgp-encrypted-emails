@@ -17,6 +17,22 @@ if ( ! defined( 'ABSPATH' ) ) { exit; } // Disallow direct HTTP access.
 class WP_SMIME {
 
     /**
+     * S/MIME-specific MIME parameters for the Content-Type header
+     * added by PHP's `openssl_pkcs7_encrypt()` function.
+     *
+     * This is used to store the current mail message's overrides to
+     * WordPress's default `Content-Type` header processing, which is
+     * sadly rather naive.
+     *
+     * @var string
+     *
+     * @see wp_mail()
+     * @see self::encrypt()
+     * @see self::filterContentType()
+     */
+    private static $media_type_parameters;
+
+    /**
      * Registers WordPress plugin API hooks for other plugins.
      */
     public static function register () {
@@ -145,10 +161,45 @@ class WP_SMIME {
                 'headers' => $parts[0],
                 'message' => $parts[1],
             );
+            // WordPress doesn't like MIME headers that have complex
+            // or unrecognized media type parameters, so we utilize
+            // its `wp_mail_content_type` filter hook to stuff the
+            // complete Content-Type header, with parameters, there.
+            $m = array();
+            if ( preg_match( '/Content-Type: application\/(?:x-)?pkcs7-mime(.*)/i', $r['headers'], $m ) ) {
+                if ( isset( $m[1] ) ) {
+                    self::$media_type_parameters = $m[1];
+                    add_filter( 'wp_mail_content_type', array( __CLASS__, 'filterContentType' ) );
+                }
+            }
         } else {
             $r = false;
         }
 
         return $r;
+    }
+
+    /**
+     * Ensures S/MIME emails contain the correct Content-Type MIME
+     * header as supplied by the underlying `openssl_pkcs7_encrypt()`
+     * function call result.
+     *
+     * @param string $content_type
+     *
+     * @see https://developer.wordpress.org/reference/hooks/wp_mail_content_type/
+     *
+     * @uses self::$media_type_parameters
+     */
+    public static function filterContentType ( $content_type ) {
+        // Retrieve the last `encrypt()`ion's media type result.
+        $parameters = self::$media_type_parameters;
+
+        // Don't retain this information for future invocations.
+        self::$media_type_parameters = null;
+
+        // Unhook ourselves.
+        remove_filter( 'wp_mail_content_type', array( __CLASS__, 'filterContentType' ) );
+
+        return $content_type . $parameters;
     }
 }
