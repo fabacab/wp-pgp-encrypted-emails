@@ -139,11 +139,15 @@ class WP_SMIME {
             $headers = explode( "\n", $headers );
         }
 
+        // Remove any existing 'Content-Type' headers, since PHP's function generates it's own headers
+        // Multiple Content-Type declarations would cause problems with wp_mail() and PHPMailer
+        $headers = array_filter( $headers, "self::filterHeader" );
+
         // Write files for OpenSSL's encryption (which takes a file path).
         file_put_contents( $infile, $plaintext );
 
         // Do the encryption.
-        if ( openssl_pkcs7_encrypt( $infile, $outfile, $certificates, array_filter( $headers ), 0, $cipher_id ) ) {
+        if ( openssl_pkcs7_encrypt( $infile, $outfile, $certificates, $headers, 0, $cipher_id ) ) {
             $smime = file_get_contents( $outfile );
         }
 
@@ -177,6 +181,18 @@ class WP_SMIME {
         }
 
         return $r;
+    }
+
+    /**
+     * Filters an array of email headers by removing 'Content-Type' declarations.
+     * Empty elements are also removed. Function should be used with `array_filter()`.
+     *
+     * @param $h string the current header line
+     *
+     * @return bool true if item is not filtered out
+     */
+    private static function filterHeader( $h ) {
+        return $h && false === stripos( $h, "Content-Type:" );
     }
 
     /**
