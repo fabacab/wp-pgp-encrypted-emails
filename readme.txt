@@ -3,8 +3,8 @@ Contributors: meitar
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
-Tested up to: 4.9
-Stable tag: 0.7.2
+Tested up to: 5.0.1
+Stable tag: 0.7.3
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -153,6 +153,11 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Change log ==
 
+= 0.7.3 =
+* Bugfix: Messages with `Content-Type: text/html` headers that were also S/MIME encrypted now render properly. Props @githubuserx.
+* Bugfix: Ensure MIME subtypes in `Content-Type` mail headers are retained.
+* [Bugfix](https://github.com/meitar/wp-pgp-encrypted-emails/issues/33): Do not enqueue admin-area stylesheet on site front-end.
+
 = 0.7.2 =
 * [Bugfix](https://github.com/meitar/wp-pgp-encrypted-emails/pull/29): Fixes a problem where S/MIME email sending fails due to a web hoster restriction.
 
@@ -240,11 +245,8 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Upgrade Notice ==
 
-= 0.7.2 =
-Fixes a problem where S/MIME email sending fails due to a web hoster restriction.
-
-= 0.7 =
-This release adds WooCommerce integration to help protect your business and your customer's information.
+= 0.7.3 =
+Fixes numerous issues with `Content-Type` mail header handling, notably fixing S/MIME-encrypted HTML email sending.
 
 == Other notes ==
 

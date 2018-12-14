@@ -13,7 +13,7 @@
  * * Plugin Name: WP PGP Encrypted Emails
  * * Plugin URI: https://github.com/meitar/wp-pgp-encrypted-emails
  * * Description: Encrypts email sent to users who opt-in to OpenPGP- and/or S/MIME-compatible protection. <strong>Like this plugin? Please <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="Send a donation to the developer of WP PGP Encrypted Emails">donate</a>. &hearts; Thank you!</strong>
- * * Version: 0.7.2
+ * * Version: 0.7.3
  * * Author: Maymay <bitetheappleback@gmail.com>
  * * Author URI: https://maymay.net/
  * * License: GPL-3.0
@@ -134,7 +134,7 @@ class WP_PGP_Encrypted_Emails {
         add_action( 'plugins_loaded', array( __CLASS__, 'registerL10n' ) );
         add_action( 'init', array( __CLASS__, 'initialize' ) );
         add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueueStyles' ) );
-        add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueueStyles') );
+        add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueueAdminStyles') );
 
         add_action( 'wp_ajax_nopriv_download_pgp_signing_public_key', array( __CLASS__, 'downloadSigningPublicKey' ) );
         add_action( 'wp_ajax_download_pgp_signing_public_key', array( __CLASS__, 'downloadSigningPublicKey' ) );
@@ -222,15 +222,23 @@ class WP_PGP_Encrypted_Emails {
     }
 
     /**
-     * Enqueues the plugin's stylesheet.
+     * Enqueues the plugin's front-end stylesheet.
      *
      * @see https://developer.wordpress.org/reference/hooks/wp_enqueue_scripts/
-     * @see https://developer.wordpress.org/reference/hooks/admin_enqueue_scripts/
      */
     public static function enqueueStyles () {
+        // Nothing to do, yet.
+    }
+
+    /**
+     * Enqueues the plugin's admin area stylesheet.
+     *
+     * @see https://developer.wordpress.org/reference/hooks/admin_enqueue_scripts/
+     */
+    public static function enqueueAdminStyles () {
         wp_enqueue_style(
             'wp-pgp-encrypted-emails',
-            plugin_dir_url( __FILE__ ) . '/style.css'
+            plugin_dir_url( __FILE__ ) . 'admin/style.css'
         );
     }
 
