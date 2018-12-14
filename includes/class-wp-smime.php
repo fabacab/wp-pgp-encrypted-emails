@@ -139,15 +139,23 @@ class WP_SMIME {
             $headers = explode( "\n", $headers );
         }
 
-        // Remove any existing 'Content-Type' headers, since PHP's function generates it's own headers
-        // Multiple Content-Type declarations would cause problems with wp_mail() and PHPMailer
-        $headers = array_filter( $headers, "self::filterHeader" );
-
         // Write files for OpenSSL's encryption (which takes a file path).
         file_put_contents( $infile, $plaintext );
 
         // Do the encryption.
-        if ( openssl_pkcs7_encrypt( $infile, $outfile, $certificates, $headers, 0, $cipher_id ) ) {
+        $encrypted = openssl_pkcs7_encrypt(
+            $infile,
+            $outfile,
+            $certificates,
+            // Remove any existing 'Content-Type: text/html' headers,
+            // since `openssl_pkcs7_encrypt() generates its own and we
+            // do not want to prepend these; they are intended for the
+            // encrypted body, not the envelope.
+            array_filter( $headers, array( __CLASS__, 'filterMailHeader' ) ),
+            0,
+            $cipher_id
+        );
+        if ( $encrypted ) {
             $smime = file_get_contents( $outfile );
         }
 
@@ -184,15 +192,18 @@ class WP_SMIME {
     }
 
     /**
-     * Filters an array of email headers by removing 'Content-Type' declarations.
-     * Empty elements are also removed. Function should be used with `array_filter()`.
+     * Filters an array of email headers
      *
-     * @param $h string the current header line
+     * When used with `array_filter()`, this function will remove
+     * headers that contain the string `Content-Type: text/html`,
+     * Empty elements (blank lines) are also removed.
      *
-     * @return bool true if item is not filtered out
+     * @param $h string The header line to filter.
+     *
+     * @return bool true if line is not filtered out, false otherwise.
      */
-    private static function filterHeader( $h ) {
-        return $h && false === stripos( $h, "Content-Type:" );
+    private static function filterMailHeader( $h ) {
+        return $h && false === stripos( $h, 'Content-Type: text/html' );
     }
 
     /**
