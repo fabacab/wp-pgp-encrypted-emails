@@ -233,13 +233,32 @@ class WP_PGP_Encrypted_Emails {
     /**
      * Enqueues the plugin's admin area stylesheet.
      *
+     * @param string $hook Suffix of the name of the calling hook.
+     *
      * @see https://developer.wordpress.org/reference/hooks/admin_enqueue_scripts/
      */
-    public static function enqueueAdminStyles () {
+    public static function enqueueAdminStyles ( $hook ) {
         wp_enqueue_style(
             'wp-pgp-encrypted-emails',
             plugin_dir_url( __FILE__ ) . 'admin/style.css'
         );
+
+        if ( 'profile.php' === $hook ) {
+            wp_enqueue_script(
+                'openpgpjs',
+                plugin_dir_url( __FILE__ ) . 'includes/openpgpjs/openpgp.min.js',
+                array(),
+                null,
+                true
+            );
+            wp_enqueue_script(
+                'wp-pgp-encrypted-emails',
+                plugin_dir_url( __FILE__ ) . 'js/main.js',
+                array( 'openpgpjs' ),
+                null,
+                true
+            );
+        }
     }
 
     /**
