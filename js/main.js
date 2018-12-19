@@ -2,8 +2,9 @@
  * Client-side JavaScript for WP PGP Encrypted Emails.
  */
 (function () {
+    // Key generation routines.
     var el_pubkey = document.getElementById('pgp_public_key');
-    if ( '' === el_pubkey.value ) {
+    if ( el_pubkey && '' === el_pubkey.value ) {
         var msg = 'We noticed you do not have an OpenPGP public key saved in your profile. Without this, we cannot send you private (encrypted) emails.';
         msg += ' We can generate a digital lock (called a "public key"),';
         msg += ' and a password-protected key for you to use (called a "private key").';
@@ -16,13 +17,13 @@
         if ( confirm(msg) ) {
             // Prepare OpenPGP.js options.
             var options = {
-                userIds: [
+                'userIds': [
                     {
-                        name: document.getElementById('display_name').value,
-                        email: document.getElementById('email').value
+                        'name': document.getElementById('display_name').value,
+                        'email': document.getElementById('email').value
                     }
                 ],
-                numBits: 4096,
+                'numBits': 4096,
             };
 
             // Prompt for a passphrase to protect the private key.
@@ -43,7 +44,7 @@
             alert(msg);
             openpgp.generateKey(options).then(function (key) {
                 var ascii_pubkey = key.publicKeyArmored;
-                el_pubkey.value = ascii_pubkey.trim();
+                el_pubkey.value = ascii_pubkey;
                 localStorage.setItem('openpgp_privateKeyArmored', key.privateKeyArmored);
                 localStorage.setItem('openpgp_revocationCertificate', key.revocationCertificate);
 
@@ -58,5 +59,26 @@
                 alert('Key generation complete. Be sure to save your updated profile!');
             });
         }
+    }
+
+    // Decryption routine.
+    var el_ciphertext = document.getElementById('ciphertext');
+    var el_decrypt_btn = document.getElementById('openpgpjs-decrypt');
+
+    // Decrypt when button is pressed.
+    if ( el_decrypt_btn ) {
+        el_decrypt_btn.addEventListener('click', async function () {
+            var ciphertext = el_ciphertext.value;
+            var passphrase = prompt('Enter your private key passphrase.').trim();
+            const privKeyObj = (await openpgp.key.readArmored(localStorage.getItem('openpgp_privateKeyArmored'))).keys[0];
+            await privKeyObj.decrypt(passphrase);
+            var options = {
+                'message': await openpgp.message.readArmored(ciphertext),
+                'privateKeys': [privKeyObj]
+            };
+            openpgp.decrypt(options).then(function (plaintext) {
+                el_ciphertext.value = plaintext.data
+            });
+        });
     }
 })();

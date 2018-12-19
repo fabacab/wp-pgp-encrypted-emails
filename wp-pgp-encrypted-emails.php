@@ -142,7 +142,7 @@ class WP_PGP_Encrypted_Emails {
         add_action( 'wp_ajax_wp_pgp_encrypted_emails_send_test_email', array( __CLASS__, 'sendTestEmail' ) );
 
         if ( is_admin() ) {
-            add_action( 'admin_menu', array( __CLASS__, 'registerOptionsPage') );
+            add_action( 'admin_menu', array( __CLASS__, 'registerAdminPages') );
             add_action( 'admin_init', array( __CLASS__, 'registerAdminSettings' ) );
             add_action( 'admin_notices', array( __CLASS__, 'adminNoticeBadUserKey' ) );
             add_action( 'admin_notices', array( __CLASS__, 'adminNoticeBadAdminKey' ) );
@@ -243,7 +243,7 @@ class WP_PGP_Encrypted_Emails {
             plugin_dir_url( __FILE__ ) . 'admin/style.css'
         );
 
-        if ( 'profile.php' === $hook ) {
+        if ( 'profile.php' === $hook || 'tools_page_wp-pgp-encrypted-emails-decrypt-tool' === $hook ) {
             wp_enqueue_script(
                 'openpgpjs',
                 plugin_dir_url( __FILE__ ) . 'includes/openpgpjs/openpgp.min.js',
@@ -452,22 +452,30 @@ class WP_PGP_Encrypted_Emails {
     }
 
     /**
-     * Registers the options page as a Settings menu item.
+     * Registers pages into the admin menu as menu items.
      *
-     * @link https://codex.wordpress.org/Settings_API
+     * @link https://developer.wordpress.org/plugins/administration-menus/
      *
      * @uses add_options_page()
-     * @uses register_setting()
+     * @uses add_management_page()
      *
      * @return void
      */
-    public static function registerOptionsPage () {
+    public static function registerAdminPages () {
         add_options_page(
             esc_html__( 'Email Encryption', 'wp-pgp-encrypted-emails' ),
             esc_html__( 'Email Encryption', 'wp-pgp-encrypted-emails' ),
             'manage_options',
             'wp-pgp-encrypted-emails',
             array( __CLASS__, 'renderOptionsPage' )
+        );
+
+        add_management_page(
+            esc_html__( 'Decrypt Email/Messages', 'wp-pgp-encrypted-emails' ),
+            esc_html__( 'Decrypt Email/Messages', 'wp-pgp-encrypted-emails' ),
+            'read',
+            'wp-pgp-encrypted-emails-decrypt-tool',
+            array( __CLASS__, 'renderDecryptPage' )
         );
     }
 
@@ -823,6 +831,10 @@ class WP_PGP_Encrypted_Emails {
     /**
      * Prints HTML for admin submenu settings page heading.
      *
+     * @uses settings_fields()
+     * @uses do_settings_sections()
+     * @uses submit_button()
+     *
      * @return void
      */
     public static function renderOptionsPage ( $args ) {
@@ -836,6 +848,29 @@ class WP_PGP_Encrypted_Emails {
         submit_button();
     ?>
     </form>
+</div>
+<?php
+    }
+
+    /**
+     * Prints HTML for submenu "Decrypt" tool page heading.
+     *
+     * @return void
+     */
+    public static function renderDecryptPage ( $args ) {
+?>
+<div class="wrap">
+    <h1><?php esc_html_e( 'Decrypt Email/Messages', 'wp-pgp-encrypted-emails' ); ?></h1>
+    <p>
+        <label for="ciphertext"><?php esc_html_e( 'Paste entirety of encrypted message here:' , 'wp-pgp-encrypted-emails' ); ?></label>
+        <textarea id="ciphertext" style="width: 100%; height: 50vh;"></textarea>
+    </p>
+    <p>
+        <button id="openpgpjs-decrypt" class="button button-primary"
+        ><?php
+            esc_html_e( 'Decrypt', 'wp-pgp-encrypted-emails' );
+        ?></button>
+    </p>
 </div>
 <?php
     }
