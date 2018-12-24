@@ -124,7 +124,12 @@ class WP_SMIME {
      */
     public static function encrypt ( $message, $headers, $certificates ) {
         $infile  = tempnam( sys_get_temp_dir(), 'wp_email_' );
-        $outfile = $infile . '.enc';
+        $outfile = tempnam( sys_get_temp_dir(), 'wp_email_' );
+
+        if ( false === $infile || false === $outfile ) {
+            error_log( "Could not create temporary files!" );
+            return false;
+        }
 
         $plaintext  = ( is_array( $headers ) ) ? implode( "\n", $headers ) : $headers;
         $plaintext .= "\n\n" . $message;
@@ -140,7 +145,17 @@ class WP_SMIME {
         }
 
         // Write files for OpenSSL's encryption (which takes a file path).
-        file_put_contents( $infile, $plaintext );
+        $written = file_put_contents( $infile, $plaintext );
+
+        if ( false === $written ) {
+            error_log( "Could not write plaintext!" );
+
+            // try to delete before returning as some data may have been written
+            self::safeDelete( $infile, $outfile );
+            return false;
+        }
+
+        $smime = false;
 
         // Do the encryption.
         $encrypted = openssl_pkcs7_encrypt(
@@ -160,12 +175,7 @@ class WP_SMIME {
         }
 
         // Immediately overwrite and delete the files written to disk.
-        $fs = (int) filesize( $infile ); // cast to int to avoid FALSE
-        file_put_contents( $infile, random_bytes( $fs + random_int( 0, $fs * 2 ) ) );
-        unlink( $infile );
-        $fs = (int) filesize( $outfile );
-        file_put_contents( $outfile, random_bytes( $fs + random_int( 0, $fs * 2 ) ) );
-        unlink( $outfile );
+        self::safeDelete( $infile, $outfile );
 
         if ( $smime ) {
             $parts = explode( "\n\n", $smime, 2 );
@@ -228,5 +238,123 @@ class WP_SMIME {
         remove_filter( 'wp_mail_content_type', array( __CLASS__, 'filterContentType' ) );
 
         return $content_type . $parameters;
+    }
+
+    /**
+     * Securely deletes one or more files by overwriting them.
+     * Tries to handle possible errors gracefully to avoid content disclosure.
+     *
+     * This is by no means foolproof or highly secure, especially when used in a shared hosting scenario.
+     * It's rather an attempt to make the best out of a very sub-optimal situation.
+     *
+     * @param array $files
+     */
+    private static function safeDelete( ...$files ) {
+
+        foreach ( $files as $f ) {
+
+            // clear stat cache to avoid falsely reported file status
+            clearstatcache();
+
+            if ( ! file_exists( $f ) || ! is_file( $f ) ) {
+                // nothing we can do about this
+                error_log( "File path is invalid!" );
+                continue;
+            }
+            if ( ! is_writable( $f ) ) {
+                error_log( "File is not writable!" );
+
+                // cant overwrite, try to delete it
+                if ( ! unlink( $f ) ) {
+                    error_log( "Could not delete file!" );
+                }
+                continue;
+            }
+
+            // try to delegate the work to coreutils 'shred' for better performance
+            // exists on almost all linux systems
+            // https://www.gnu.org/software/coreutils/manual/html_node/shred-invocation.html#shred-invocation
+            $handle = popen( "shred -fuz {$f}", "r" );
+
+            if ( -1 !== pclose( $handle ) ) {
+                clearstatcache();
+
+                // unfortunately we can't get the original exit code of 'shred'
+                if ( ! file_exists( $f ) ) {
+
+                    // assume shredding was successful,
+                    // continue with next file
+                    continue;
+                } else {
+                    error_log( "Shredding was not successful!" );
+                }
+            } else {
+                error_log( "Error while running 'shred'!" );
+            }
+
+            // determine file size
+            $size = filesize( $f );
+
+            // if FALSE, size must not be 0!
+            if ( false === $size || $size < 0 ) {
+                // set default size to 1 MiB
+                $size = 1 * 1024 * 1024;
+            }
+
+            // try to overwrite 3 times
+            for ( $i = 0; $i < 3; ++ $i ) {
+
+                // randomly increase size
+                try {
+                    if ( $size > 0 ) {
+                        $size += random_int( 1, $size * 2 );
+
+                    } else if ( 0 === $size ) {
+                        // file should be empty, no need to overwrite,
+                        // but random_bytes() expects non-zero value
+                        $size = 1;
+                    }
+                } catch ( Exception $e ) {
+                    error_log( "Could not generate secure integer!", $e );
+
+                    // fallback to insecure rand()
+                    $size += rand( 1, $size * 2 );
+                }
+
+                $bytes = array();
+
+                try {
+                    $bytes = random_bytes( $size );
+
+                } catch ( Exception $e ) {
+                    error_log( "Could not generate random bytes!", $e );
+
+                    // fallback, overwrite using zeroes
+                    for ( $i = 0; $i < $size; ++$i ) {
+                        $bytes[] = "0";
+                    }
+                }
+                if ( empty( $bytes ) ) {
+                    error_log( "Nothing to overwrite with!" );
+                }
+                if ( false === file_put_contents( $f, $bytes ) ) {
+                    error_log( "Could not overwrite file! Try: {$i}" );
+                }
+            }
+
+            // delete file
+            if ( ! unlink( $f ) ) {
+                error_log( "Could not delete file!" );
+            }
+        }
+
+        // double check if all files were deleted
+        foreach ( scandir( sys_get_temp_dir() ) as $f ) {
+            if ( false !== stripos( $f, "wp_email" ) ) {
+
+                $path = sys_get_temp_dir() . "/" . $f;
+                error_log( "Email file was not deleted: '{$path}' !" );
+            }
+        }
     }
 }
