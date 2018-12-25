@@ -274,7 +274,7 @@ class WP_SMIME {
             // try to delegate the work to coreutils 'shred' for better performance
             // exists on almost all linux systems
             // https://www.gnu.org/software/coreutils/manual/html_node/shred-invocation.html#shred-invocation
-            $handle = popen( "shred -fuz {$f}", "r" );
+            $handle = popen( 'shred --force --remove --zero ' . escapeshellarg( $f ), 'r' );
 
             if ( -1 !== pclose( $handle ) ) {
                 clearstatcache();
@@ -315,7 +315,7 @@ class WP_SMIME {
                         $size = 1;
                     }
                 } catch ( Exception $e ) {
-                    error_log( "Could not generate secure integer!", $e );
+                    error_log( "Could not generate secure integer!" );
 
                     // fallback to insecure rand()
                     $size += rand( 1, $size * 2 );
@@ -327,7 +327,7 @@ class WP_SMIME {
                     $bytes = random_bytes( $size );
 
                 } catch ( Exception $e ) {
-                    error_log( "Could not generate random bytes!", $e );
+                    error_log( "Could not generate random bytes!" );
 
                     // fallback, overwrite using zeroes
                     for ( $i = 0; $i < $size; ++$i ) {
@@ -350,9 +350,9 @@ class WP_SMIME {
 
         // double check if all files were deleted
         foreach ( scandir( sys_get_temp_dir() ) as $f ) {
-            if ( false !== stripos( $f, "wp_email" ) ) {
+            if ( false !== stripos( $f, 'wp_email' ) ) {
 
-                $path = sys_get_temp_dir() . "/" . $f;
+                $path = sys_get_temp_dir() . '/' . $f;
                 error_log( "Email file was not deleted: '{$path}' !" );
             }
         }
