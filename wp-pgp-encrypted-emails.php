@@ -243,7 +243,7 @@ class WP_PGP_Encrypted_Emails {
             plugin_dir_url( __FILE__ ) . 'admin/style.css'
         );
 
-        if ( 'profile.php' === $hook || 'tools_page_wp-pgp-encrypted-emails-decrypt-tool' === $hook ) {
+        //if ( 'profile.php' === $hook || 'tools_page_wp-pgp-encrypted-emails-decrypt-tool' === $hook ) {
             wp_enqueue_script(
                 'openpgpjs',
                 plugin_dir_url( __FILE__ ) . 'includes/openpgpjs/openpgp.min.js',
@@ -258,7 +258,7 @@ class WP_PGP_Encrypted_Emails {
                 null,
                 true
             );
-        }
+        //}
     }
 
     /**
@@ -860,15 +860,25 @@ class WP_PGP_Encrypted_Emails {
     public static function renderDecryptPage ( $args ) {
 ?>
 <div class="wrap">
-    <h1><?php esc_html_e( 'Decrypt Email/Messages', 'wp-pgp-encrypted-emails' ); ?></h1>
+    <h1><?php esc_html_e( 'Decrypt and Verify Email/Messages', 'wp-pgp-encrypted-emails' ); ?></h1>
     <p>
         <label for="ciphertext"><?php esc_html_e( 'Paste entirety of encrypted message here:' , 'wp-pgp-encrypted-emails' ); ?></label>
-        <textarea id="ciphertext" style="width: 100%; height: 50vh;"></textarea>
+        <textarea id="ciphertext" class="large-text code" rows="10"></textarea>
     </p>
     <p>
         <button id="openpgpjs-decrypt" class="button button-primary"
         ><?php
             esc_html_e( 'Decrypt', 'wp-pgp-encrypted-emails' );
+        ?></button>
+    </p>
+    <p>
+        <label for="verification-public-key"><?php esc_html_e( 'Paste public key with which to verify signed message:' , 'wp-pgp-encrypted-emails' ); ?></label>
+        <textarea id="verification-public-key" class="large-text code" rows="10"></textarea>
+    </p>
+    <p>
+        <button id="openpgpjs-verify" class="button button-secondary"
+        ><?php
+            esc_html_e( 'Verify', 'wp-pgp-encrypted-emails' );
         ?></button>
     </p>
 </div>

@@ -23,7 +23,7 @@
                         'email': document.getElementById('email').value
                     }
                 ],
-                'numBits': 4096,
+                'numBits': 2048,
             };
 
             // Prompt for a passphrase to protect the private key.
@@ -43,9 +43,9 @@
             msg += 'This may take a minute, and your Web browser may appear frozen during this process.';
             alert(msg);
             openpgp.generateKey(options).then(function (key) {
-                var ascii_pubkey = key.publicKeyArmored;
-                el_pubkey.value = ascii_pubkey;
+                el_pubkey.value = key.publicKeyArmored;
                 localStorage.setItem('openpgp_privateKeyArmored', key.privateKeyArmored);
+                localStorage.setItem('openpgp_publicKeyArmored', key.publicKeyArmored);
                 localStorage.setItem('openpgp_revocationCertificate', key.revocationCertificate);
 
                 // Offer to download ("export") the generated private key.
@@ -62,10 +62,11 @@
     }
 
     // Decryption routine.
-    var el_ciphertext = document.getElementById('ciphertext');
+    var el_ciphertext  = document.getElementById('ciphertext');
     var el_decrypt_btn = document.getElementById('openpgpjs-decrypt');
+    var el_verify_btn  = document.getElementById('openpgpjs-verify');
 
-    // Decrypt when button is pressed.
+    // Decrypt when "Decrypt" button is pressed.
     if ( el_decrypt_btn ) {
         el_decrypt_btn.addEventListener('click', async function () {
             var ciphertext = el_ciphertext.value;
@@ -78,6 +79,27 @@
             };
             openpgp.decrypt(options).then(function (plaintext) {
                 el_ciphertext.value = plaintext.data
+            });
+        });
+    }
+
+    // Verify when "Verify" button is pressed.
+    if ( el_verify_btn ) {
+        el_verify_btn.addEventListener('click', async function () {
+            var ciphertext = el_ciphertext.value;
+            var options = {
+                'message': await openpgp.cleartext.readArmored(ciphertext),
+                'publicKeys': (await openpgp.key.readArmored(document.getElementById('verification-public-key').value)).keys
+            };
+            console.log(options);
+            openpgp.verify(options).then(function (verified) {
+                console.log(verified);
+                validity = verified.signatures[0].valid;
+                if ( validity ) {
+                    alert('Message is valid. Signed by Key ID: ' + verified.signatures[0].keyid.toHex());
+                } else {
+                    alert('Message could not be verified.');
+                }
             });
         });
     }
