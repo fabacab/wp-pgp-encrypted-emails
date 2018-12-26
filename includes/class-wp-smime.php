@@ -132,7 +132,7 @@ class WP_SMIME {
         // If we have it available, use a better cipher than the default.
         // This will be available in PHP 5.4 or later.
         // See https://secure.php.net/manual/en/openssl.ciphers.php
-        $cipher_id = ( defined( 'OPENSSL_CIPHER_AES_256_CBC' ) ) ? OPENSSL_CIPHER_AES_256_CBC : OPENSSL_CIPHER_RC2_40;
+        $cipher_id = ( defined( 'OPENSSL_CIPHER_AES_256_CBC' ) ) ? OPENSSL_CIPHER_AES_256_CBC : OPENSSL_CIPHER_3DES;
 
         if ( is_string( $headers ) ) {
             // PHP's openssl_pkcs7_encrypt expects headers as an array.
