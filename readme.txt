@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
 Tested up to: 5.0.1
-Stable tag: 0.7.3
+Stable tag: 0.7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -244,6 +244,9 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 * Initial release.
 
 == Upgrade Notice ==
+
+= 0.7.4 =
+This update drops support for PHP 5.3. This version requires PHP 5.4 or later. Improves S/MIME temporary file deletion.
 
 = 0.7.3 =
 Fixes numerous issues with `Content-Type` mail header handling, notably fixing S/MIME-encrypted HTML email sending.
