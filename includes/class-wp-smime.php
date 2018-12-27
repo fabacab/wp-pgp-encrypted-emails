@@ -124,7 +124,7 @@ class WP_SMIME {
      */
     public static function encrypt ( $message, $headers, $certificates ) {
         $infile  = tempnam( sys_get_temp_dir(), 'wp_email_' );
-        $outfile = $infile . '.enc';
+        $outfile = tempnam( sys_get_temp_dir(), 'wp_email_' );
 
         $plaintext  = ( is_array( $headers ) ) ? implode( "\n", $headers ) : $headers;
         $plaintext .= "\n\n" . $message;
@@ -160,12 +160,24 @@ class WP_SMIME {
         }
 
         // Immediately overwrite and delete the files written to disk.
-        $fs = (int) filesize( $infile ); // cast to int to avoid FALSE
-        file_put_contents( $infile, random_bytes( $fs + random_int( 0, $fs * 2 ) ) );
-        unlink( $infile );
-        $fs = (int) filesize( $outfile );
-        file_put_contents( $outfile, random_bytes( $fs + random_int( 0, $fs * 2 ) ) );
-        unlink( $outfile );
+        if ( class_exists('\Shred\Shred') ) {
+            $shredder = new \Shred\Shred();
+            foreach ( array( $infile, $outfile ) as $f ) {
+                if ( ! $shredder->shred( $f ) ) {
+                    error_log( sprintf(
+                        __( 'Failed to shred file: %1$s', 'wp-pgp-encrypted-emails' ),
+                        $f
+                    ) );
+                }
+            }
+        } else {
+            $fs = (int) filesize( $infile ); // cast to int to avoid FALSE
+            file_put_contents( $infile, random_bytes( $fs + random_int( 0, $fs * 2 ) ) );
+            unlink( $infile );
+            $fs = (int) filesize( $outfile );
+            file_put_contents( $outfile, random_bytes( $fs + random_int( 0, $fs * 2 ) ) );
+            unlink( $outfile );
+        }
 
         if ( $smime ) {
             $parts = explode( "\n\n", $smime, 2 );
