@@ -58,7 +58,7 @@ WP PGP Encrypted Emails can be installed automatically from the WordPress plugin
 
 Minimum requirements:
 
-* PHP version 5.3 or later. (PHP 5.4 or later [recommended](https://secure.php.net/manual/openssl.ciphers.php) for stronger S/MIME privacy guarantees.)
+* PHP version 5.4 or later.
 * S/MIME support requires the [OpenSSL PHP extension](https://secure.php.net/manual/book.openssl.php). (This is almost certainly already installed for you.)
 
 The plugin will automatically de-activate itself, or certain features, if these requirements are not met. If you do not see a given feature, ensure your server (and your web hosting provider) meet the above requirements!

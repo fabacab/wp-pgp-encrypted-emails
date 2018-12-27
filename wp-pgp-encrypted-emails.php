@@ -39,12 +39,9 @@ if ( ! defined( 'WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION' ) ) {
      * This is explicit because WordPress supports even older versions
      * of PHP, so we check the running version on plugin activation.
      *
-     * We need PHP 5.3.3 or later since the OpenPGP.php library we use
-     * requires at least that version.
-     *
      * @link https://secure.php.net/manual/en/language.oop5.late-static-bindings.php
      */
-    define( 'WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION', '5.3.3' );
+    define( 'WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION', '5.4' );
 }
 
 /**
@@ -273,19 +270,19 @@ class WP_PGP_Encrypted_Emails {
         global $wp_version;
         $min_wp_version = self::get_minimum_wordpress_version();
 
-        if (version_compare(WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION, PHP_VERSION) > 0) {
-            deactivate_plugins(plugin_basename(__FILE__));
-            wp_die(sprintf(
-                __('WP PGP Encrypted Emails requires at least PHP version %1$s. You have PHP version %2$s.', 'wp-pgp-encrypted-emails'),
+        if ( version_compare( WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION, PHP_VERSION ) > 0 ) {
+            deactivate_plugins( plugin_basename( __FILE__ ) );
+            wp_die( sprintf(
+                __( 'WP PGP Encrypted Emails requires at least PHP version %1$s. You have PHP version %2$s.', 'wp-pgp-encrypted-emails' ),
                 WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION, PHP_VERSION
-            ));
+            ) );
         }
-        if (version_compare($min_wp_version, $wp_version) > 0) {
-            deactivate_plugins(plugin_basename(__FILE__));
-            wp_die(sprintf(
-                __('WP PGP Encrypted Emails requires at least WordPress version %1$s. You have WordPress version %2$s.', 'buoy'),
+        if ( version_compare( $min_wp_version, $wp_version ) > 0 ) {
+            deactivate_plugins( plugin_basename( __FILE__ ) );
+            wp_die( sprintf(
+                __( 'WP PGP Encrypted Emails requires at least WordPress version %1$s. You have WordPress version %2$s.', 'wp-pgp-encrypted-emails' ),
                 $min_wp_version, $wp_version
-            ));
+            ) );
         }
     }
 
@@ -297,10 +294,10 @@ class WP_PGP_Encrypted_Emails {
      * @return string
      */
     public static function get_minimum_wordpress_version () {
-        $lines = @file(plugin_dir_path(__FILE__).'readme.txt');
-        foreach ($lines as $line) {
-            preg_match('/^Requires at least: ([0-9.]+)$/', $line, $m);
-            if ($m) {
+        $lines = @file( plugin_dir_path( __FILE__ ) . 'readme.txt' );
+        foreach ( $lines as $line ) {
+            preg_match( '/^Requires at least: ([0-9.]+)$/', $line, $m );
+            if ( $m ) {
                 return $m[1];
             }
         }
@@ -313,10 +310,10 @@ class WP_PGP_Encrypted_Emails {
      */
     public static function showMissingSigningKeyNotice () {
         $screen = get_current_screen();
-        if ($screen->base === 'plugins') {
+        if ( $screen->base === 'plugins' ) {
 ?>
 <div class="updated">
-    <p><a href="<?php print esc_attr(self::getKeypairRegenURL());?>" class="button"><?php esc_html_e('Generate PGP signing key', 'wp-pgp-encrypted-emails');?></a> &mdash; <?php print sprintf(esc_html__('Almost done! Generate an OpenPGP keypair for %s to sign outgoing emails.', 'wp-pgp-encrypted-emails'), get_bloginfo('name'));?></p>
+    <p><a href="<?php print esc_attr( self::getKeypairRegenURL() );?>" class="button"><?php esc_html_e( 'Generate PGP signing key', 'wp-pgp-encrypted-emails' );?></a> &mdash; <?php print sprintf( esc_html__( 'Almost done! Generate an OpenPGP keypair for %s to sign outgoing emails.', 'wp-pgp-encrypted-emails' ), get_bloginfo( 'name' ) );?></p>
 </div>
 <?php
         }

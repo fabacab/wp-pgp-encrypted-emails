@@ -129,11 +129,6 @@ class WP_SMIME {
         $plaintext  = ( is_array( $headers ) ) ? implode( "\n", $headers ) : $headers;
         $plaintext .= "\n\n" . $message;
 
-        // If we have it available, use a better cipher than the default.
-        // This will be available in PHP 5.4 or later.
-        // See https://secure.php.net/manual/en/openssl.ciphers.php
-        $cipher_id = ( defined( 'OPENSSL_CIPHER_AES_256_CBC' ) ) ? OPENSSL_CIPHER_AES_256_CBC : OPENSSL_CIPHER_3DES;
-
         if ( is_string( $headers ) ) {
             // PHP's openssl_pkcs7_encrypt expects headers as an array.
             $headers = explode( "\n", $headers );
@@ -153,7 +148,7 @@ class WP_SMIME {
             // encrypted body, not the envelope.
             array_filter( $headers, array( __CLASS__, 'filterMailHeader' ) ),
             0,
-            $cipher_id
+            OPENSSL_CIPHER_AES_256_CBC
         );
         if ( $encrypted ) {
             $smime = file_get_contents( $outfile );
