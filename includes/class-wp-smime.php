@@ -155,46 +155,15 @@ class WP_SMIME {
         }
 
         // Immediately overwrite and delete the files written to disk.
-        // Try using Shred, first. Fallback to a manual implementation
-        // if necessary, using increasingly suboptimal random numbers.
-        $passes = 3; // How many times to overwrite the file to shred.
-        if ( class_exists('\Shred\Shred') ) {
-            $shredder = new \Shred\Shred( $passes );
-            foreach ( array( $infile, $outfile ) as $f ) {
+        $passes = 3;
+        foreach ( array( $infile, $outfile ) as $f ) {
+            if ( class_exists('\Shred\Shred') ) {
+                $shredder = new \Shred\Shred( $passes );
                 if ( ! $shredder->shred( $f ) ) {
-                    error_log( sprintf(
-                        __( 'Failed to shred file: %1$s', 'wp-pgp-encrypted-emails' ),
-                        $f
-                    ) );
+                    self::shred( $f, $passes );
                 }
-            }
-        } else {
-            foreach ( array( $infile, $outfile ) as $f ) {
-                clearstatcache();
-
-                $fs   = (int) filesize( $f ); // cast to int to avoid FALSE
-                $over = 1;
-                try {
-                    $over = random_int( 1, $fs * 2 );
-                } catch ( Error $e ) {
-                    $over = mt_rand( 1, $fs * 2 );
-                }
-
-                $len = $fs + $over;
-                $fh  = fopen( $f, 'w' );
-                for ( $i = 0; $i < $passes; $i++ ) {
-                    try {
-                        fwrite( $fh, random_bytes( $len ), $len );
-                    } catch ( Error $e ) {
-                        $bytes = openssl_random_pseudo_bytes( $len ) OR str_repeat( ord( "\0" ), $len );
-                        fwrite( $fh, $bytes, $len );
-                    }
-                    fflush( $fh ); // Portable way of calling `sync(8)`.
-                    rewind( $fh );
-                }
-
-                fclose( $fh );
-                unlink( $f );
+            } else {
+                self::shred( $f, $passes );
             }
         }
 
@@ -220,6 +189,40 @@ class WP_SMIME {
         }
 
         return $r;
+    }
+
+    /**
+     * Fallback implementation of a simple file shredding utility.
+     *
+     * @param string $f Path to file to shred.
+     * @param int $passes The number of times to overwrite the file.
+     */
+    private static function shred ( $f, $passes = 3 ) {
+        clearstatcache();
+
+        $fs   = (int) filesize( $f ); // cast to int to avoid FALSE
+        $over = 1;
+        try {
+            $over = random_int( 1, $fs * 2 );
+        } catch ( Error $e ) {
+            $over = mt_rand( 1, $fs * 2 );
+        }
+
+        $len = $fs + $over;
+        $fh  = fopen( $f, 'w' );
+        for ( $i = 0; $i < $passes; $i++ ) {
+            try {
+                fwrite( $fh, random_bytes( $len ), $len );
+            } catch ( Error $e ) {
+                $bytes = openssl_random_pseudo_bytes( $len ) OR str_repeat( ord( "\0" ), $len );
+                fwrite( $fh, $bytes, $len );
+            }
+            fflush( $fh ); // Portable way of calling `sync(8)`.
+            rewind( $fh );
+        }
+
+        fclose( $fh );
+        unlink( $f );
     }
 
     /**
