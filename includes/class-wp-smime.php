@@ -214,7 +214,10 @@ class WP_SMIME {
             try {
                 fwrite( $fh, random_bytes( $len ), $len );
             } catch ( Error $e ) {
-                $bytes = openssl_random_pseudo_bytes( $len ) OR str_repeat( ord( "\0" ), $len );
+                $bytes = openssl_random_pseudo_bytes( $len );
+                if ( false === $bytes ) {
+                    $bytes = str_repeat( ord( "\0" ), $len );
+                }
                 fwrite( $fh, $bytes, $len );
             }
             fflush( $fh ); // Portable way of calling `sync(8)`.
