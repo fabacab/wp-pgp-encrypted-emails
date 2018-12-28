@@ -261,6 +261,12 @@ class WP_SMIME {
         // Unhook ourselves.
         remove_filter( 'wp_mail_content_type', array( __CLASS__, 'filterContentType' ) );
 
+        // replace with new mime type for improved compatibility (e.g. Roundcube)
+        // see: https://tools.ietf.org/html/rfc3851
+        if ( 0 === strcasecmp( $content_type, "application/x-pkcs7-mime" ) ) {
+            $content_type = "application/pkcs7-mime";
+        }
+
         return $content_type . $parameters;
     }
 }
