@@ -696,7 +696,7 @@ class WP_PGP_Encrypted_Emails {
      */
     public static function adminNoticeBadUserKey () {
         $wp_user = wp_get_current_user();
-        if ( ! empty( $wp_user->{self::meta_key} ) && ! self::getUserKey( $wp_user ) ) {
+        if ( ! empty( $wp_user->{self::meta_key} ) && ! apply_filters( 'wp_openpgp_user_key', $wp_user ) ) {
 ?>
 <div class="notice error is-dismissible">
     <p><strong><?php esc_html_e( 'There is a problem with your PGP public key.', 'wp-pgp-encrypted-emails' );?></strong></p>
@@ -747,7 +747,7 @@ class WP_PGP_Encrypted_Emails {
      */
     public static function adminNoticeBadUserCert () {
         $wp_user = wp_get_current_user();
-        if ( ! empty( $wp_user->{self::meta_smime_certificate} ) && ! self::getUserCert( $wp_user ) ) {
+        if ( ! empty( $wp_user->{self::meta_smime_certificate} ) && ! apply_filters( 'wp_smime_user_certificate', $wp_user ) ) {
 ?>
 <div class="notice error is-dismissible">
     <p><strong><?php esc_html_e( 'There is a problem with your S/MIME public certificate.', 'wp-pgp-encrypted-emails' );?></strong></p>
@@ -1205,7 +1205,7 @@ class WP_PGP_Encrypted_Emails {
     public static function renderCommentFormFields ( $submit_field ) {
         $post = get_post();
         $html = '';
-        if ( $post->post_author && self::getUserKey( $post->post_author ) ) {
+        if ( $post->post_author && apply_filters( 'wp_openpgp_user_key', $post->post_author ) ) {
             $author = get_userdata( $post->post_author );
             $html .= '<p class="comment-form-openpgp-encryption">';
             $html .= '<label for="openpgp-encryption">' . esc_html__( 'Private', 'wp-pgp-encrypted-emails' ) . '</label>';
@@ -1500,11 +1500,14 @@ class WP_PGP_Encrypted_Emails {
      *
      * @return array
      */
-    public static function preprocessComment ($comment_data) {
-        $post = get_post($comment_data['comment_post_ID']);
-        $key = self::getUserKey($post->post_author);
-        if (!empty($_POST['openpgp-encryption']) && !self::isEncrypted($comment_data['comment_content']) && $key) {
-            $comment_data['comment_content'] = apply_filters('openpgp_encrypt', wp_unslash($comment_data['comment_content']), $key);
+    public static function preprocessComment ( $comment_data ) {
+        $post = get_post( $comment_data['comment_post_ID'] );
+        $key  = apply_filters( 'wp_openpgp_user_key', $post->post_author );
+        if ( ! empty( $_POST['openpgp-encryption'] ) && ! self::isEncrypted( $comment_data['comment_content'] ) && $key ) {
+            $comment_data['comment_content'] = apply_filters(
+                'openpgp_encrypt',
+                wp_unslash( $comment_data['comment_content'] ), $key
+            );
         }
         return $comment_data;
     }
