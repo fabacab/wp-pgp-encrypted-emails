@@ -1,5 +1,58 @@
 [
     {
+        "name": "danielruf/secure-shred",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DanielRuf/secure-shred.git",
+            "reference": "a1301b5ba66b7336d7b454f8f79b3a5e5e15b804"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DanielRuf/secure-shred/zipball/a1301b5ba66b7336d7b454f8f79b3a5e5e15b804",
+            "reference": "a1301b5ba66b7336d7b454f8f79b3a5e5e15b804",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=7.1.0"
+        },
+        "require-dev": {
+            "mikey179/vfsstream": "~1",
+            "phpunit/phpunit": "^7"
+        },
+        "time": "2018-09-08T00:07:33+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Dani C.",
+                "email": "dani.co@mail.com"
+            },
+            {
+                "name": "Daniel Ruf",
+                "email": "kontakt@daniel-ruf.de"
+            }
+        ],
+        "description": "Safely deletes files",
+        "homepage": "https://github.com/DanielRuf/secure-shred",
+        "keywords": [
+            "delete",
+            "remove",
+            "secure",
+            "shred"
+        ]
+    },
+    {
         "name": "phpseclib/phpseclib",
         "version": "2.0.4",
         "version_normalized": "2.0.4.0",

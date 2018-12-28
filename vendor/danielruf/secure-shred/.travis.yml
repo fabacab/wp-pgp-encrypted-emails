@@ -1,0 +1,15 @@
+language: php
+
+php:
+  - 7.1
+  - 7.2
+
+sudo: false
+
+cache:
+   directories:
+     - $HOME/.composer/cache/files
+
+before_script: composer install
+
+script: composer test

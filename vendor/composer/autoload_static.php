@@ -74,6 +74,7 @@ class ComposerStaticInitf0736cd9a4e153527eb34c4b5acb5078
         'OpenPGP_TrustPacket' => __DIR__ . '/..' . '/singpolyma/openpgp-php/lib/openpgp.php',
         'OpenPGP_UserAttributePacket' => __DIR__ . '/..' . '/singpolyma/openpgp-php/lib/openpgp.php',
         'OpenPGP_UserIDPacket' => __DIR__ . '/..' . '/singpolyma/openpgp-php/lib/openpgp.php',
+        'Shred\\Shred' => __DIR__ . '/..' . '/danielruf/secure-shred/src/Shred.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

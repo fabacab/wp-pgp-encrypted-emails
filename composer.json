@@ -16,7 +16,8 @@
     ],
     "homepage": "https://github.com/meitar/wp-pgp-encrypted-emails/#readme",
     "require": {
-        "singpolyma/openpgp-php": "^0.3.0"
+        "singpolyma/openpgp-php": "^0.3.0",
+        "danielruf/secure-shred": "^1"
     },
     "license": "GPL-3.0",
     "authors": [

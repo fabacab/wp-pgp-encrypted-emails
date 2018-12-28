@@ -13,7 +13,7 @@
  * * Plugin Name: WP PGP Encrypted Emails
  * * Plugin URI: https://github.com/meitar/wp-pgp-encrypted-emails
  * * Description: Encrypts email sent to users who opt-in to OpenPGP- and/or S/MIME-compatible protection. <strong>Like this plugin? Please <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="Send a donation to the developer of WP PGP Encrypted Emails">donate</a>. &hearts; Thank you!</strong>
- * * Version: 0.7.3
+ * * Version: 0.7.4
  * * Author: Maymay <bitetheappleback@gmail.com>
  * * Author URI: https://maymay.net/
  * * License: GPL-3.0
@@ -39,12 +39,9 @@ if ( ! defined( 'WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION' ) ) {
      * This is explicit because WordPress supports even older versions
      * of PHP, so we check the running version on plugin activation.
      *
-     * We need PHP 5.3.3 or later since the OpenPGP.php library we use
-     * requires at least that version.
-     *
      * @link https://secure.php.net/manual/en/language.oop5.late-static-bindings.php
      */
-    define( 'WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION', '5.3.3' );
+    define( 'WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION', '5.4' );
 }
 
 /**
@@ -273,19 +270,19 @@ class WP_PGP_Encrypted_Emails {
         global $wp_version;
         $min_wp_version = self::get_minimum_wordpress_version();
 
-        if (version_compare(WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION, PHP_VERSION) > 0) {
-            deactivate_plugins(plugin_basename(__FILE__));
-            wp_die(sprintf(
-                __('WP PGP Encrypted Emails requires at least PHP version %1$s. You have PHP version %2$s.', 'wp-pgp-encrypted-emails'),
+        if ( version_compare( WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION, PHP_VERSION ) > 0 ) {
+            deactivate_plugins( plugin_basename( __FILE__ ) );
+            wp_die( sprintf(
+                __( 'WP PGP Encrypted Emails requires at least PHP version %1$s. You have PHP version %2$s.', 'wp-pgp-encrypted-emails' ),
                 WP_PGP_ENCRYPTED_EMAILS_MIN_PHP_VERSION, PHP_VERSION
-            ));
+            ) );
         }
-        if (version_compare($min_wp_version, $wp_version) > 0) {
-            deactivate_plugins(plugin_basename(__FILE__));
-            wp_die(sprintf(
-                __('WP PGP Encrypted Emails requires at least WordPress version %1$s. You have WordPress version %2$s.', 'buoy'),
+        if ( version_compare( $min_wp_version, $wp_version ) > 0 ) {
+            deactivate_plugins( plugin_basename( __FILE__ ) );
+            wp_die( sprintf(
+                __( 'WP PGP Encrypted Emails requires at least WordPress version %1$s. You have WordPress version %2$s.', 'wp-pgp-encrypted-emails' ),
                 $min_wp_version, $wp_version
-            ));
+            ) );
         }
     }
 
@@ -297,10 +294,10 @@ class WP_PGP_Encrypted_Emails {
      * @return string
      */
     public static function get_minimum_wordpress_version () {
-        $lines = @file(plugin_dir_path(__FILE__).'readme.txt');
-        foreach ($lines as $line) {
-            preg_match('/^Requires at least: ([0-9.]+)$/', $line, $m);
-            if ($m) {
+        $lines = @file( plugin_dir_path( __FILE__ ) . 'readme.txt' );
+        foreach ( $lines as $line ) {
+            preg_match( '/^Requires at least: ([0-9.]+)$/', $line, $m );
+            if ( $m ) {
                 return $m[1];
             }
         }
@@ -313,10 +310,10 @@ class WP_PGP_Encrypted_Emails {
      */
     public static function showMissingSigningKeyNotice () {
         $screen = get_current_screen();
-        if ($screen->base === 'plugins') {
+        if ( $screen->base === 'plugins' ) {
 ?>
 <div class="updated">
-    <p><a href="<?php print esc_attr(self::getKeypairRegenURL());?>" class="button"><?php esc_html_e('Generate PGP signing key', 'wp-pgp-encrypted-emails');?></a> &mdash; <?php print sprintf(esc_html__('Almost done! Generate an OpenPGP keypair for %s to sign outgoing emails.', 'wp-pgp-encrypted-emails'), get_bloginfo('name'));?></p>
+    <p><a href="<?php print esc_attr( self::getKeypairRegenURL() );?>" class="button"><?php esc_html_e( 'Generate PGP signing key', 'wp-pgp-encrypted-emails' );?></a> &mdash; <?php print sprintf( esc_html__( 'Almost done! Generate an OpenPGP keypair for %s to sign outgoing emails.', 'wp-pgp-encrypted-emails' ), get_bloginfo( 'name' ) );?></p>
 </div>
 <?php
         }
@@ -699,7 +696,7 @@ class WP_PGP_Encrypted_Emails {
      */
     public static function adminNoticeBadUserKey () {
         $wp_user = wp_get_current_user();
-        if ( ! empty( $wp_user->{self::meta_key} ) && ! self::getUserKey( $wp_user ) ) {
+        if ( ! empty( $wp_user->{self::meta_key} ) && ! apply_filters( 'wp_openpgp_user_key', $wp_user ) ) {
 ?>
 <div class="notice error is-dismissible">
     <p><strong><?php esc_html_e( 'There is a problem with your PGP public key.', 'wp-pgp-encrypted-emails' );?></strong></p>
@@ -750,7 +747,7 @@ class WP_PGP_Encrypted_Emails {
      */
     public static function adminNoticeBadUserCert () {
         $wp_user = wp_get_current_user();
-        if ( ! empty( $wp_user->{self::meta_smime_certificate} ) && ! self::getUserCert( $wp_user ) ) {
+        if ( ! empty( $wp_user->{self::meta_smime_certificate} ) && ! apply_filters( 'wp_smime_user_certificate', $wp_user ) ) {
 ?>
 <div class="notice error is-dismissible">
     <p><strong><?php esc_html_e( 'There is a problem with your S/MIME public certificate.', 'wp-pgp-encrypted-emails' );?></strong></p>
@@ -1208,7 +1205,7 @@ class WP_PGP_Encrypted_Emails {
     public static function renderCommentFormFields ( $submit_field ) {
         $post = get_post();
         $html = '';
-        if ( $post->post_author && self::getUserKey( $post->post_author ) ) {
+        if ( $post->post_author && apply_filters( 'wp_openpgp_user_key', $post->post_author ) ) {
             $author = get_userdata( $post->post_author );
             $html .= '<p class="comment-form-openpgp-encryption">';
             $html .= '<label for="openpgp-encryption">' . esc_html__( 'Private', 'wp-pgp-encrypted-emails' ) . '</label>';
@@ -1410,16 +1407,34 @@ class WP_PGP_Encrypted_Emails {
         $chosen_method = false;
         $was_encrypted = false;
 
-        if ( get_option( 'admin_email' ) === $to ) {
+        // The one (and only) place in WordPress where email addresses
+        // may be duplicated is if the "admin email" supplied in the
+        // Settings -> General screen is the same as the email address
+        // for a given user account. In this case, check both.
+        $wp_user = get_user_by( 'email', $to );
+        if ( get_option( 'admin_email' ) === $wp_user->user_email ) {
+            $pub_key  = ( self::getAdminKey() )
+                ? self::getAdminKey()
+                : apply_filters( 'wp_openpgp_user_key', $wp_user );
+            $pub_cert = ( self::getAdminCert() )
+                ? self::getAdminCert()
+                : apply_filters( 'wp_smime_user_certificate', $wp_user );
+            $erase_subject = ( get_option( self::meta_key_empty_subject_line ) )
+                ? get_option( self::meta_key_empty_subject_line )
+                : $wp_user->{self::meta_key_empty_subject_line};
+            $chosen_method = ( self::getAdminEncryptionMethod() )
+                ? self::getAdminEncryptionMethod()
+                : apply_filters( 'wp_user_encryption_method', $wp_user ) ;
+        } else if ( get_option( 'admin_email' ) === $to ) {
             $pub_key  = self::getAdminKey();
             $pub_cert = self::getAdminCert();
             $erase_subject = get_option( self::meta_key_empty_subject_line );
             $chosen_method = self::getAdminEncryptionMethod();
-        } else if ( $wp_user = get_user_by( 'email', $to ) ) {
-            $pub_key  = self::getUserKey( $wp_user );
-            $pub_cert = self::getUserCert($wp_user);
+        } else if ( $wp_user ) {
+            $pub_key  = apply_filters( 'wp_openpgp_user_key', $wp_user );
+            $pub_cert = apply_filters( 'wp_smime_user_certificate', $wp_user );
             $erase_subject = $wp_user->{self::meta_key_empty_subject_line};
-            $chosen_method = self::getUserEncryptionMethod( $wp_user );
+            $chosen_method = apply_filters( 'wp_user_encryption_method', $wp_user );
         }
 
         $methods = array();
@@ -1485,11 +1500,14 @@ class WP_PGP_Encrypted_Emails {
      *
      * @return array
      */
-    public static function preprocessComment ($comment_data) {
-        $post = get_post($comment_data['comment_post_ID']);
-        $key = self::getUserKey($post->post_author);
-        if (!empty($_POST['openpgp-encryption']) && !self::isEncrypted($comment_data['comment_content']) && $key) {
-            $comment_data['comment_content'] = apply_filters('openpgp_encrypt', wp_unslash($comment_data['comment_content']), $key);
+    public static function preprocessComment ( $comment_data ) {
+        $post = get_post( $comment_data['comment_post_ID'] );
+        $key  = apply_filters( 'wp_openpgp_user_key', $post->post_author );
+        if ( ! empty( $_POST['openpgp-encryption'] ) && ! self::isEncrypted( $comment_data['comment_content'] ) && $key ) {
+            $comment_data['comment_content'] = apply_filters(
+                'openpgp_encrypt',
+                wp_unslash( $comment_data['comment_content'] ), $key
+            );
         }
         return $comment_data;
     }
