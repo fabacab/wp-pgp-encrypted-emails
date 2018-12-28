@@ -1407,16 +1407,34 @@ class WP_PGP_Encrypted_Emails {
         $chosen_method = false;
         $was_encrypted = false;
 
-        if ( get_option( 'admin_email' ) === $to ) {
+        // The one (and only) place in WordPress where email addresses
+        // may be duplicated is if the "admin email" supplied in the
+        // Settings -> General screen is the same as the email address
+        // for a given user account. In this case, check both.
+        $wp_user = get_user_by( 'email', $to );
+        if ( get_option( 'admin_email' ) === $wp_user->user_email ) {
+            $pub_key  = ( self::getAdminKey() )
+                ? self::getAdminKey()
+                : apply_filters( 'wp_openpgp_user_key', $wp_user );
+            $pub_cert = ( self::getAdminCert() )
+                ? self::getAdminCert()
+                : apply_filters( 'wp_smime_user_certificate', $wp_user );
+            $erase_subject = ( get_option( self::meta_key_empty_subject_line ) )
+                ? get_option( self::meta_key_empty_subject_line )
+                : $wp_user->{self::meta_key_empty_subject_line};
+            $chosen_method = ( self::getAdminEncryptionMethod() )
+                ? self::getAdminEncryptionMethod()
+                : apply_filters( 'wp_user_encryption_method', $wp_user ) ;
+        } else if ( get_option( 'admin_email' ) === $to ) {
             $pub_key  = self::getAdminKey();
             $pub_cert = self::getAdminCert();
             $erase_subject = get_option( self::meta_key_empty_subject_line );
             $chosen_method = self::getAdminEncryptionMethod();
-        } else if ( $wp_user = get_user_by( 'email', $to ) ) {
-            $pub_key  = self::getUserKey( $wp_user );
-            $pub_cert = self::getUserCert($wp_user);
+        } else if ( $wp_user ) {
+            $pub_key  = apply_filters( 'wp_openpgp_user_key', $wp_user );
+            $pub_cert = apply_filters( 'wp_smime_user_certificate', $wp_user );
             $erase_subject = $wp_user->{self::meta_key_empty_subject_line};
-            $chosen_method = self::getUserEncryptionMethod( $wp_user );
+            $chosen_method = apply_filters( 'wp_user_encryption_method', $wp_user );
         }
 
         $methods = array();
