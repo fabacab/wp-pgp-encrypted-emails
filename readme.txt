@@ -8,13 +8,13 @@ Stable tag: 0.7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Signs and encrypts emails using PGP keys or X.509 certificates. Provides OpenPGP and S/MIME functions via WordPress plugin API.
+Signs and encrypts emails using PGP/GPG keys or X.509 certificates. Provides OpenPGP and S/MIME functions via WordPress plugin API.
 
 == Description ==
 
-WP PGP Encrypted Emails can automatically sign and encrypt any email that WordPress sends to your site's admin email address or your users's email addresses. You give it a copy of the recipient's PGP public key and/or their S/MIME certificate, and it does the rest. You can even automatically generate a signing keypair for your site to use.
+WP PGP Encrypted Emails can automatically sign and encrypt any email that WordPress sends to your site's admin email address or your users's email addresses. You give it a copy of the recipient's OpenPGP public key and/or their S/MIME certificate, and it does the rest. You can even automatically generate an OpenPGP signing keypair for your site to use.
 
-Encrypting outgoing emails protects your user's privacy by ensuring that emails intended for them can be read only by them, and them alone. Moreover, signing those emails helps your users verify that email they receive purporting to be from your site was *actually* sent by your server, and not some imposter. If you're a plugin or theme developer, you can encrypt and/or sign *arbitrary data* using this plugin's familiar API built with standard WordPress filter hooks, enabling the development of highly secure communication and publishing tools fully integrated with your WordPress install. See the [`README.markdown`](https://github.com/meitar/wp-pgp-encrypted-emails/#readme) file for details on cryptographic implementation.
+Encrypting outgoing emails protects your user's privacy by ensuring that emails intended for them can be read only by them, and them alone. Moreover, signing those emails helps your users verify that email they receive purporting to be from your site was *actually* sent by your server, and not some imposter. If you're a plugin or theme developer, you can encrypt and/or sign *arbitrary data* using this plugin's OpenPGP and S/MIME APIs, which are both built with familiar, standard WordPress filter hooks. This enables you to develop highly secure communication and publishing tools fully integrated with your WordPress install. See the [`README.markdown`](https://github.com/meitar/wp-pgp-encrypted-emails/#readme) file for details on cryptographic implementation and API usage.
 
 *Donations for this and [my other free software plugins](https://profiles.wordpress.org/meitar#content-plugins) make up a chunk of my income. If you continue to enjoy this plugin, please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted). :) Thank you for your support!*
 
@@ -24,27 +24,28 @@ Plugin features:
 * Configure outbound signing: sign email sent to *all* recipients, or just savvy ones.
 * Per-user encryption keys and certificates; user manages their own OpenPGP keys and S/MIME certificates.
 * Compatible with thousands (yes, thousands) of third-party contact form plugins.
-* Full interoperability with all OpenPGP and S/MIME implementations.
+* Full interoperability with all standards-compliant OpenPGP and S/MIME implementations.
 * Options to enforce further privacy best practices (e.g., removing `Subject` lines).
 * Fully multisite compatible, out of the box. No additional configuration for large networks!
 * No binaries to install or configure; everything you need is in the plugin itself.
 * Bells and whistles included! For instance, visitors can encrypt comments on posts so only the author can read them.
 * Built-in, customizable integration with popular third-party plugins, such as [WooCommerce](https://wordpress.org/plugins/woocommerce/).
-* Always **FREE**. Replaces paid email encryption "upgrades," and get rid of yearly subscription fees. ([Donations](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted) appreciated!)
+* Always **FREE**. Replaces paid email encryption "upgrades," and gets rid of yearly subscription fees. ([Donations](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted) appreciated!)
 * And *more*, of course. ;)
 
-The plugin works transparently for *all email* your site generates, and will also sign and encrypt outgoing email generated by other plugins (such as contact form plugins) or the built-in WordPress notification emails. All you have to do is add one or more PGP keys or an S/MIME certificate to the Email Encryption screen (WordPress Admin Dashboard &rarr; Settings &rarr; Email Encryption). Each user can opt to also remove envelope information such as email subject lines, which encryption schemes cannot protect. With this plugin, there's no longer any need to pay for the "pro" version of your favorite contact form plugin to get the benefit of email privacy.
+The plugin works transparently for *all email* your site generates, and will also sign and encrypt outgoing email generated by other plugins (such as contact form plugins) or the built-in WordPress notification emails. All you have to do is add one or more OpenPGP keys or an S/MIME certificate to the Email Encryption screen (WordPress Admin Dashboard &rarr; Settings &rarr; Email Encryption). Each user can opt to also remove envelope information such as email subject lines, which encryption schemes cannot protect. With this plugin, there's no longer any need to pay for the "pro" version of your favorite contact form plugin to get the benefit of email privacy.
 
-Each of your site's users can supply their own, personal public key and/or X.509 S/MIME certificate for their own email address to have WordPress automatically encrypt any email destined for them. (They merely need to update their user profile.) They can choose which encryption method to use. Once set up, all future emails WordPress sends to that user will be encrypted using the standards-based OpenPGP or S/MIME technologies.
+Each of your site's users can supply their own, personal OpenPGP public key and/or X.509 S/MIME certificate for their own email address to have WordPress automatically encrypt any email destined for them. (They merely need to update their user profile.) They can choose which encryption method to use. Once set up, all future emails WordPress sends to that user will be encrypted using the standards-based OpenPGP or S/MIME technologies.
 
-The PGP-encrypted emails can be decrypted by any OpenPGP-compatible mail client, such as [MacGPG](https://gpgtools.org/), [GPG4Win](https://www.gpg4win.org/), or [Enigmail](https://www.enigmail.net/). For more information on reading encrypted emails, generating keys, and other uses for OpenPGP-compatible encryption, consult any (or all!) of the following guides:
+The OpenPGP-encrypted emails can be decrypted by any OpenPGP-compatible mail client, such as [MacGPG](https://gpgtools.org/) (macOS), [GPG4Win](https://www.gpg4win.org/) (Windows), [Enigmail](https://www.enigmail.net/) (cross-platform), [OpenKeychain](https://openkeychain.org/) (Android), or [iPGMail](https://ipgmail.com/) (iPhone/iOS). For more information on reading encrypted emails, generating keys, and other uses for OpenPGP-compatible encryption, consult any (or all!) of the following guides:
 
 * [The Electronic Frontier Foundation's Surveillance Self-Defense guide to PGP](https://ssd.eff.org/en/module/introduction-public-key-cryptography-and-pgp)
 * [RiseUp.net's OpenPGP best practices guide](https://help.riseup.net/en/gpg-best-practices)
+* [OpenPGP.org](https://www.openpgp.org/)
 
-The S/MIME-encrypted emails can be decrypted by any S/MIME-compatible mail client. These include [Apple's Mail on macOS](http://siber-sonic.com/mac/MailSMIME/) and [iOS for iPhone and iPad](https://support.apple.com/en-au/HT202345), [Microsoft Outlook](https://support.office.com/en-us/article/Encrypt-messages-by-using-S-MIME-in-Outlook-Web-App-2E57E4BD-4CC2-4531-9A39-426E7C873E26), [Claws Mail for GNU/Linux](http://www.claws-mail.org/faq/index.php/S/MIME_howto) and more.
+The S/MIME-encrypted emails can be decrypted by any S/MIME-compatible mail client. These include [Apple's Mail on macOS](http://siber-sonic.com/mac/MailSMIME/) and [iOS for iPhone and iPad](https://support.apple.com/en-au/HT202345), [Microsoft Outlook](https://support.office.com/en-us/article/Encrypt-messages-by-using-S-MIME-in-Outlook-Web-App-2E57E4BD-4CC2-4531-9A39-426E7C873E26), [Claws Mail for GNU/Linux](http://www.claws-mail.org/faq/index.php/S/MIME_howto), and more.
 
-For developers, WP PGP Encrypted Emails provides an easy to use API to both OpenPGP and S/MIME encryption, decryption, and other operations through the familiar [WordPress plugin API](https://codex.wordpress.org/Plugin_API). As a developer, you can use this plugin's simple filter hooks to build custom OpenPGP- or S/MIME-based encryption functionality into your own plugins and themes. See the [Other Notes](https://wordpress.org/plugins/wp-pgp-encrypted-emails/other_notes/) page for details.
+For developers, WP PGP Encrypted Emails provides [an easy to use API to both OpenPGP](https://github.com/meitar/wp-pgp-encrypted-emails/blob/develop/README.markdown#openpgp-api) and [S/MIME](https://github.com/meitar/wp-pgp-encrypted-emails/blob/develop/README.markdown#smime-api) encryption, decryption, and integrity validation operations through the familiar [WordPress plugin API](https://codex.wordpress.org/Plugin_API) so you can use this plugin's simple filter hooks to build custom OpenPGP- or S/MIME-based encryption functionality into your own plugins and themes.
 
 **Security Disclaimer**
 
@@ -61,7 +62,7 @@ Minimum requirements:
 * PHP version 5.4 or later.
 * S/MIME support requires the [OpenSSL PHP extension](https://secure.php.net/manual/book.openssl.php). (This is almost certainly already installed for you.)
 
-The plugin will automatically de-activate itself, or certain features, if these requirements are not met. If you do not see a given feature, ensure your server (and your web hosting provider) meet the above requirements!
+The plugin will automatically de-activate itself, or automatically disable certain features, if these requirements are not met. If you do not see a given feature in the user interface, ensure your server (and your web hosting provider) meet the above requirements!
 
 WP PGP Encrypted Emails can also be installed manually by following these instructions:
 
@@ -69,11 +70,11 @@ WP PGP Encrypted Emails can also be installed manually by following these instru
 1. Upload the unzipped `wp-pgp-encrypted-emails` folder to the `/wp-content/plugins/` directory of your WordPress installation.
 1. Activate the plugin through the "Plugins" menu in WordPress.
 
-Once activated, each user who wants to receive encrypted emails must add their PGP public key to their profile and choose the type of encryption they need.
+Once activated, each user who wants to receive encrypted emails must add their OpenPGP public key or S/MIME public certificate to their profile, and optionally choose the type of encryption they prefer messages addressed to them will use.
 
 See the [screenshots](https://wordpress.org/plugins/wp-pgp-encrypted-emails/screenshots/) for a brief walkthrough of how to configure WP PGP Encrypted Emails after it is installed.
 
-If a user does not have a PGP public key already, they need to use an OpenPGP-compatible client to generate one themselves. ([Learn more about OpenPGP-compatible clients](https://wordpress.org/plugins/wp-pgp-encrypted-emails/faq/).) Users will need to have the private key corresponding to the public key saved in their WordPress profile, or they will not be able to decrypt the email they receive. To learn more about generating keys and decrypting email, consult one (or more) of the following guides:
+If a user does not have an OpenPGP public key already, they need to use an OpenPGP-compatible client to generate one themselves. ([Learn more about OpenPGP-compatible clients](https://wordpress.org/plugins/wp-pgp-encrypted-emails/faq/).) Users will need to have the private key corresponding to the public key saved in their WordPress profile in order to be able to decrypt the email they receive. To learn more about generating keys and decrypting email, consult one (or more) of the following guides:
 
 * [The Electronic Frontier Foundation's Surveillance Self-Defense guide to PGP](https://ssd.eff.org/en/module/introduction-public-key-cryptography-and-pgp)
 * [RiseUp.net's OpenPGP best practices guide](https://help.riseup.net/en/gpg-best-practices)
@@ -98,6 +99,12 @@ An OpenPGP-compatible client is simply an app that can read, write, and verify m
 
 Since there are so many OpenPGP-compatible apps to choose from, I recommend sticking to the [ones listed on the PRISM-Break.org website](https://prism-break.org/en/protocols/gpg/). (Note that PRISM-Break calls it "GPG" instead of "PGP," but the two terms are generally synonymous.) Once you choose an OpenPGP-compatible app for your platform, consider seeking out its help and support documentation to get started using it, or check out some of the generic PGP/GPG guides listed at the end of [this plugin's Installation page](https://wordpress.org/plugins/wp-pgp-encrypted-emails/installation/).
 
+= I can't decrypt messages addressed to my admin email address! =
+
+If you have registered a WordPress user account with the same email address as your site's admin email address (in the Settings &rarr; General screen), then WP PGP Encrypted Emails will first check for a public key or certificate in the administrative Email Encryption settings (Settings &rarr; Email Encryption) before looking at your user's profile settings. If an encryption key or certificate exists in the administrative settings, that key will be used instead of the key or certificate in the user's profile. To resolve this issue, either ensure that you enter encryption keys in only one location (the administrative screen or the user's profile), or ensure these keys are the same.
+
+If you still cannot decrypt messages, make absolutely certain you have the matching private key or certificate corresponding to the public key or certificate that was used to encrypt the message. Unfortunately, it is highly infeasible that anyone on Earth will be able to decrypt messages encrypted to a public key or certificate that you do not have the associated private key for. That is, of course, the whole point of this software.
+
 = How do I read an encrypted comment? =
 
 If you have received a "Private" comment, you will need to use an OpenPGP-compatible PGP client to decrypt and read it. There are many free apps that do this. Which one you choose depends on what kind of computer you are already using. If you use Windows, I suggest installing and using [GPG4Win](https://www.gpg4win.org/) since it provides the most features. For Mac OS X users, I suggest [MacGPG](http://gpgtools.org/) for the same reason, and Linux users should check their distro's package repository for compatible options. (For Ubuntu users, the [Seahorse-Nautilus](http://packages.ubuntu.com/precise/gnome/seahorse-nautilus) plugin is popular.)
@@ -106,11 +113,17 @@ I might also add support for an in-browser client based on [OpenPGP.js](http://o
 
 = Why are emails from [other-plugin-here] not being encrypted? =
 
-Make sure the emails the other plugin sends are being addressed to an email account that WordPress knows about and that WordPress knows which PGP public key to use when encrypting email destined for that address.
+Make sure the emails the other plugin sends are being addressed to an email account that WordPress knows about and that WordPress knows which OpenPGP public key or S/MIME certificate to use when encrypting email destined for that address.
 
-More specifically, this means the `TO:` field of the outgoing email needs to match either your WordPress's "admin email" address or the email address of one of your WordPress user accounts, and you need to provide the PGP public key you want WordPress to use when sending email to that address. In many contact form plugins, you can supply an arbitrary email address to send those emails to, but if that email address is not the address of a user on your site, WP PGP Encrypted Emails won't know which PGP public key to use for encryption.
+More specifically, this means the `TO:` field of the outgoing email needs to match either your WordPress's "admin email" address or the email address of one of your WordPress user accounts, and you need to provide the OpenPGP public key or S/MIME public certificate you want WordPress to use when encrypting the message and sending email to that address. In many contact form plugins, you can supply an arbitrary email address to send those emails to, but if that email address is not the address of a user on your site, WP PGP Encrypted Emails won't know which OpenPGP public key or S/MIME public certificate to use for encryption.
 
-As a workaround, simply create an unprivileged ("Subscriber" [role](https://codex.wordpress.org/Roles_and_Capabilities)) new WordPress user account with that email addresss and enter the PGP public key in that user's profile. (Accept the automatically generated password, since you will not need to remember it, as you will never need to log in with that user account.)
+As a workaround, simply create an unprivileged ("Subscriber" [role](https://codex.wordpress.org/Roles_and_Capabilities)) new WordPress user account with that email addresss and enter the OpenPGP public key or S/MIME certificate in that user's profile. (Either accept the automatically generated password, or supply new a very strong passphrase, since you will not need to remember it because you will never need to log in with that user account.)
+
+= Why are my emails appearing strangely in my email client? =
+
+Issues with character sets, accented characters, different human languages, or content types not appearing correctly are almost always the result of a misconfiguration in the email-sending plugin you are using. Many contact form plugins, for example, allow you to supply custom email headers. WP PGP Encrypted Emails takes great care not to corrupt the email message sent by the underlying plugin that generated the email in the first place. However, this also means that if you do not set up your contact form or email-sending plugin correctly, this plugin won't fix the error.
+
+Most often, this is simply a matter of setting the correct Content-Type header in your contact form or email-sending plugin's settings.
 
 = Is this plugin *really* secure? =
 
@@ -119,6 +132,8 @@ Against the NSA? No, probably not. Against a nosy co-worker? Yes, probably.
 The "realness" of security cannot "really" be measured in abstract, imprecise terms, but rather only based on what real threats you are likely to face and what risks you are vulnerable to if those threats materialize in reality. You have a much better sense of the answers to these things than I do for your situation, because I am not you. Security professionals call this process "threat modeling," and if you are "really" concerned for your security (I encourage you to be!) then learning how to conduct a threat assessment for yourself is a good idea. [Learn more about threat modeling from the EFF's Surveillance Self-Defense Guide](https://ssd.eff.org/en/module/introduction-threat-modeling).
 
 = If this plugin isn't secure against the NSA, what good is it? =
+
+TL;DR: Don't let perfect be the enemy of good.
 
 First of all, not everyone's security needs are the same. (See "threat modeling," discussed in the previous question.)
 
@@ -129,29 +144,34 @@ Read [Bruce Schneier's "Lessons from the Sony Hack"](https://www.schneier.com/bl
 
 Further, security is largely a matter of operational practice, not theoretics. If you never use PGP/GPG because the only tools you have access to are not perfect, then you will not have the experience you need to know how to use PGP/GPG when you actually get access to it, because you never even practiced using it. By way of analogy, if you want to learn swordfighting but all you have is sticks you picked up in the forest, you are better off picking up those sticks and practicing with them than waiting and not practicing at all until you get your hands on steel swords.
 
-TL;DR: Don't let perfect be the enemy of good.
-
 = Can I use a "strong" key for my user account? =
 
 Yes. You can use any OpenPGP public key you generate from any OpenPGP-compatible client.
 
 = How strong is the signing key the plugin generates? =
 
-When generating a PGP signing keypair for your WordPress site, this plugin will create a 2,048-bit RSA OpenPGP keypair. This is considered "good" (but not "great") by 2016 standards. Unfortunately, many hosts will not allow the plugin to create a stronger keypair because of the computation required. Then again, this key is used only for signing, not encryption. Your own PGP public key is always used for encryption, and you are of course encouraged to make that key as strong as you want.
+When generating an OpenPGP signing keypair for your WordPress site, this plugin will create a 2,048-bit RSA OpenPGP keypair. This is considered "okay" (but not "great") by 2018 standards. Unfortunately, many hosts will not allow the plugin to create a stronger keypair because of the computation required. Then again, this key is used only for signing, not encryption. Your own OpenPGP public key is always used for encryption, and you are of course encouraged to make that key as strong as you want.
 
 If you want to use a stronger signing keypair, you can generate one yourself (offline), though you will need to load the key into your WordPress database yourself to use it with this plugin. I consider this extra step "paranoid," but you are of course welcome to be as careful as you feel is appropriate. :)
 
 == Screenshots ==
 
-1. Paste the plain text version of your PGP public key into the "PGP Public Key" field in your profile, then click "Save changes" at the bottom of the page. (There is a similar field for the WordPress admin email in the General Settings screen accessible to Administrator users.)
+1. Paste the plain text version of your OpenPGP public key into the "PGP Public Key" field in your profile, then click "Save changes" at the bottom of the page. (There is a similar field for the WordPress admin email in the General Settings screen accessible to Administrator users.)
 
-2. If the plugin detects a problem with your PGP public key, you will get a notice like the one shown here.
+2. If the plugin detects a problem with your OpenPGP public key, you will get a notice like the one shown here.
 
-3. Authors who add a PGP public key to their profile also let readers leave semi-private comments on their posts. These are comments that are automatically encrypted to the author's public key upon submission. Commenters who want to send a "Private" comment simply write their comment normally and ensure the encryption checkbox is enabled when they submit their comment.
+3. Authors who add an OpenPGP public key to their profile also let readers leave semi-private comments on their posts. These are comments that are automatically encrypted to the author's public key upon submission. Commenters who want to send a "Private" comment simply write their comment normally and ensure the encryption checkbox is enabled when they submit their comment.
 
 4. Administrators can generate an OpenPGP signing keypair with which to automatically sign outgoing emails. This helps recipients verify that email they receive actually came from your website. Admins can regenerate the keypair automatically by clicking the "Regenerate keypair" button, or they can manually paste an ASCII-armored keypair for the site to use. For security, the private key part of the site's signing key will only be transmitted over a secure (HTTPS) connection, so you will see a prompt to switch to a secure connection if you try to view it insecurely. You can still (re)generate a keypair, including the private key part, over an insecure connection because the key is generated on the server itself.
 
 == Change log ==
+
+= 0.7.4 =
+* Security: Always use the AES-256 cipher in CBC mode when encrypting S/MIME emails. This change drops support for PHP versions less than 5.4.
+* Security: Improved shredding of temporary files needed for S/MIME encryption with 3-pass overwrite and explicit filesystem write buffer flushing.
+* Enhancement: Improve S/MIME compatibility with some email clients, notably Roundcube. Props @githubuserx.
+* [Bugfix](https://github.com/meitar/wp-pgp-encrypted-emails/issues/18): Conflict where admin email without encryption keys matching user email no longer results in unencrypted email being sent.
+* Minor code cleanup and documentation improvements.
 
 = 0.7.3 =
 * Bugfix: Messages with `Content-Type: text/html` headers that were also S/MIME encrypted now render properly. Props @githubuserx.
@@ -246,7 +266,7 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 == Upgrade Notice ==
 
 = 0.7.4 =
-This update drops support for PHP 5.3. This version requires PHP 5.4 or later. Improves S/MIME temporary file deletion.
+This version requires PHP 5.4 or later, improves the security of S/MIME email, and fixes a minor bug affecting some admin users.
 
 = 0.7.3 =
 Fixes numerous issues with `Content-Type` mail header handling, notably fixing S/MIME-encrypted HTML email sending.
@@ -259,7 +279,7 @@ If you like this plugin, **please consider [making a donation](https://www.paypa
 
 Theme authors can use the following code snippets to integrate a WordPress theme with this plugin.
 
-* To link to a site's PGP signing public key: `print admin_url('admin-ajax.php?action=download_pgp_signing_public_key')`
+* To link to a site's OpenPGP signing public key: `<?php print admin_url( 'admin-ajax.php?action=download_pgp_signing_public_key' ); ?>`
 
 = Plugin hooks =
 
