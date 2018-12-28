@@ -27,8 +27,8 @@ class WP_SMIME {
      * @var string
      *
      * @see wp_mail()
-     * @see self::encrypt()
-     * @see self::filterContentType()
+     * @see WP_SMIME::encrypt()
+     * @see WP_SMIME::filterContentType()
      */
     private static $media_type_parameters;
 
@@ -241,15 +241,13 @@ class WP_SMIME {
     }
 
     /**
-     * Ensures S/MIME emails contain the correct Content-Type MIME
-     * header as supplied by the underlying `openssl_pkcs7_encrypt()`
-     * function call result.
+     * Ensures S/MIME emails contain correct Content-Type MIME header.
      *
      * @param string $content_type
      *
      * @see https://developer.wordpress.org/reference/hooks/wp_mail_content_type/
      *
-     * @uses self::$media_type_parameters
+     * @uses WP_SMIME::$media_type_parameters
      */
     public static function filterContentType ( $content_type ) {
         // Retrieve the last `encrypt()`ion's media type result.
@@ -261,10 +259,13 @@ class WP_SMIME {
         // Unhook ourselves.
         remove_filter( 'wp_mail_content_type', array( __CLASS__, 'filterContentType' ) );
 
-        // replace with new mime type for improved compatibility (e.g. Roundcube)
-        // see: https://tools.ietf.org/html/rfc3851
-        if ( 0 === strcasecmp( $content_type, "application/x-pkcs7-mime" ) ) {
-            $content_type = "application/pkcs7-mime";
+        // PHP's `openssl_pkcs7_encrypt()` uses the (very) old `x-pkcs7-mime`
+        // MIME content type for S/MIME encrypted envelopes, which has been
+        // obsoleted by RFC 3851 since July, 2004. If we see this content type,
+        // we can safely replace it with the standard mime type in order to gain
+        // improved compatibility with some MUAs, such as Roundcube.
+        if ( 0 === strcasecmp( $content_type, 'application/x-pkcs7-mime' ) ) {
+            $content_type = 'application/pkcs7-mime';
         }
 
         return $content_type . $parameters;
