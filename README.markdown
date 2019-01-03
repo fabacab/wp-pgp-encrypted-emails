@@ -70,8 +70,8 @@ This plugin makes no additional attempt to protect key material from other runni
 
 A user's key material will be stored as part of their WordPress profile information and is therefore accessible to other running code. However, you are strongly encouraged to use the following WordPress filters provided by this plugin instead of directly accessing the user's metadata.
 
-* `wp_openpgp_get_key` - To retrieve the user's OpenPGP public key.
-* `wp_smime_get_certificate` - To retrieve the user's S/MIME public certificate.
+* `wp_openpgp_user_key` - To retrieve the user's OpenPGP public key.
+* `wp_smime_user_certificate` - To retrieve the user's S/MIME public certificate.
 
 Both these filters automatically invoke the `openpgp_key` or `smime_certificate` filters so that they `return` native PHP objects rather than raw strings. You can then immediately use the results in further operations. This radically simplifies the process from plaintext to successful encryption, as shown here using both schemes:
 

@@ -27,8 +27,8 @@ class WP_SMIME {
      * @var string
      *
      * @see wp_mail()
-     * @see self::encrypt()
-     * @see self::filterContentType()
+     * @see WP_SMIME::encrypt()
+     * @see WP_SMIME::filterContentType()
      */
     private static $media_type_parameters;
 
@@ -124,15 +124,10 @@ class WP_SMIME {
      */
     public static function encrypt ( $message, $headers, $certificates ) {
         $infile  = tempnam( sys_get_temp_dir(), 'wp_email_' );
-        $outfile = $infile . '.enc';
+        $outfile = tempnam( sys_get_temp_dir(), 'wp_email_' );
 
         $plaintext  = ( is_array( $headers ) ) ? implode( "\n", $headers ) : $headers;
         $plaintext .= "\n\n" . $message;
-
-        // If we have it available, use a better cipher than the default.
-        // This will be available in PHP 5.4 or later.
-        // See https://secure.php.net/manual/en/openssl.ciphers.php
-        $cipher_id = ( defined( 'OPENSSL_CIPHER_AES_256_CBC' ) ) ? OPENSSL_CIPHER_AES_256_CBC : OPENSSL_CIPHER_RC2_40;
 
         if ( is_string( $headers ) ) {
             // PHP's openssl_pkcs7_encrypt expects headers as an array.
@@ -153,19 +148,24 @@ class WP_SMIME {
             // encrypted body, not the envelope.
             array_filter( $headers, array( __CLASS__, 'filterMailHeader' ) ),
             0,
-            $cipher_id
+            OPENSSL_CIPHER_AES_256_CBC
         );
         if ( $encrypted ) {
             $smime = file_get_contents( $outfile );
         }
 
         // Immediately overwrite and delete the files written to disk.
-        $fs = (int) filesize( $infile ); // cast to int to avoid FALSE
-        file_put_contents( $infile, random_bytes( $fs + random_int( 0, $fs * 2 ) ) );
-        unlink( $infile );
-        $fs = (int) filesize( $outfile );
-        file_put_contents( $outfile, random_bytes( $fs + random_int( 0, $fs * 2 ) ) );
-        unlink( $outfile );
+        $passes = 3;
+        foreach ( array( $infile, $outfile ) as $f ) {
+            if ( class_exists('\Shred\Shred') ) {
+                $shredder = new \Shred\Shred( $passes );
+                if ( ! $shredder->shred( $f ) ) {
+                    self::shred( $f, $passes );
+                }
+            } else {
+                self::shred( $f, $passes );
+            }
+        }
 
         if ( $smime ) {
             $parts = explode( "\n\n", $smime, 2 );
@@ -192,6 +192,43 @@ class WP_SMIME {
     }
 
     /**
+     * Fallback implementation of a simple file shredding utility.
+     *
+     * @param string $f Path to file to shred.
+     * @param int $passes The number of times to overwrite the file.
+     */
+    private static function shred ( $f, $passes = 3 ) {
+        clearstatcache();
+
+        $fs   = (int) filesize( $f ); // cast to int to avoid FALSE
+        $over = 1;
+        try {
+            $over = random_int( 1, $fs * 2 );
+        } catch ( Error $e ) {
+            $over = mt_rand( 1, $fs * 2 );
+        }
+
+        $len = $fs + $over;
+        $fh  = fopen( $f, 'w' );
+        for ( $i = 0; $i < $passes; $i++ ) {
+            try {
+                fwrite( $fh, random_bytes( $len ), $len );
+            } catch ( Error $e ) {
+                $bytes = openssl_random_pseudo_bytes( $len );
+                if ( false === $bytes ) {
+                    $bytes = str_repeat( ord( "\0" ), $len );
+                }
+                fwrite( $fh, $bytes, $len );
+            }
+            fflush( $fh ); // Portable way of calling `sync(8)`.
+            rewind( $fh );
+        }
+
+        fclose( $fh );
+        unlink( $f );
+    }
+
+    /**
      * Filters an array of email headers
      *
      * When used with `array_filter()`, this function will remove
@@ -207,15 +244,13 @@ class WP_SMIME {
     }
 
     /**
-     * Ensures S/MIME emails contain the correct Content-Type MIME
-     * header as supplied by the underlying `openssl_pkcs7_encrypt()`
-     * function call result.
+     * Ensures S/MIME emails contain correct Content-Type MIME header.
      *
      * @param string $content_type
      *
      * @see https://developer.wordpress.org/reference/hooks/wp_mail_content_type/
      *
-     * @uses self::$media_type_parameters
+     * @uses WP_SMIME::$media_type_parameters
      */
     public static function filterContentType ( $content_type ) {
         // Retrieve the last `encrypt()`ion's media type result.
@@ -226,6 +261,15 @@ class WP_SMIME {
 
         // Unhook ourselves.
         remove_filter( 'wp_mail_content_type', array( __CLASS__, 'filterContentType' ) );
+
+        // PHP's `openssl_pkcs7_encrypt()` uses the (very) old `x-pkcs7-mime`
+        // MIME content type for S/MIME encrypted envelopes, which has been
+        // obsoleted by RFC 3851 since July, 2004. If we see this content type,
+        // we can safely replace it with the standard mime type in order to gain
+        // improved compatibility with some MUAs, such as Roundcube.
+        if ( 0 === strcasecmp( $content_type, 'application/x-pkcs7-mime' ) ) {
+            $content_type = 'application/pkcs7-mime';
+        }
 
         return $content_type . $parameters;
     }

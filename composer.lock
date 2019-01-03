@@ -4,8 +4,59 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1cf64c0e5397919d01445c92c6f1df38",
+    "content-hash": "0e52aeac6ea60fefcf115a241adc3013",
     "packages": [
+        {
+            "name": "danielruf/secure-shred",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DanielRuf/secure-shred.git",
+                "reference": "a1301b5ba66b7336d7b454f8f79b3a5e5e15b804"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DanielRuf/secure-shred/zipball/a1301b5ba66b7336d7b454f8f79b3a5e5e15b804",
+                "reference": "a1301b5ba66b7336d7b454f8f79b3a5e5e15b804",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1.0"
+            },
+            "require-dev": {
+                "mikey179/vfsstream": "~1",
+                "phpunit/phpunit": "^7"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dani C.",
+                    "email": "dani.co@mail.com"
+                },
+                {
+                    "name": "Daniel Ruf",
+                    "email": "kontakt@daniel-ruf.de"
+                }
+            ],
+            "description": "Safely deletes files",
+            "homepage": "https://github.com/DanielRuf/secure-shred",
+            "keywords": [
+                "delete",
+                "remove",
+                "secure",
+                "shred"
+            ],
+            "time": "2018-09-08T00:07:33+00:00"
+        },
         {
             "name": "phpseclib/phpseclib",
             "version": "2.0.4",

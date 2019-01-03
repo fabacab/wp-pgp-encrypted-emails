@@ -55,4 +55,5 @@ return array(
     'OpenPGP_TrustPacket' => $vendorDir . '/singpolyma/openpgp-php/lib/openpgp.php',
     'OpenPGP_UserAttributePacket' => $vendorDir . '/singpolyma/openpgp-php/lib/openpgp.php',
     'OpenPGP_UserIDPacket' => $vendorDir . '/singpolyma/openpgp-php/lib/openpgp.php',
+    'Shred\\Shred' => $vendorDir . '/danielruf/secure-shred/src/Shred.php',
 );
