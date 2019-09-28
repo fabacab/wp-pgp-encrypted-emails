@@ -82,7 +82,7 @@ If a user does not have an OpenPGP public key already, they need to use an OpenP
 I have also found the following articles useful, but can not personally vouch for their accuracy:
 
 * [Jerzy Gangi's "Best PGP Tutorial for Mac OS X, ever"](http://notes.jerzygangi.com/the-best-pgp-tutorial-for-mac-os-x-ever/)
-* [DeepDotWeb's Basic Guide to PGP on Linux](https://www.deepdotweb.com/2015/02/17/basic-guide-pgp-linux/)
+* [DeepDotWeb's Basic Guide to PGP on Linux](https://web.archive.org/web/20190503073351/https://www.deepdotweb.com/2015/02/17/basic-guide-pgp-linux/)
 * [BitCoin Not Bombs: Beginner's Guide to PGP](http://www.bitcoinnotbombs.com/beginners-guide-to-pgp/)
 
 If you found a good guide to using PGP/GPG that I haven't listed here, please share it in [the WP PGP Encrypted Emails plugin support forum](https://wordpress.org/support/plugin/wp-pgp-encrypted-emails#postform).
