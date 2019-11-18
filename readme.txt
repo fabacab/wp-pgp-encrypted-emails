@@ -3,7 +3,7 @@ Contributors: meitar
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
-Tested up to: 5.0.2
+Tested up to: 5.3
 Stable tag: 0.7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -82,7 +82,7 @@ If a user does not have an OpenPGP public key already, they need to use an OpenP
 I have also found the following articles useful, but can not personally vouch for their accuracy:
 
 * [Jerzy Gangi's "Best PGP Tutorial for Mac OS X, ever"](http://notes.jerzygangi.com/the-best-pgp-tutorial-for-mac-os-x-ever/)
-* [DeepDotWeb's Basic Guide to PGP on Linux](https://www.deepdotweb.com/2015/02/17/basic-guide-pgp-linux/)
+* [DeepDotWeb's Basic Guide to PGP on Linux](https://web.archive.org/web/20190503073351/https://www.deepdotweb.com/2015/02/17/basic-guide-pgp-linux/)
 * [BitCoin Not Bombs: Beginner's Guide to PGP](http://www.bitcoinnotbombs.com/beginners-guide-to-pgp/)
 
 If you found a good guide to using PGP/GPG that I haven't listed here, please share it in [the WP PGP Encrypted Emails plugin support forum](https://wordpress.org/support/plugin/wp-pgp-encrypted-emails#postform).
