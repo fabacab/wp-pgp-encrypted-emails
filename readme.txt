@@ -117,7 +117,7 @@ Make sure the emails the other plugin sends are being addressed to an email acco
 
 More specifically, this means the `TO:` field of the outgoing email needs to match either your WordPress's "admin email" address or the email address of one of your WordPress user accounts, and you need to provide the OpenPGP public key or S/MIME public certificate you want WordPress to use when encrypting the message and sending email to that address. In many contact form plugins, you can supply an arbitrary email address to send those emails to, but if that email address is not the address of a user on your site, WP PGP Encrypted Emails won't know which OpenPGP public key or S/MIME public certificate to use for encryption.
 
-As a workaround, simply create an unprivileged ("Subscriber" [role](https://codex.wordpress.org/Roles_and_Capabilities)) new WordPress user account with that email addresss and enter the OpenPGP public key or S/MIME certificate in that user's profile. (Either accept the automatically generated password, or supply new a very strong passphrase, since you will not need to remember it because you will never need to log in with that user account.)
+As a workaround, simply create an unprivileged ("Subscriber" [role](https://codex.wordpress.org/Roles_and_Capabilities)) new WordPress user account with that email address and enter the OpenPGP public key or S/MIME certificate in that user's profile. (Either accept the automatically generated password, or supply a new very strong passphrase, since you will not need to remember it because you will never need to log in with that user account.)
 
 = Why are my emails appearing strangely in my email client? =
 
