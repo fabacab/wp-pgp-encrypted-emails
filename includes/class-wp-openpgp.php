@@ -4,8 +4,6 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.en.html
  *
- * @copyright Copyright (c) 2016 by Meitar "maymay" Moscovitz
- *
  * @package WordPress\Plugin\WP_PGP_Encrypted_Emails\WP_OpenPGP
  */
 
@@ -137,7 +135,7 @@ class WP_OpenPGP {
      */
     public static function enarmor ($data, $marker = 'MESSAGE', $headers = array()) {
         // Wrap to no more than 64 characters as old-school PEM spec.
-        // See also https://github.com/meitar/wp-pgp-encrypted-emails/issues/11
+        // See also https://github.com/fabacab/wp-pgp-encrypted-emails/issues/11
         return wordwrap(OpenPGP::enarmor($data, $marker, $headers), 64, "\n", true);
     }
 
