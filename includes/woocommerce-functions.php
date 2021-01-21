@@ -4,8 +4,6 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.en.html
  *
- * @copyright Copyright (c) 2017 by Meitar "maymay" Moscovitz
- *
  * @package WordPress\Plugin\WP_PGP_Encrypted_Emails\WooCommerce
  */
 

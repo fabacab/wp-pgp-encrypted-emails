@@ -1,5 +1,5 @@
 {
-    "name": "meitar/wp-pgp-encrypted-emails",
+    "name": "fabacab/wp-pgp-encrypted-emails",
     "description": "Encrypts WordPress emails using OpenPGP or S/MIME with a familiar API.",
     "type": "wordpress-plugin",
     "keywords": [
@@ -14,25 +14,17 @@
         "PGP",
         "API wrapper"
     ],
-    "homepage": "https://github.com/meitar/wp-pgp-encrypted-emails/#readme",
+    "homepage": "https://github.com/fabacab/wp-pgp-encrypted-emails/#readme",
     "require": {
         "singpolyma/openpgp-php": "^0.3.0",
         "danielruf/secure-shred": "^1"
     },
     "license": "GPL-3.0",
-    "authors": [
-        {
-            "name": "Maymay",
-            "email": "bitetheappleback@gmail.com",
-            "homepage": "https://maymay.net/",
-            "role": "Developer"
-        }
-    ],
     "support": {
-        "issues": "https://github.com/meitar/wp-pgp-encrypted-emails/issues",
+        "issues": "https://github.com/fabacab/wp-pgp-encrypted-emails/issues",
         "forum": "https://wordpress.org/support/plugin/wp-pgp-encrypted-emails",
-        "wiki": "https://github.com/meitar/wp-pgp-encrypted-emails/wiki",
-        "source": "https://github.com/meitar/wp-pgp-encrypted-emails",
-        "docs": "https://github.com/meitar/wp-pgp-encrypted-emails/blob/master/README.markdown"
+        "wiki": "https://github.com/fabacab/wp-pgp-encrypted-emails/wiki",
+        "source": "https://github.com/fabacab/wp-pgp-encrypted-emails",
+        "docs": "https://github.com/fabacab/wp-pgp-encrypted-emails/blob/master/README.markdown"
     }
 }

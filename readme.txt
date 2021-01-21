@@ -1,9 +1,9 @@
 === WP PGP Encrypted Emails ===
-Contributors: meitar
+Contributors: maymay
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
-Tested up to: 5.3
+Tested up to: 5.6
 Stable tag: trunk
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -14,9 +14,9 @@ Signs and encrypts emails using PGP/GPG keys or X.509 certificates. Provides Ope
 
 WP PGP Encrypted Emails can automatically sign and encrypt any email that WordPress sends to your site's admin email address or your users's email addresses. You give it a copy of the recipient's OpenPGP public key and/or their S/MIME certificate, and it does the rest. You can even automatically generate an OpenPGP signing keypair for your site to use.
 
-Encrypting outgoing emails protects your user's privacy by ensuring that emails intended for them can be read only by them, and them alone. Moreover, signing those emails helps your users verify that email they receive purporting to be from your site was *actually* sent by your server, and not some imposter. If you're a plugin or theme developer, you can encrypt and/or sign *arbitrary data* using this plugin's OpenPGP and S/MIME APIs, which are both built with familiar, standard WordPress filter hooks. This enables you to develop highly secure communication and publishing tools fully integrated with your WordPress install. See the [`README.markdown`](https://github.com/meitar/wp-pgp-encrypted-emails/#readme) file for details on cryptographic implementation and API usage.
+Encrypting outgoing emails protects your user's privacy by ensuring that emails intended for them can be read only by them, and them alone. Moreover, signing those emails helps your users verify that email they receive purporting to be from your site was *actually* sent by your server, and not some imposter. If you're a plugin or theme developer, you can encrypt and/or sign *arbitrary data* using this plugin's OpenPGP and S/MIME APIs, which are both built with familiar, standard WordPress filter hooks. This enables you to develop highly secure communication and publishing tools fully integrated with your WordPress install. See the [`README.markdown`](https://github.com/fabacab/wp-pgp-encrypted-emails/#readme) file for details on cryptographic implementation and API usage.
 
-*Donations for this and [my other free software plugins](https://profiles.wordpress.org/meitar#content-plugins) make up a chunk of my income. If you continue to enjoy this plugin, please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted). :) Thank you for your support!*
+*Donations for this and my other free software plugins make up a chunk of my income. If you continue to enjoy this plugin, please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted). :) Thank you for your support!*
 
 Plugin features:
 
@@ -45,7 +45,7 @@ The OpenPGP-encrypted emails can be decrypted by any OpenPGP-compatible mail cli
 
 The S/MIME-encrypted emails can be decrypted by any S/MIME-compatible mail client. These include [Apple's Mail on macOS](http://siber-sonic.com/mac/MailSMIME/) and [iOS for iPhone and iPad](https://support.apple.com/en-au/HT202345), [Microsoft Outlook](https://support.office.com/en-us/article/Encrypt-messages-by-using-S-MIME-in-Outlook-Web-App-2E57E4BD-4CC2-4531-9A39-426E7C873E26), [Claws Mail for GNU/Linux](http://www.claws-mail.org/faq/index.php/S/MIME_howto), and more.
 
-For developers, WP PGP Encrypted Emails provides [an easy to use API to both OpenPGP](https://github.com/meitar/wp-pgp-encrypted-emails/blob/develop/README.markdown#openpgp-api) and [S/MIME](https://github.com/meitar/wp-pgp-encrypted-emails/blob/develop/README.markdown#smime-api) encryption, decryption, and integrity validation operations through the familiar [WordPress plugin API](https://codex.wordpress.org/Plugin_API) so you can use this plugin's simple filter hooks to build custom OpenPGP- or S/MIME-based encryption functionality into your own plugins and themes.
+For developers, WP PGP Encrypted Emails provides [an easy to use API to both OpenPGP](https://github.com/fabacab/wp-pgp-encrypted-emails/blob/develop/README.markdown#openpgp-api) and [S/MIME](https://github.com/fabacab/wp-pgp-encrypted-emails/blob/develop/README.markdown#smime-api) encryption, decryption, and integrity validation operations through the familiar [WordPress plugin API](https://codex.wordpress.org/Plugin_API) so you can use this plugin's simple filter hooks to build custom OpenPGP- or S/MIME-based encryption functionality into your own plugins and themes.
 
 **Security Disclaimer**
 
@@ -89,7 +89,7 @@ If you found a good guide to using PGP/GPG that I haven't listed here, please sh
 
 Similarly, if a user doesn't already have one, they will need to obtain an S/MIME certificate from a Certificate Authority (such as a public CA or their employer), or generate a self-signed one themselves. [Learn more about getting an S/MIME certificate](http://kb.mozillazine.org/Getting_an_SMIME_certificate).
 
-To view a list of known issues with this plugin or to report a bug, please use [the project's issue tracker](https://github.com/meitar/wp-pgp-encrypted-emails/issues/).
+To view a list of known issues with this plugin or to report a bug, please use [the project's issue tracker](https://github.com/fabacab/wp-pgp-encrypted-emails/issues/).
 
 == Frequently Asked Questions==
 
@@ -170,19 +170,19 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 * Security: Always use the AES-256 cipher in CBC mode when encrypting S/MIME emails. This change drops support for PHP versions less than 5.4.
 * Security: Improved shredding of temporary files needed for S/MIME encryption with 3-pass overwrite and explicit filesystem write buffer flushing.
 * Enhancement: Improve S/MIME compatibility with some email clients, notably Roundcube. Props @githubuserx.
-* [Bugfix](https://github.com/meitar/wp-pgp-encrypted-emails/issues/18): Conflict where admin email without encryption keys matching user email no longer results in unencrypted email being sent.
+* [Bugfix](https://github.com/fabacab/wp-pgp-encrypted-emails/issues/18): Conflict where admin email without encryption keys matching user email no longer results in unencrypted email being sent.
 * Minor code cleanup and documentation improvements.
 
 = 0.7.3 =
 * Bugfix: Messages with `Content-Type: text/html` headers that were also S/MIME encrypted now render properly. Props @githubuserx.
 * Bugfix: Ensure MIME subtypes in `Content-Type` mail headers are retained.
-* [Bugfix](https://github.com/meitar/wp-pgp-encrypted-emails/issues/33): Do not enqueue admin-area stylesheet on site front-end.
+* [Bugfix](https://github.com/fabacab/wp-pgp-encrypted-emails/issues/33): Do not enqueue admin-area stylesheet on site front-end.
 
 = 0.7.2 =
-* [Bugfix](https://github.com/meitar/wp-pgp-encrypted-emails/pull/29): Fixes a problem where S/MIME email sending fails due to a web hoster restriction.
+* [Bugfix](https://github.com/fabacab/wp-pgp-encrypted-emails/pull/29): Fixes a problem where S/MIME email sending fails due to a web hoster restriction.
 
 = 0.7.1 =
-* [Enhancement](https://github.com/meitar/wp-pgp-encrypted-emails/issues/28): Offer a simple "Send me a test email" button to let inexperienced users easily test their encryption setup.
+* [Enhancement](https://github.com/fabacab/wp-pgp-encrypted-emails/issues/28): Offer a simple "Send me a test email" button to let inexperienced users easily test their encryption setup.
 
 = 0.7 =
 * Feature: WooCommerce integration. Customers can add their own OpenPGP keys or S/MIME certificates on their "My Account" front-end supplied by WooCommerce. By default, emails sent to Customers are *not* signed with the site's PGP signing key, though individual customers can opt-in to receive either encrypted and signed or just signed emails as they wish.
@@ -206,7 +206,7 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 = 0.6.0 =
 
 * [Feature](https://wordpress.org/support/topic/accept-also-smime-keys/): S/MIME support! :)
-    * Three new API filter hooks are provided to offer S/MIME encryption. These are `smime_certificate`, `smime_certificate_pem_encode` and `smime_encrypt`. See [S/MIME API](https://github.com/meitar/wp-pgp-encrypted-emails/#smime-api) for details.
+    * Three new API filter hooks are provided to offer S/MIME encryption. These are `smime_certificate`, `smime_certificate_pem_encode` and `smime_encrypt`. See [S/MIME API](https://github.com/fabacab/wp-pgp-encrypted-emails/#smime-api) for details.
 
 = 0.5.0 =
 
@@ -225,16 +225,16 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 = 0.4.2 =
 
-* [Bugfix](https://github.com/meitar/wp-pgp-encrypted-emails/issues/10): Improve compatibility with some third-party plugins.
+* [Bugfix](https://github.com/fabacab/wp-pgp-encrypted-emails/issues/10): Improve compatibility with some third-party plugins.
 
 = 0.4.1 =
 
-* [Bugfix](https://github.com/meitar/wp-pgp-encrypted-emails/issues/8): Plugins that call `wp_mail()` with an array no longer cause PHP warnings.
-* [Bugfix](https://github.com/meitar/wp-pgp-encrypted-emails/issues/7): Fix syntax error when running on PHP 5.3 or earlier.
+* [Bugfix](https://github.com/fabacab/wp-pgp-encrypted-emails/issues/8): Plugins that call `wp_mail()` with an array no longer cause PHP warnings.
+* [Bugfix](https://github.com/fabacab/wp-pgp-encrypted-emails/issues/7): Fix syntax error when running on PHP 5.3 or earlier.
 
 = 0.4.0 =
 
-* [Feature](https://github.com/meitar/wp-pgp-encrypted-emails/issues/1): Admins can now generate a PGP signing keypair for the blog itself. If a signing keypair exists, outgoing emails will be automatically signed.
+* [Feature](https://github.com/fabacab/wp-pgp-encrypted-emails/issues/1): Admins can now generate a PGP signing keypair for the blog itself. If a signing keypair exists, outgoing emails will be automatically signed.
     * This keypair is intended *only* for signing outgoing emails from WordPress itself. It is *not* intended to be used for any other purpose. *Do not* use this keypair for emails you send from your own mail client. *Do not* use this keypair as your personal PGP key. *Do not* export this key for use in any other system. This keypair should be treated as a low-trust, single-purpose keypair reserved exclusively for your website itself.
     * After adding a PGP signing keypair, users can download the site's public key part from their profile pages.
     * Theme authors can always link to a site's PGP signing public key with the following code: `print admin_url('admin-ajax.php?action=download_pgp_signing_public_key')`
@@ -244,16 +244,16 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 = 0.3.0 =
 
-* [Feature](https://github.com/meitar/wp-pgp-encrypted-emails/issues/6): Authors with a PGP public key set in their profile can now receive "private" comments. Readers write their comment as normal, and can then enable the "Private" checkbox next to the comment submit button. This will automatically encrypt the comment to the post author's PGP public key and saves the comment in the WordPress database as an ASCII-armored string.
+* [Feature](https://github.com/fabacab/wp-pgp-encrypted-emails/issues/6): Authors with a PGP public key set in their profile can now receive "private" comments. Readers write their comment as normal, and can then enable the "Private" checkbox next to the comment submit button. This will automatically encrypt the comment to the post author's PGP public key and saves the comment in the WordPress database as an ASCII-armored string.
     * This feature is *not* secure against eavesdropping, other network attackers, or malicious web host. It does *not* prevent server administrators from reading the contents of your comment. Rather, it prevents *other readers* or unprivileged users of the blog from reading your comment after it has been sent to the author. This is useful if, for instance, you want to communicate semi-privately with the author in an otherwise public forum (the comment thread) but do not know the author's email address, perhaps because the author themselves wish to remain pseudonymous (and thus do not provide a valid email address associated with their PGP key).
 
 = 0.2.0 =
 
-* [Developer](https://github.com/meitar/wp-pgp-encrypted-emails/issues/5): Added two new filters, `openpgp_key` and `openpgp_encrypt` so plugin developers and theme authors can encrypt arbitrary data, too.
+* [Developer](https://github.com/fabacab/wp-pgp-encrypted-emails/issues/5): Added two new filters, `openpgp_key` and `openpgp_encrypt` so plugin developers and theme authors can encrypt arbitrary data, too.
 
 = 0.1.2 =
 
-* [Security](https://github.com/meitar/wp-pgp-encrypted-emails/issues/3): Switch PGP library to [OpenPGP-PGP](https://github.com/singpolyma/openpgp-php).
+* [Security](https://github.com/fabacab/wp-pgp-encrypted-emails/issues/3): Switch PGP library to [OpenPGP-PGP](https://github.com/singpolyma/openpgp-php).
 
 = 0.1.1 =
 
@@ -273,7 +273,7 @@ Fixes numerous issues with `Content-Type` mail header handling, notably fixing S
 
 == Other notes ==
 
-If you like this plugin, **please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted) for your use of the plugin** or, better yet, contributing directly to [Meitar's Cyberbusking fund](http://Cyberbusking.org/). Your support is appreciated!
+If you like this plugin, **please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted) for your use of the plugin** or, better yet, contributing directly to [my Cyberbusking fund](http://Cyberbusking.org/). Your support is appreciated!
 
 = Themeing =
 

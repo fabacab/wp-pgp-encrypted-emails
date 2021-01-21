@@ -266,7 +266,7 @@ msgid "WP PGP Encrypted Emails"
 msgstr ""
 
 #. Plugin URI of the plugin/theme
-msgid "https://github.com/meitar/wp-pgp-encrypted-emails"
+msgid "https://github.com/fabacab/wp-pgp-encrypted-emails"
 msgstr ""
 
 #. Description of the plugin/theme
