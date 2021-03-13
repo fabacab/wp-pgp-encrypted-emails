@@ -2,8 +2,8 @@
 
 Safely deletes files
 
-## Requeriments
-PHP 7.1
+## Requirements
+PHP >= 7.3
 
 ## Installation
 
@@ -12,12 +12,12 @@ composer.json
 ```javascript
 {
 	"require": {
-		"danielruf/secure-shred": "^1"
+		"danielruf/secure-shred": "^2"
 	}
 }
 ```
 
-Run `composer install`
+Run `composer install` or `composer require danielruf/secure-shred`
 
 ## Usage
 ```php
@@ -26,7 +26,7 @@ require 'vendor/autoload.php';
 
 $shred = new Shred\Shred($n); // $n (optional) <= Number of iterations. Default 3.
 
-$shred->shred('folder/file.txt'); // <= Overwrite and Remove.
+$shred->shred('folder/file.txt'); // <= Overwrite and remove.
 $shred->shred('folder/file.txt', false); // <= Only overwrite.
 
 // Check if remove

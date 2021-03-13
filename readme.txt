@@ -3,8 +3,8 @@ Contributors: maymay
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=TJLPJYXHSRBEE&amp;lc=US&amp;item_name=WP%20PGP%20Encrypted%20Emails&amp;item_number=wp-pgp-encrypted-emails&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
-Tested up to: 5.6
-Stable tag: trunk
+Tested up to: 5.7
+Stable tag: 0.7.4
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -165,6 +165,9 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 4. Administrators can generate an OpenPGP signing keypair with which to automatically sign outgoing emails. This helps recipients verify that email they receive actually came from your website. Admins can regenerate the keypair automatically by clicking the "Regenerate keypair" button, or they can manually paste an ASCII-armored keypair for the site to use. For security, the private key part of the site's signing key will only be transmitted over a secure (HTTPS) connection, so you will see a prompt to switch to a secure connection if you try to view it insecurely. You can still (re)generate a keypair, including the private key part, over an insecure connection because the key is generated on the server itself.
 
 == Change log ==
+
+= 0.7.5 =
+* Maintenance: Update dependencies. Note also that this version officially drops support for PHP versions earlier than the [current WordPress recommendations](https://wordpress.org/about/requirements/), which at the time of this writing is PHP v7.4. If you are still running WordPress in a "legacy" environment (using PHP 5.x), you must update or push your hosting provider to update your version of PHP to 7.4 or greater to continue using this plugin.
 
 = 0.7.4 =
 * Security: Always use the AES-256 cipher in CBC mode when encrypting S/MIME emails. This change drops support for PHP versions less than 5.4.

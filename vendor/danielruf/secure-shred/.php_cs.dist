@@ -1,0 +1,16 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->in(__DIR__)
+;
+
+return PhpCsFixer\Config::create()
+    ->setUsingCache(false)
+    ->setRules([
+        '@PSR1' => true,
+        '@PSR2' => true,
+        'indentation_type' => false
+    ])
+    ->setIndent("  ")
+    ->setFinder($finder)
+;
