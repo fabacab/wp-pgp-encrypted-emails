@@ -1,0 +1,36 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  ci:
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: ['ubuntu-latest']
+        php-versions: ['7.3', '7.4', '8.0']
+        phpunit-versions: ['latest']
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
+        tools: php-cs-fixer
+    - name: Install dependencies
+      run: composer install
+    - name: Run tests
+      run: composer test
+  code-style:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup PHP with tools
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        tools: php-cs-fixer, phpunit
+    - name: Run php-cs-fixer
+      run: php-cs-fixer fix src
