@@ -18,6 +18,8 @@
  * @see http://tools.ietf.org/html/rfc4880
  */
 class OpenPGP {
+  const VERSION = array(0, 4, 0);
+
   /**
    * @see http://tools.ietf.org/html/rfc4880#section-6
    * @see http://tools.ietf.org/html/rfc4880#section-6.2
@@ -28,7 +30,7 @@ class OpenPGP {
     foreach ($headers as $key => $value) {
       $text .= $key . ': ' . (string)$value . "\n";
     }
-    $text .= "\n" . base64_encode($data);
+    $text .= "\n" . wordwrap(base64_encode($data), 76, "\n", true);
     $text .= "\n".'=' . base64_encode(substr(pack('N', self::crc24($data)), 1)) . "\n";
     $text .= self::footer($marker) . "\n";
     return $text;
@@ -150,10 +152,12 @@ class OpenPGP_S2K {
         $bytes .= chr($this->hash_algorithm);
         break;
       case 1:
+        if(strlen($this->salt) != 8) throw new Exception("Invalid salt length");
         $bytes .= chr($this->hash_algorithm);
         $bytes .= $this->salt;
         break;
       case 3:
+        if(strlen($this->salt) != 8) throw new Exception("Invalid salt length");
         $bytes .= chr($this->hash_algorithm);
         $bytes .= $this->salt;
         $bytes .= chr(OpenPGP::encode_s2k_count($this->count));
@@ -685,7 +689,9 @@ class OpenPGP_SignaturePacket extends OpenPGP_Packet {
     switch($this->version = ord($this->read_byte())) {
       case 2:
       case 3:
-        assert(ord($this->read_byte()) == 5);
+        if(ord($this->read_byte()) != 5) {
+          throw new Exception("Invalid version 2 or 3 SignaturePacket");
+        }
         $this->signature_type = ord($this->read_byte());
         $creation_time = $this->read_timestamp();
         $keyid = $this->read_bytes(8);

@@ -25,6 +25,7 @@ class ComposerStaticInitf0736cd9a4e153527eb34c4b5acb5078
     );
 
     public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'MCryptWrapper' => __DIR__ . '/..' . '/singpolyma/openpgp-php/lib/openpgp_mcrypt_wrapper.php',
         'OpenPGP' => __DIR__ . '/..' . '/singpolyma/openpgp-php/lib/openpgp.php',
         'OpenPGP_AsymmetricSessionKeyPacket' => __DIR__ . '/..' . '/singpolyma/openpgp-php/lib/openpgp.php',
@@ -74,6 +75,7 @@ class ComposerStaticInitf0736cd9a4e153527eb34c4b5acb5078
         'OpenPGP_TrustPacket' => __DIR__ . '/..' . '/singpolyma/openpgp-php/lib/openpgp.php',
         'OpenPGP_UserAttributePacket' => __DIR__ . '/..' . '/singpolyma/openpgp-php/lib/openpgp.php',
         'OpenPGP_UserIDPacket' => __DIR__ . '/..' . '/singpolyma/openpgp-php/lib/openpgp.php',
+        'OpenSSLWrapper' => __DIR__ . '/..' . '/singpolyma/openpgp-php/lib/openpgp_openssl_wrapper.php',
         'Shred\\Shred' => __DIR__ . '/..' . '/danielruf/secure-shred/src/Shred.php',
     );
 
