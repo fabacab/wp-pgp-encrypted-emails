@@ -25,12 +25,12 @@ class InstalledVersions
 private static $installed = array (
   'root' => 
   array (
-    'pretty_version' => 'dev-main',
-    'version' => 'dev-main',
+    'pretty_version' => 'dev-develop',
+    'version' => 'dev-develop',
     'aliases' => 
     array (
     ),
-    'reference' => 'f992e0966b2557abc740e31955b434abf4772e72',
+    'reference' => '039c7220ad6c473e4945a6334f1eeed733ca7992',
     'name' => 'fabacab/wp-pgp-encrypted-emails',
   ),
   'versions' => 
@@ -46,21 +46,21 @@ private static $installed = array (
     ),
     'fabacab/wp-pgp-encrypted-emails' => 
     array (
-      'pretty_version' => 'dev-main',
-      'version' => 'dev-main',
+      'pretty_version' => 'dev-develop',
+      'version' => 'dev-develop',
       'aliases' => 
       array (
       ),
-      'reference' => 'f992e0966b2557abc740e31955b434abf4772e72',
+      'reference' => '039c7220ad6c473e4945a6334f1eeed733ca7992',
     ),
     'phpseclib/phpseclib' => 
     array (
-      'pretty_version' => '2.0.30',
-      'version' => '2.0.30.0',
+      'pretty_version' => '2.0.31',
+      'version' => '2.0.31.0',
       'aliases' => 
       array (
       ),
-      'reference' => '136b9ca7eebef78be14abf90d65c5e57b6bc5d36',
+      'reference' => '233a920cb38636a43b18d428f9a8db1f0a1a08f4',
     ),
     'singpolyma/openpgp-php' => 
     array (

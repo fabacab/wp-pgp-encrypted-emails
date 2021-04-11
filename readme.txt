@@ -166,6 +166,10 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 
 == Change log ==
 
+= 0.7.6 =
+* Maintenance: Update dependencies.
+    * `phpseclib` is updated to version 2.0.31 and addresses a moderate severity security vulnerability.
+
 = 0.7.5 =
 * Maintenance: Update dependencies. Note also that this version officially drops support for PHP versions earlier than the [current WordPress recommendations](https://wordpress.org/about/requirements/), which at the time of this writing is PHP v7.4. If you are still running WordPress in a "legacy" environment (using PHP 5.x), you must update or push your hosting provider to update your version of PHP to 7.4 or greater to continue using this plugin.
 
