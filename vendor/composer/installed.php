@@ -1,12 +1,12 @@
 <?php return array (
   'root' => 
   array (
-    'pretty_version' => 'dev-main',
-    'version' => 'dev-main',
+    'pretty_version' => 'dev-develop',
+    'version' => 'dev-develop',
     'aliases' => 
     array (
     ),
-    'reference' => 'f992e0966b2557abc740e31955b434abf4772e72',
+    'reference' => '4d855a0a07e21c399c4c98b0f4673bef7c77520e',
     'name' => 'fabacab/wp-pgp-encrypted-emails',
   ),
   'versions' => 
@@ -22,30 +22,31 @@
     ),
     'fabacab/wp-pgp-encrypted-emails' => 
     array (
-      'pretty_version' => 'dev-main',
-      'version' => 'dev-main',
+      'pretty_version' => 'dev-develop',
+      'version' => 'dev-develop',
       'aliases' => 
       array (
       ),
-      'reference' => 'f992e0966b2557abc740e31955b434abf4772e72',
+      'reference' => '4d855a0a07e21c399c4c98b0f4673bef7c77520e',
     ),
     'phpseclib/phpseclib' => 
     array (
-      'pretty_version' => '2.0.30',
-      'version' => '2.0.30.0',
+      'pretty_version' => '2.0.31',
+      'version' => '2.0.31.0',
       'aliases' => 
       array (
       ),
-      'reference' => '136b9ca7eebef78be14abf90d65c5e57b6bc5d36',
+      'reference' => '233a920cb38636a43b18d428f9a8db1f0a1a08f4',
     ),
     'singpolyma/openpgp-php' => 
     array (
-      'pretty_version' => '0.4.0',
-      'version' => '0.4.0.0',
+      'pretty_version' => 'dev-master',
+      'version' => 'dev-master',
       'aliases' => 
       array (
+        0 => '9999999-dev',
       ),
-      'reference' => '67aba786991e3cb3e555025b6d357779ab32a0ab',
+      'reference' => 'c961eca13df86a4e9af6ef1ebd9da7d3858d75c8',
     ),
   ),
 );
