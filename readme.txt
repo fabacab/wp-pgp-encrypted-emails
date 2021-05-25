@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=T
 Tags: encryption, email, security, privacy, pgp, gpg, openpgp, smime
 Requires at least: 4.4
 Tested up to: 5.7
-Stable tag: 0.7.4
+Stable tag: 0.8.0
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -165,6 +165,13 @@ If you want to use a stronger signing keypair, you can generate one yourself (of
 4. Administrators can generate an OpenPGP signing keypair with which to automatically sign outgoing emails. This helps recipients verify that email they receive actually came from your website. Admins can regenerate the keypair automatically by clicking the "Regenerate keypair" button, or they can manually paste an ASCII-armored keypair for the site to use. For security, the private key part of the site's signing key will only be transmitted over a secure (HTTPS) connection, so you will see a prompt to switch to a secure connection if you try to view it insecurely. You can still (re)generate a keypair, including the private key part, over an insecure connection because the key is generated on the server itself.
 
 == Change log ==
+
+= 0.8.0 =
+* Maintenance: Drop support for PHP versions earlier than 7.4, add experimental support for PHP 8.x.
+
+= 0.7.6 =
+* Maintenance: Update dependencies.
+    * `phpseclib` is updated to version 2.0.31 and addresses a moderate severity security vulnerability.
 
 = 0.7.5 =
 * Maintenance: Update dependencies. Note also that this version officially drops support for PHP versions earlier than the [current WordPress recommendations](https://wordpress.org/about/requirements/), which at the time of this writing is PHP v7.4. If you are still running WordPress in a "legacy" environment (using PHP 5.x), you must update or push your hosting provider to update your version of PHP to 7.4 or greater to continue using this plugin.

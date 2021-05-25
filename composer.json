@@ -16,7 +16,7 @@
     ],
     "homepage": "https://github.com/fabacab/wp-pgp-encrypted-emails/#readme",
     "require": {
-        "singpolyma/openpgp-php": "^0.4.0",
+        "singpolyma/openpgp-php": "dev-master",
         "danielruf/secure-shred": "^2"
     },
     "license": "GPL-3.0",

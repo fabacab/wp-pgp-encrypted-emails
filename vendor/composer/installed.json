@@ -61,17 +61,17 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "2.0.30",
-            "version_normalized": "2.0.30.0",
+            "version": "2.0.31",
+            "version_normalized": "2.0.31.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "136b9ca7eebef78be14abf90d65c5e57b6bc5d36"
+                "reference": "233a920cb38636a43b18d428f9a8db1f0a1a08f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/136b9ca7eebef78be14abf90d65c5e57b6bc5d36",
-                "reference": "136b9ca7eebef78be14abf90d65c5e57b6bc5d36",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/233a920cb38636a43b18d428f9a8db1f0a1a08f4",
+                "reference": "233a920cb38636a43b18d428f9a8db1f0a1a08f4",
                 "shasum": ""
             },
             "require": {
@@ -88,7 +88,7 @@
                 "ext-mcrypt": "Install the Mcrypt extension in order to speed up a few other cryptographic operations.",
                 "ext-openssl": "Install the OpenSSL extension in order to speed up a wide variety of cryptographic operations."
             },
-            "time": "2020-12-17T05:42:04+00:00",
+            "time": "2021-04-06T13:56:45+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -153,7 +153,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/2.0.30"
+                "source": "https://github.com/phpseclib/phpseclib/tree/2.0.31"
             },
             "funding": [
                 {
@@ -173,32 +173,33 @@
         },
         {
             "name": "singpolyma/openpgp-php",
-            "version": "0.4.0",
-            "version_normalized": "0.4.0.0",
+            "version": "dev-master",
+            "version_normalized": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/singpolyma/openpgp-php.git",
-                "reference": "67aba786991e3cb3e555025b6d357779ab32a0ab"
+                "reference": "c961eca13df86a4e9af6ef1ebd9da7d3858d75c8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/singpolyma/openpgp-php/zipball/67aba786991e3cb3e555025b6d357779ab32a0ab",
-                "reference": "67aba786991e3cb3e555025b6d357779ab32a0ab",
+                "url": "https://api.github.com/repos/singpolyma/openpgp-php/zipball/c961eca13df86a4e9af6ef1ebd9da7d3858d75c8",
+                "reference": "c961eca13df86a4e9af6ef1ebd9da7d3858d75c8",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.6 || ^7.0",
+                "php": "^5.6 || ^7.0 || ^8.0",
                 "phpseclib/phpseclib": "^2.0 !=2.0.8"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.0"
+                "phpunit/phpunit": "^9.0"
             },
             "suggest": {
                 "ext-mcrypt": "required if you use encryption cast5"
             },
-            "time": "2019-08-01T18:11:09+00:00",
+            "time": "2020-12-30T04:05:35+00:00",
+            "default-branch": true,
             "type": "library",
-            "installation-source": "dist",
+            "installation-source": "source",
             "autoload": {
                 "classmap": [
                     "lib/"
@@ -221,8 +222,22 @@
             "description": "Pure-PHP implementation of the OpenPGP Message Format (RFC 4880)",
             "support": {
                 "issues": "https://github.com/singpolyma/openpgp-php/issues",
-                "source": "https://github.com/singpolyma/openpgp-php/tree/0.4.0"
+                "source": "https://github.com/singpolyma/openpgp-php/tree/master"
             },
+            "funding": [
+                {
+                    "url": "https://github.com/singpolyma",
+                    "type": "github"
+                },
+                {
+                    "url": "https://liberapay.com/singpolyma",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://www.patreon.com/singpolyma",
+                    "type": "patreon"
+                }
+            ],
             "install-path": "../singpolyma/openpgp-php"
         }
     ],
