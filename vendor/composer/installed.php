@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '039c7220ad6c473e4945a6334f1eeed733ca7992',
+    'reference' => '4d855a0a07e21c399c4c98b0f4673bef7c77520e',
     'name' => 'fabacab/wp-pgp-encrypted-emails',
   ),
   'versions' => 
@@ -27,7 +27,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '039c7220ad6c473e4945a6334f1eeed733ca7992',
+      'reference' => '4d855a0a07e21c399c4c98b0f4673bef7c77520e',
     ),
     'phpseclib/phpseclib' => 
     array (
@@ -40,12 +40,13 @@
     ),
     'singpolyma/openpgp-php' => 
     array (
-      'pretty_version' => '0.4.0',
-      'version' => '0.4.0.0',
+      'pretty_version' => 'dev-master',
+      'version' => 'dev-master',
       'aliases' => 
       array (
+        0 => '9999999-dev',
       ),
-      'reference' => '67aba786991e3cb3e555025b6d357779ab32a0ab',
+      'reference' => 'c961eca13df86a4e9af6ef1ebd9da7d3858d75c8',
     ),
   ),
 );
