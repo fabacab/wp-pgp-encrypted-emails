@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed1b5624813f3a0f7bbdac1fcfbcfaeb",
+    "content-hash": "a5f20c2952e7e1a4237a0f4f564d6f6c",
     "packages": [
         {
             "name": "danielruf/secure-shred",
@@ -173,16 +173,16 @@
         },
         {
             "name": "singpolyma/openpgp-php",
-            "version": "dev-master",
+            "version": "0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/singpolyma/openpgp-php.git",
-                "reference": "c961eca13df86a4e9af6ef1ebd9da7d3858d75c8"
+                "reference": "69292f6a46ed7f687083bfb8974b161a41ab213c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/singpolyma/openpgp-php/zipball/c961eca13df86a4e9af6ef1ebd9da7d3858d75c8",
-                "reference": "c961eca13df86a4e9af6ef1ebd9da7d3858d75c8",
+                "url": "https://api.github.com/repos/singpolyma/openpgp-php/zipball/69292f6a46ed7f687083bfb8974b161a41ab213c",
+                "reference": "69292f6a46ed7f687083bfb8974b161a41ab213c",
                 "shasum": ""
             },
             "require": {
@@ -195,14 +195,12 @@
             "suggest": {
                 "ext-mcrypt": "required if you use encryption cast5"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
                     "lib/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Unlicense"
             ],
@@ -218,32 +216,30 @@
             ],
             "description": "Pure-PHP implementation of the OpenPGP Message Format (RFC 4880)",
             "support": {
-                "issues": "https://github.com/singpolyma/openpgp-php/issues",
-                "source": "https://github.com/singpolyma/openpgp-php/tree/master"
+                "source": "https://github.com/singpolyma/openpgp-php/tree/0.5.0",
+                "issues": "https://github.com/singpolyma/openpgp-php/issues"
             },
             "funding": [
                 {
-                    "url": "https://github.com/singpolyma",
-                    "type": "github"
+                    "type": "github",
+                    "url": "https://github.com/singpolyma"
                 },
                 {
-                    "url": "https://liberapay.com/singpolyma",
-                    "type": "liberapay"
+                    "type": "liberapay",
+                    "url": "https://liberapay.com/singpolyma"
                 },
                 {
-                    "url": "https://www.patreon.com/singpolyma",
-                    "type": "patreon"
+                    "type": "patreon",
+                    "url": "https://www.patreon.com/singpolyma"
                 }
             ],
-            "time": "2020-12-30T04:05:35+00:00"
+            "time": "2021-05-26T00:35:20+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "singpolyma/openpgp-php": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

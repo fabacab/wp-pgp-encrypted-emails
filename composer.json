@@ -15,8 +15,14 @@
         "API wrapper"
     ],
     "homepage": "https://github.com/fabacab/wp-pgp-encrypted-emails/#readme",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/singpolyma/openpgp-php"
+        }
+    ],
     "require": {
-        "singpolyma/openpgp-php": "dev-master",
+        "singpolyma/openpgp-php": "^0.5.0",
         "danielruf/secure-shred": "^2"
     },
     "license": "GPL-3.0",

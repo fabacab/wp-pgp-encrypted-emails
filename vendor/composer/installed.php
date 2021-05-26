@@ -1,12 +1,12 @@
 <?php return array (
   'root' => 
   array (
-    'pretty_version' => 'dev-develop',
-    'version' => 'dev-develop',
+    'pretty_version' => 'dev-main',
+    'version' => 'dev-main',
     'aliases' => 
     array (
     ),
-    'reference' => '4d855a0a07e21c399c4c98b0f4673bef7c77520e',
+    'reference' => '0be4c01840937d1d2201a314e8cd892fd6a51630',
     'name' => 'fabacab/wp-pgp-encrypted-emails',
   ),
   'versions' => 
@@ -22,12 +22,12 @@
     ),
     'fabacab/wp-pgp-encrypted-emails' => 
     array (
-      'pretty_version' => 'dev-develop',
-      'version' => 'dev-develop',
+      'pretty_version' => 'dev-main',
+      'version' => 'dev-main',
       'aliases' => 
       array (
       ),
-      'reference' => '4d855a0a07e21c399c4c98b0f4673bef7c77520e',
+      'reference' => '0be4c01840937d1d2201a314e8cd892fd6a51630',
     ),
     'phpseclib/phpseclib' => 
     array (
@@ -40,13 +40,12 @@
     ),
     'singpolyma/openpgp-php' => 
     array (
-      'pretty_version' => 'dev-master',
-      'version' => 'dev-master',
+      'pretty_version' => '0.5.0',
+      'version' => '0.5.0.0',
       'aliases' => 
       array (
-        0 => '9999999-dev',
       ),
-      'reference' => 'c961eca13df86a4e9af6ef1ebd9da7d3858d75c8',
+      'reference' => '69292f6a46ed7f687083bfb8974b161a41ab213c',
     ),
   ),
 );
