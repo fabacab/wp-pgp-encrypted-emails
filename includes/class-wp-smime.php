@@ -47,11 +47,12 @@ class WP_SMIME {
      *
      * @see https://secure.php.net/manual/en/openssl.certparams.php
      *
-     * @return resource|FALSE
+     * @return OpenSSLCertificate|resource|FALSE
      */
     public static function getCertificate ( $cert ) {
         $r = @openssl_x509_read( $cert );
-        if ( is_resource( $r ) && 'OpenSSL X.509' === get_resource_type( $r ) ) {
+
+        if ( ( is_resource( $r ) && 'OpenSSL X.509' === get_resource_type( $r ) ) || $r instanceof OpenSSLCertificate ) {
             return $r;
         }
         return false;
@@ -60,7 +61,7 @@ class WP_SMIME {
     /**
      * Encodes ("exports") a given X.509 certificate as PEM format.
      *
-     * @param resource $cert
+     * @param OpenSSLCertificate|resource $cert
      *
      * @return string|FALSE
      */
@@ -116,7 +117,7 @@ class WP_SMIME {
      *
      * @param string $message The message contents to encrypt.
      * @param string|string[] $headers The message headers for the encrypted part.
-     * @param resource|array $certificates The recipient's certificate, or an array of recipient certificates.
+     * @param OpenSSLCertificate|resource|array $certificates The recipient's certificate, or an array of recipient certificates.
      *
      * @return array|FALSE An array with two keys, `headers` and `message`, wherein the message is encrypted.
      */
